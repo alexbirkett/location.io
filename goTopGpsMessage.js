@@ -3,10 +3,16 @@
 // V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-82-10,000,24202-0324-0E26
 
 
-var pattern = /^(A|V),DATE:(\d{2})(\d{2})(\d{2}),TIME:(\d{2})(\d{2})(\d{2}),LAT:(\d{2}.\d*)(N|S),LOT:(\d{3}.\d*)(E|W),Speed:(\d{3}.\d),?(.*),?(.*),?(.*)/i;
 
-function parseLatitude(degrees, hemisphere) {
-	latitude = parseFloat(degrees);
+
+var latPattern = /^LAT:(\d{2}.\d*)(N|S)$/i;
+
+function parseLatitude(latString) {
+	
+	var elements = latPattern.exec(latString);
+	
+	latitude = parseFloat(elements[1]);
+	var hemisphere = elements[2];
 	if (hemisphere == 'S') {
 		latitude = -latitude;
 	} else if (hemisphere != 'N') {
@@ -15,10 +21,13 @@ function parseLatitude(degrees, hemisphere) {
 	return latitude;
 }
 
-function parseLongitude(degrees, hemisphere) {
-	//console.log('longitude degrees ' + degrees + ' minutes ' + minutes + ' hemisphere ' + hemisphere);
+var lngPattern = /^LOT:(\d{3}.\d*)(E|W)$/i;
+
+function parseLongitude(lngString) {
+	var elements = lngPattern.exec(lngString);
 	
-	longitude = parseFloat(degrees);
+	longitude = parseFloat(elements[1]);
+	var hemisphere = elements[2];
 	if (hemisphere == 'W') {
 		longitude = -longitude;
 	} else if (hemisphere != 'E') {
@@ -27,37 +36,101 @@ function parseLongitude(degrees, hemisphere) {
 	return longitude;
 }
 
-exports.parseMessage = function(message) {
-	console.log(message);
-	var matchArray = pattern.exec(message);
-	
-	var message = new Object();
-	
-	var available = matchArray[1];
+function parseAvailablility(available) {
 	if (available == 'A') {
-		message.available = true;
+		return true;
+	} else if (available == 'V'){
+		return false;
 	} else {
-		message.available = false;
+		throw "availablilty parse failed";
 	}
-	
+}
+
+var datePattern = /^DATE:(\d{2})(\d{2})(\d{2})$/i;
+var timePattern = /^TIME:(\d{2})(\d{2})(\d{2})$/i;
+
+function parseDate(dateString, timeString) {
 	var date = new Date();
 	
-	date.setUTCFullYear("20"+matchArray[2]);
-	date.setUTCMonth(matchArray[3] - 1);
-	date.setUTCDate(matchArray[4]);
-	date.setUTCHours(matchArray[5]);
-	date.setUTCMinutes(matchArray[6]);
-	date.setUTCSeconds(matchArray[7]);
+	var dateElements = datePattern.exec(dateString);
 	
-	message.timestamp = date;
+	date.setUTCFullYear("20"+dateElements[1]);
+	date.setUTCMonth(dateElements[2] - 1);
+	date.setUTCDate(dateElements[3]);
 	
-	message.latitude = parseLatitude(matchArray[8], matchArray[9]);
-	message.longitude = parseLongitude(matchArray[10], matchArray[11]);
-	message.speed = matchArray[12];
-	message.status = matchArray[13];
-	message.unknown = matchArray[14];
-	message.network = matchArray[15];
+	var timeElements = timePattern.exec(timeString);
 	
-	//console.log(message);
-	return message;
+	
+	date.setUTCHours(timeElements[1]);
+	date.setUTCMinutes(timeElements[2]);
+	date.setUTCSeconds(timeElements[3]);
+	
+	return date;
+}
+
+
+var speedPattern = /^SPEED:(\d{3}.\d)$/i;
+
+function parseSpeed(speedString) {
+	var speedElements = speedPattern.exec(speedString);
+	return parseFloat(speedElements[1]);
+}
+
+// A-B-C-XX-YY
+// X-X-X-X-82-10
+function parseStatus(status) {
+	var object = new Object();
+	var elements = status.split('-');
+	object.batteryLife = parseInt(elements[elements.length - 2], 10);
+	object.gsmSignal = parseInt(elements[elements.length - 1], 10);
+	return object;
+}
+
+// 24202-0ED9-D93B
+
+var networkPattern = /^(\d{3})(\d{2})-([0-9A-F]*)-([0-9A-F]*)$/;
+function parseNetwork(networkString) {
+	var elements = networkPattern.exec(networkString);
+	var object = new Object();
+	object.countryCode = parseInt(elements[1], 10);
+	object.networkCode = parseInt(elements[2], 10);
+	object.locationAreaCode = parseInt(elements[3], 16);
+	object.cellId = parseInt(elements[4], 16);
+	return object;
+}
+
+function isArray(o) {
+	  return Object.prototype.toString.call(o) === '[object Array]';
+}
+
+/**
+ * @param args can be a single argument or an array of arguments to pass to parseFunction
+ */
+function executeParseFunctionAndCatchException(parseFunction, args, message) {	
+	// if argument is not array it inside an array
+	if (!isArray(args)) {
+		args = [args];
+	}
+	
+	try {
+		return parseFunction.apply(this, args);
+	} catch (e) {
+		console.log('could parse data ' + args + ' exception ' + e.message +  ' message ' + message);
+	}
+}
+
+exports.parseMessage = function(message) {
+	var elements = message.split(',');
+	var object = new Object();
+	
+	object.available = executeParseFunctionAndCatchException(parseAvailablility, elements[0], message);
+	
+	object.timestamp = executeParseFunctionAndCatchException(parseDate, [elements[1], elements[2]], message);
+	
+	object.latitude = executeParseFunctionAndCatchException(parseLatitude, elements[3], message);
+	object.longitude = executeParseFunctionAndCatchException(parseLongitude, elements[4], message);
+	object.speed = executeParseFunctionAndCatchException(parseSpeed, elements[5], message);
+	object.status = executeParseFunctionAndCatchException(parseStatus, elements[6], message);
+	object.network = executeParseFunctionAndCatchException(parseNetwork, elements[8], message);
+	return object;
 };

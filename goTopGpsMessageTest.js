@@ -6,7 +6,7 @@ var GPS_MESSAGE_FROM_PROTOCOL_DOC = 'A,DATE:090329,TIME:223252,LAT:22.7634066N,L
 
 var message = goTopGpsMessage.parseMessage(GPS_MESSAGE_FROM_ALARM);
 console.log(message);
-goTopGpsMessage.parseMessage(GPS_MESSAGE_FROM_CMD_T);
+message = goTopGpsMessage.parseMessage(GPS_MESSAGE_FROM_CMD_T);
 console.log(message);
-goTopGpsMessage.parseMessage(GPS_MESSAGE_FROM_PROTOCOL_DOC);
+message = goTopGpsMessage.parseMessage(GPS_MESSAGE_FROM_PROTOCOL_DOC);
 console.log(message);
