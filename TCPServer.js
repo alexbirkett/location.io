@@ -28,16 +28,12 @@ function createServer(port) {
 	var server = net.createServer();
 	server.on('connection', function(socket) {	
 		
-		console.log('new connection\n');	
-		var handleData = function(data) {
-			console.log('handle data 1:' + data);
-			socket.removeListener('data', handleData);
-			//console.log(data + '');
+		console.log('new connection\n');
+		
+		socket.once('data', function(data) {
 			var HandlerFactory = protocolIdentifer.identifyProtocol(data);
 			new HandlerFactory(socket, data);
-		};
-		
-		socket.on('data', handleData);
+		});
 	
 
 		socket.on('close', function(data) {
