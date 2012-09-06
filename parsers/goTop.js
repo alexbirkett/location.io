@@ -1,19 +1,19 @@
 
-var goTopGpsMessageProtocol = require('./goTopGpsMessage');
+var parseGpsMessage = require('./goTopGpsMessage');
 
 var framePattern = /^#(.+),([a-zA-Z]{3}-.),?(.*)#$/;
 
 function parseFrame(frame) {
+	console.log('parsing frame: ' + frame);
 	var matchArray = framePattern.exec(frame);
 	var frame = new Object();
 	frame.serialNumber = matchArray[1];
 	frame.type = matchArray[2];
 	frame.messageBody = matchArray[3];
-	console.log(frame);
 	return frame;
 }
 
-exports.parseMessage = function(message) {
+parseMessage = function(message) {
 	
 	var object = new Object();
 	var frame = parseFrame(message);
@@ -23,12 +23,14 @@ exports.parseMessage = function(message) {
 	
 	switch (frame.type) {
 	case 'ALM-A':
-		object.message = goTopGpsMessageProtocol.parseMessage(frame.messageBody);
+		object.message = parseGpsMessage(frame.messageBody);
 		break;
 	case 'CMD-T':
-		object.message = goTopGpsMessageProtocol.parseMessage(frame.messageBody);
+		object.message = parseGpsMessage(frame.messageBody);
 	default:
 		break;
 	}
-	console.log(object);
+	return object;
 };
+
+module.exports = parseMessage;

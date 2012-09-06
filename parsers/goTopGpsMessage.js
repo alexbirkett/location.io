@@ -1,9 +1,4 @@
-
-
 // V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-82-10,000,24202-0324-0E26
-
-
-
 
 var latPattern = /^LAT:(\d{2}.\d*)(N|S)$/i;
 
@@ -119,7 +114,7 @@ function executeParseFunctionAndCatchException(parseFunction, args, message) {
 	}
 }
 
-exports.parseMessage = function(message) {
+var parseMessage = function(message) {
 	var elements = message.split(',');
 	var object = new Object();
 	
@@ -134,3 +129,5 @@ exports.parseMessage = function(message) {
 	object.network = executeParseFunctionAndCatchException(parseNetwork, elements[8], message);
 	return object;
 };
+
+module.exports = parseMessage;
