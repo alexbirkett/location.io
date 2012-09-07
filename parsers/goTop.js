@@ -4,7 +4,7 @@ var parseGpsMessage = require('./goTopGpsMessage');
 var framePattern = /^#(.+),([a-zA-Z]{3}-.),?(.*)#$/;
 
 function parseFrame(frame) {
-	console.log('parsing frame: ' + frame);
+	//console.log('parsing frame: ' + frame);
 	var matchArray = framePattern.exec(frame);
 	var frame = new Object();
 	frame.serialNumber = matchArray[1];

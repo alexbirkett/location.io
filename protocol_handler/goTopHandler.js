@@ -10,7 +10,7 @@ var GoTopProtocolHandler = function() {
 util.inherits(GoTopProtocolHandler, events.EventEmitter);
 
 GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
-	console.log("handle connect " + this.test);
+	//console.log("handle connect " + this.test);
 
 	var frameBuffer = data;
 	var eventEmitter = this;
@@ -18,14 +18,14 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	socket.on('data', function(data) {
 		frameBuffer = Buffer.concat([frameBuffer, data]);
 		
-		console.log('goTop data');
+		//console.log('goTop data');
 		handleData();
 	});
 	socket.on('close', function(data) {
-		console.log('goTop close event');
+		//console.log('goTop close event');
 	});
 	
-	console.log('goTop');
+	//console.log('goTop');
 	
 	var handleData = function() {
 		// 35 is #
@@ -38,7 +38,7 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	var handleFrame = function(buffer) {
 		var message = goTopMessageParser(buffer);
 		eventEmitter.emit('message', message);
-		console.log(message);
+		//console.log(message);
 	};
 	
 	handleData();
