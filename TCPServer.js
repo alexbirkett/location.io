@@ -1,8 +1,9 @@
 var net = require('net');
 var fs = require('fs');
 var ProtocolIdentifier = require('./ProtocolIdentifier');
-var goTopProtocolHandler = require('./protocol_handler/goTopHandler');
+var GoTopProtocolHandler = require('./protocol_handler/goTopHandler');
 
+var goTopProtocolHandler = new GoTopProtocolHandler();
 
 var tk103 = function(socket) {
 	
@@ -31,8 +32,8 @@ function createServer(port) {
 		console.log('new connection\n');
 		
 		socket.once('data', function(data) {
-			var HandlerFactory = protocolIdentifer.identifyProtocol(data);
-			new HandlerFactory(socket, data);
+			var connectionHandler = protocolIdentifer.identifyProtocol(data);
+			connectionHandler.handleConnection(socket, data);
 		});
 	
 
@@ -49,3 +50,7 @@ function createServer(port) {
 	server.listen(port);
 }
 createServer(getPortParameter());
+
+goTopProtocolHandler.on("message", function(message) {
+	console.log(message);
+});

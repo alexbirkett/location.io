@@ -1,9 +1,19 @@
 var goTopMessageParser = require('../parsers/goTop');
+var util = require('util');
+var events = require('events');
 
-var goTop = function(socket, data) {
 
-	this.socket = socket;
+var GoTopProtocolHandler = function() {
+	events.EventEmitter.call(this);
+};
+
+util.inherits(GoTopProtocolHandler, events.EventEmitter);
+
+GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
+	console.log("handle connect " + this.test);
+
 	var frameBuffer = data;
+	var eventEmitter = this;
 	
 	socket.on('data', function(data) {
 		frameBuffer = Buffer.concat([frameBuffer, data]);
@@ -26,12 +36,14 @@ var goTop = function(socket, data) {
 	};
 	
 	var handleFrame = function(buffer) {
-		var frameAsJson = goTopMessageParser(buffer);
-		console.log(frameAsJson);
+		var message = goTopMessageParser(buffer);
+		eventEmitter.emit('message', message);
+		console.log(message);
 	};
 	
 	handleData();
 	
 };
 
-module.exports = goTop;
+
+module.exports = GoTopProtocolHandler;
