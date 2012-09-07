@@ -1,3 +1,4 @@
+//require('v8-profiler');
 var net = require('net');
 var fs = require('fs');
 var ProtocolIdentifier = require('./ProtocolIdentifier');
@@ -25,11 +26,15 @@ function getPortParameter() {
 	return args[0];
 }
 
+var totalConnections = 0;
+var openConnections = 0;
 function createServer(port) {
 	var server = net.createServer();
 	server.on('connection', function(socket) {	
 		
-		console.log('new connection\n');
+		totalConnections++;
+		openConnections++;
+		//console.log('new connection');
 		
 		socket.once('data', function(data) {
 			var connectionHandler = protocolIdentifer.identifyProtocol(data);
@@ -38,7 +43,8 @@ function createServer(port) {
 	
 
 		socket.on('close', function(data) {
-			console.log('close event');
+		//	console.log('close event');
+			openConnections--;
 		});
 
 	});
@@ -51,6 +57,13 @@ function createServer(port) {
 }
 createServer(getPortParameter());
 
+var showDebug = function() {
+	var closedConnections = totalConnections - openConnections;
+	console.log('open conneciton ' + openConnections + ' total connections ' + totalConnections + ' closed connections ' + closedConnections);
+};
+
+setInterval(showDebug, 1000);
+
 goTopProtocolHandler.on("message", function(message) {
-	console.log(message);
+	//console.log(message);
 });
