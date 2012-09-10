@@ -28,6 +28,7 @@ function getPortParameter() {
 
 var totalConnections = 0;
 var openConnections = 0;
+var receivedMessages = 0;
 function createServer(port) {
 	var server = net.createServer();
 	server.on('connection', function(socket) {	
@@ -37,6 +38,7 @@ function createServer(port) {
 		//console.log('new connection');
 		
 		socket.once('data', function(data) {
+		//	console.log('data ' + data);
 			var connectionHandler = protocolIdentifer.identifyProtocol(data);
 			connectionHandler.handleConnection(socket, data);
 		});
@@ -59,11 +61,12 @@ createServer(getPortParameter());
 
 var showDebug = function() {
 	var closedConnections = totalConnections - openConnections;
-	console.log('open conneciton ' + openConnections + ' total connections ' + totalConnections + ' closed connections ' + closedConnections);
+	console.log('open conneciton ' + openConnections + ' total connections ' + totalConnections + ' closed connections ' + closedConnections + ' received messages ' + receivedMessages);
 };
 
 setInterval(showDebug, 1000);
 
 goTopProtocolHandler.on("message", function(message) {
+	receivedMessages++;
 	//console.log(message);
 });
