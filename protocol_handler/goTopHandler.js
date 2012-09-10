@@ -1,19 +1,18 @@
 var goTopMessageParser = require('../parsers/goTop');
-var util = require('util');
 var events = require('events');
 
 
-var GoTopProtocolHandler = function() {
-	events.EventEmitter.call(this);
+var GoTopProtocolHandler = function(eventEmitter) {
+	this.eventEmitter = eventEmitter;
 };
-
-util.inherits(GoTopProtocolHandler, events.EventEmitter);
 
 GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	//console.log("handle connect " + this.test);
 
 	var frameBuffer = data;
-	var eventEmitter = this;
+	var self = this;
+	this.remoteAddress = socket.remoteAddress;
+	this.remotePort = socket.remotePort;
 	
 	socket.on('data', function(data) {
 		frameBuffer = Buffer.concat([frameBuffer, data]);
@@ -22,7 +21,7 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 		handleData();
 	});
 	socket.on('close', function(data) {
-		//console.log('goTop close event');
+		self.eventEmitter.emit('close', self);
 	});
 	
 	//console.log('goTop');
@@ -35,14 +34,26 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 		}
 	};
 	
+	var setAndEmittIdIfrequired = function(message) {
+		if (self.id == undefined) {
+			self.id = message.serialNumber;
+			self.eventEmitter.emit('connection', self);
+		}
+	};
+	
 	var handleFrame = function(buffer) {
 		var message = goTopMessageParser(buffer);
-		eventEmitter.emit('message', message);
-		//console.log(message);
+		setAndEmittIdIfrequired(message);
+		self.eventEmitter.emit('message', message);
 	};
 	
 	handleData();
 	
+};
+
+
+GoTopProtocolHandler.prototype.getId = function() {
+	return 'gotop:' + this.remoteAddress + ':' + this.remotePort + ':' + this.id;
 };
 
 
