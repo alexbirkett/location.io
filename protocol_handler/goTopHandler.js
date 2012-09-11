@@ -34,16 +34,11 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 		}
 	};
 	
-	var setAndEmittIdIfrequired = function(message) {
-		if (self.id == undefined) {
-			self.id = message.serialNumber;
-			self.eventEmitter.emit('connection', self);
-		}
-	};
+	
 	
 	var handleFrame = function(buffer) {
 		var message = goTopMessageParser(buffer);
-		setAndEmittIdIfrequired(message);
+		self.setAndEmittIdIfrequired(message);
 		self.eventEmitter.emit('message', message);
 	};
 	
@@ -51,9 +46,40 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	
 };
 
+function buildCommand(password, command, data) {
+	return ':' + password + ',' + command + data + '#';
+};
+
+GoTopProtocolHandler.prototype.setAuthorizedNumber = function(password, index, value, callback) {
+	if (index > 5) {
+		throw "only 5 authorized numbers supported";
+	}
+	this.sendCommand(buildCommand(password, 'A' + index, value));
+	
+};
+
+
+GoTopProtocolHandler.prototype.sendCommand = function(command, expectedResponse, callback) {
+	
+	if (expectedResponse == undefined) {
+		socket.write(command);
+		this.expectedResponse = expectedResponse;
+		this.callback = callback;
+	} else {
+		throw 'command outstanding';
+	}
+
+};
 
 GoTopProtocolHandler.prototype.getId = function() {
 	return 'gotop:' + this.remoteAddress + ':' + this.remotePort + ':' + this.id;
+};
+
+GoTopProtocolHandler.prototype.setAndEmittIdIfrequired = function(message) {
+	if (this.id == undefined) {
+		this.id = message.serialNumber;
+		this.eventEmitter.emit('connection', this);
+	}
 };
 
 
