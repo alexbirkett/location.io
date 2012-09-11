@@ -1,8 +1,8 @@
 //require('v8-profiler');
 var net = require('net');
 var fs = require('fs');
-var ProtocolIdentifier = require('./ProtocolIdentifier');
-var GoTopProtocolHandler = require('./protocol_handler/goTopHandler');
+var ProtocolIdentifier = require('./protocol-identifier');
+var GoTopProtocolHandler = require('./protocol-handler/go-top-handler');
 var events = require('events');
 var util = require('util');
 

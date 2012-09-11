@@ -1,4 +1,4 @@
-var parseMessage = require('./goTop');
+var parseMessage = require('../parsers/gotop');
 
 var MESSAGE_CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 var MESSAGE_CMD_X = "#861785001515349,CMD-X#";

@@ -1,4 +1,4 @@
-var gpsMessageParser = require('./tk103gpsMessage');
+var gpsMessageParser = require('./tk103gps-message');
 
 // Constants names are taken 'as is' from the "GPS Tracker Communication Protocol v1.6 document"
 

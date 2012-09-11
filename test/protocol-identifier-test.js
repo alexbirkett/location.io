@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-var ProtocolIdentifer = require('./ProtocolIdentifier');
+var ProtocolIdentifer = require('../protocol-identifier');
 
 var phonelocator = function() {
 	
