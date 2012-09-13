@@ -1,5 +1,5 @@
 
-var parseGpsMessage = require('./gotop-gps-message');
+var parseGpsMessage = require('./gps-message-parser');
 
 var framePattern = /^#(.+),([a-zA-Z]{3}-.),?(.*)#$/;
 

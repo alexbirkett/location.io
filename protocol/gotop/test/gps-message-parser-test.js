@@ -1,4 +1,4 @@
-var parseMessage = require('../parsers/gotop-gps-message');
+var parseMessage = require('../gps-message-parser');
 
 var GPS_MESSAGE_FROM_ALARM = 'V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-82-10,000,24202-0324-0E26';
 var GPS_MESSAGE_FROM_CMD_T = 'V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B';

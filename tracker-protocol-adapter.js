@@ -2,7 +2,7 @@
 var net = require('net');
 var fs = require('fs');
 var ProtocolIdentifier = require('./protocol-identifier');
-var GoTopProtocolHandler = require('./protocol-handler/go-top-handler');
+var GoTopProtocolHandler = require('./protocol/gotop/handler');
 var events = require('events');
 var util = require('util');
 

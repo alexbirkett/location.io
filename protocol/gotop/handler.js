@@ -1,4 +1,4 @@
-var goTopMessageParser = require('../parsers/goTop');
+var goTopMessageParser = require('./parser');
 var events = require('events');
 
 
