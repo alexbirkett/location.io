@@ -21,7 +21,7 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 		handleData();
 	});
 	socket.on('close', function(data) {
-		self.eventEmitter.emit('close', self);
+		self.eventEmitter.emit('tracker-disconnected', self.getId());
 	});
 	
 	//console.log('goTop');
@@ -39,6 +39,19 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	var handleFrame = function(buffer) {
 		var message = goTopMessageParser(buffer);
 		self.setAndEmittIdIfrequired(message);
+		switch(message.type) {
+		case 'ALM-A':
+			self.eventEmitter.emit('location-update', self.getId(), message.location);
+			self.eventEmitter.emit('alarm', self.getId(), message.location);
+			break;
+		case 'CMD-T':
+			self.eventEmitter.emit('location-update', self.getId(), message.location);
+			break;
+		case 'CMD-X':
+			self.eventEmitter.emit('heart-beat', self.getId(), message.location);
+			break;
+		}
+	
 		self.eventEmitter.emit('message', message);
 	};
 	
@@ -78,7 +91,7 @@ GoTopProtocolHandler.prototype.getId = function() {
 GoTopProtocolHandler.prototype.setAndEmittIdIfrequired = function(message) {
 	if (this.id == undefined) {
 		this.id = message.serialNumber;
-		this.eventEmitter.emit('connection', this);
+		this.eventEmitter.emit('tracker-connected', this.getId(), this);
 	}
 };
 

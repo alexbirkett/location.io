@@ -23,10 +23,10 @@ parseMessage = function(message) {
 	
 	switch (frame.type) {
 	case 'ALM-A':
-		object.message = parseGpsMessage(frame.messageBody);
+		object.location = parseGpsMessage(frame.messageBody);
 		break;
 	case 'CMD-T':
-		object.message = parseGpsMessage(frame.messageBody);
+		object.location = parseGpsMessage(frame.messageBody);
 	default:
 		break;
 	}
