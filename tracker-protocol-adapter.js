@@ -28,7 +28,8 @@ TrackerProtocolHandler.prototype.createServer = function(port) {
 	var server = net.createServer();
 	var self = this;
 	
-	server.on('connection', function(socket) {	
+	server.on('connection', function(socket) {
+		socket.setKeepAlive(true,  600000);
 			
 		socket.once('data', function(data) {
 			var ConnectionHandler = protocolIdentifer.identifyProtocol(data);
