@@ -41,6 +41,11 @@ TrackerProtocolHandler.prototype.createServer = function(port) {
 		socket.on('close', function(data) {
 	
 		});
+		
+		socket.on('error', function() {
+			console.log('socket error occured');
+		});
+		
 
 	});
 
