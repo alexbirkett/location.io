@@ -1,0 +1,9 @@
+{
+    "name": "TrackerProtocolAdapter",
+    "version": "0.0.1",
+    "description": "One tracker server to rule them all",
+    "engine": "node >= 0.8.3",
+    "dependencies": {
+        "hashmap": "0.9.x"
+    }
+}
