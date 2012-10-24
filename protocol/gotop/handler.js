@@ -165,7 +165,7 @@ GoTopProtocolHandler.prototype.sendCommand = function(command, expectedResponse,
 };
 
 GoTopProtocolHandler.prototype.getId = function() {
-	return 'gotop:' + this.remoteAddress + ':' + this.remotePort + ':' + this.id;
+	return 'gotop' + this.remoteAddress + 'X' + this.remotePort + 'X' + this.id;
 };
 
 GoTopProtocolHandler.prototype.setAndEmittIdIfrequired = function(message) {
