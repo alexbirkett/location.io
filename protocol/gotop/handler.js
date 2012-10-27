@@ -91,8 +91,7 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 
 	var frameBuffer = data;
 	var self = this;
-	this.remoteAddress = socket.remoteAddress;
-	this.remotePort = socket.remotePort;
+	this.socket = socket;
 	
 	socket.on('data', function(data) {
 		frameBuffer = Buffer.concat([frameBuffer, data]);
@@ -119,12 +118,16 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	var handleFrame = function(buffer) {
 		var message = goTopMessageParser(buffer);
 		self.setAndEmittIdIfrequired(message);
+		console.log(message.type);
 		switch(message.type) {
 		case 'ALM-A':
 			self.eventEmitter.emit('location-update', self.getId(), message.location);
 			self.eventEmitter.emit('alarm', self.getId(), message.location);
 			break;
 		case 'CMD-T':
+			self.eventEmitter.emit('location-update', self.getId(), message.location);
+			break;
+	   case 'CMD-F':
 			self.eventEmitter.emit('location-update', self.getId(), message.location);
 			break;
 		case 'CMD-X':
@@ -152,20 +155,24 @@ GoTopProtocolHandler.prototype.setAuthorizedNumber = function(password, index, v
 };
 
 
-GoTopProtocolHandler.prototype.sendCommand = function(command, expectedResponse, callback) {
+GoTopProtocolHandler.prototype.sendCommand = function(command, callback) {
 	
-	if (expectedResponse == undefined) {
-		socket.write(command);
-		this.expectedResponse = expectedResponse;
-		this.callback = callback;
-	} else {
-		throw 'command outstanding';
+	console.log('sendCommand ' + command);
+	var message = null;
+	if (command == 'update') {
+		message = ':123456F#';
 	}
 
+	if (message != null) {
+		console.log('sending message' + message);
+		this.socket.write(message, function() {
+			callback();
+		});
+	}
 };
 
 GoTopProtocolHandler.prototype.getId = function() {
-	return 'gotop' + this.remoteAddress + 'X' + this.remotePort + 'X' + this.id;
+	return 'gotop' + this.socket.remoteAddress + 'X' + this.socket.remotePort + 'X' + this.id;
 };
 
 GoTopProtocolHandler.prototype.setAndEmittIdIfrequired = function(message) {
