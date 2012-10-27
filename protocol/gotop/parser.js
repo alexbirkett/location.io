@@ -20,15 +20,11 @@ parseMessage = function(message) {
 	
 	object.type = frame.type;
 	object.serialNumber = frame.serialNumber;
+	console.log('frame.messageBody');
+	console.log(frame.messageBody);
 	
-	switch (frame.type) {
-	case 'ALM-A':
-		object.location = parseGpsMessage(frame.messageBody);
-		break;
-	case 'CMD-T':
-		object.location = parseGpsMessage(frame.messageBody);
-	default:
-		break;
+	if (frame.messageBody != "") {
+		object.location = parseGpsMessage(frame.messageBody);		
 	}
 	return object;
 };
