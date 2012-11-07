@@ -3,13 +3,13 @@ var util = require('../util');
 var assert = require('assert');
 
 var testFormatLongitude = function() {
-	assert.equal(util.formatLongitude(-1.234), "0011402W");
-	assert.equal(util.formatLongitude(45.563), "0453347E");
+	assert.equal(util.formatLongitude(-1.234), "001140240W");
+	assert.equal(util.formatLongitude(45.563), "045334680E");
 };
 
 var testFormatLatitude = function() {
-	assert.equal(util.formatLatitude(89.8), "894800N");
-	assert.equal(util.formatLatitude(-12.744), "124438S");
+	assert.equal(util.formatLatitude(89.8), "89480000N");
+	assert.equal(util.formatLatitude(-12.744), "12443840S");
 };
 
 testFormatLongitude();
