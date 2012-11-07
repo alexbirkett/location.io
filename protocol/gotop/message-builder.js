@@ -12,7 +12,7 @@ var assertValidCommand = function(commandName, commandValue) {
 			throw new Error(message);
 		}
 	}
-}
+};
 
 var buildCommand = function(commandName, commandValue) {	
 	assertValidCommand(commandName, commandValue);
@@ -23,13 +23,15 @@ var messageBuilders = {};
 
 messageBuilders.setAuthorizedNumber = function(messageValue) {
 	return ":" + messageValue.password + "A" + messageValue.index + "," + messageValue.authorizedNumber + "#";
-}
+};
+
 messageBuilders.deleteAuthorizedNumber = function(messageValue) {
 	return ":" + messageValue.password + "A" + messageValue.index + ",D#";
-}
+};
+
 messageBuilders.locateOneTime = function(messageValue) {
 	return ":" + messageValue.password + "F#";
-}
+};
 
 messageBuilders.setContinuousTracking = function(messageValue) {
 	var interval = messageValue.interval;
@@ -60,17 +62,14 @@ messageBuilders.setContinuousTracking = function(messageValue) {
 	}
 	var message = ":" + messageValue.password + "M" + (messageValue.enabled ? 1 : 0) + "," +  util.prependZeros(intervalInt, 3) + unit + "#";
 	return message;
-}
+};
 
 messageBuilders.setSpeedingAlarm = function(messageValue) {
 	// :123456J1,080#
 	return ":" + messageValue.password + "J" +  (messageValue.enabled ? 1 : 0) + "," + util.prependZeros(messageValue.speed, 3) + "#";
-}
+};
 
 messageBuilders.setGeoFence  = function(messageValue) {
-
-// ":123456I1,1,1,51113525N009125670E50241115N011011173E#"
-//  :123456Ix,y,z, aabbccddefffgghhiijkkllmmnnepppqqrrssj#
 
  return ":" + messageValue.password + 
         "I" + messageValue.index +
@@ -80,7 +79,35 @@ messageBuilders.setGeoFence  = function(messageValue) {
             + util.formatLongitude(messageValue.minLongitude)
             + util.formatLatitude(messageValue.minLatitude)
             + util.formatLongitude(messageValue.maxLongitude) + "#";
-}
+};
+
+messageBuilders.setTimeZone  = function(messageValue) {
+ 	return ":" + messageValue.password + "L" + messageValue.timeZone + "#";
+};
+
+messageBuilders.setLowBatteryAlarm = function(messageValue) {
+	return ":" + messageValue.password + "N" +  (messageValue.enabled ? 1 : 0)  + "," + messageValue.percentage + "#";
+};
+
+messageBuilders.setPassword = function(messageValue) {
+	return ":" + messageValue.password + "H" +  messageValue.newPassword + "#";
+};
+
+messageBuilders.setAcc = function(messageValue) {
+	return ":" + messageValue.password + "T" +  (messageValue.enabled ? 1 : 0) + "#";
+};
+
+messageBuilders.setListenMode = function(messageValue) {
+	return ":" + messageValue.password + "U" +  (messageValue.enabled ? 1 : 0) + "#";
+};
+
+messageBuilders.setApnAndServer = function(messageValue) {
+	return ":" + messageValue.password + "C" + messageValue.apn + "," + messageValue.ipAddress + ":" + messageValue.port + "#";
+};
+
+messageBuilders.setApnUserNameAndPassword = function(messageValue) {
+	return ":" + messageValue.password + "O" + messageValue.apnUserName + "," + messageValue.apnUserPassword + "#";
+};
 
 
 module.exports = buildCommand;

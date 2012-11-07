@@ -180,8 +180,99 @@ var testSetGeoFence = function() {
 		minLatitude: 50.403097,
 		maxLongitude: 11.019925
 	});
-	console.log(message);
 	assert.equal(message, ":123456I1,1,1,51113525N009125670E50241115N011011173E#");
+};
+
+var testSetTimeZone = function() {
+	
+	var message = buildCommandMessage('setTimeZone', {
+		password : "123456",
+		timeZone: "+08"
+	});
+	assert.equal(message, ":123456L+08#");
+	
+	var message = buildCommandMessage('setTimeZone', {
+		password : "123456",
+		timeZone: "-07"
+	});
+	assert.equal(message, ":123456L-07#");
+	
+	assert.throws(function() {
+		buildCommandMessage('setTimeZone', {
+			password : "123456",
+			timeZone : "07"
+		});
+	}, Error);
+
+	
+};
+
+var testSetLowBatteryAlarm = function() {
+	
+	var message = buildCommandMessage('setLowBatteryAlarm', {
+		password : "123456",
+		enabled: true,
+		percentage:40
+	});
+	assert.equal(message, ":123456N1,40#");
+	
+};
+
+var testSetPassword = function() {
+	
+	var message = buildCommandMessage('setPassword', {
+		password : "123456",
+		newPassword: "456789",
+	});
+	assert.equal(message, ":123456H456789#");
+	
+};
+
+var testSetAcc = function() {
+	var message = buildCommandMessage('setAcc', {
+		password : "123456",
+		enabled: true
+	});
+	assert.equal(message, ":123456T1#");
+	
+	var message = buildCommandMessage('setAcc', {
+		password : "123456",
+		enabled: false
+	});
+	assert.equal(message, ":123456T0#");
+};
+
+var testSetListenMode = function() {
+	var message = buildCommandMessage('setListenMode', {
+		password : "123456",
+		enabled: true
+	});
+	assert.equal(message, ":123456U1#");
+	
+	var message = buildCommandMessage('setListenMode', {
+		password : "123456",
+		enabled: false
+	});
+	assert.equal(message, ":123456U0#");
+};
+// 
+var testSetApnAndServer = function() {
+	var message = buildCommandMessage('setApnAndServer', {
+		password : "123456",
+		ipAddress: "119.122.101.91",
+		port:7289,
+		apn:"CMNET"
+	});
+	assert.equal(message, ":123456CCMNET,119.122.101.91:7289#");
+};
+
+var testSetApnUserNameAndPassword = function() {
+	var message = buildCommandMessage('setApnUserNameAndPassword', {
+		password : "123456",
+		apnUserName: "internet",
+		apnUserPassword: "internet123"
+	});
+	assert.equal(message, ":123456Ointernet,internet123#");
 };
 
 testSetAuthorizedNumber();
@@ -190,5 +281,12 @@ testLocateOneTime();
 testSetContinuousTracking();
 testSetSpeedingAlarm();
 testSetGeoFence();
+testSetTimeZone();
+testSetLowBatteryAlarm();
+testSetPassword();
+testSetAcc();
+testSetListenMode();
+testSetApnAndServer();
+testSetApnUserNameAndPassword();
 
 console.log("done");

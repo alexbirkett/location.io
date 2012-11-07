@@ -85,32 +85,78 @@ exports.capabilities = {
 				}
 			}
 		},
-		timeZone : {
-			writable : true,
-			passwordRequired : true,
-			parameters : [{
-				type : "timeZone",
-				name : "timeZone"
-			}]
+		setTimeZone : {
+			parameters : {
+				password: passwordParameter,
+				timeZone: {
+					type: "text",
+					pattern:"^(\\+|-)[0-9]{2}$"
+				}
+				
+			}
 		},
-		lowBatteryAlarm : {
-			writable : true,
-			passwordRequired : true,
-			parameters : [{
-				type : "boolean",
-				name : "enabled"
-			}, {
-				type : "percentage",
-				name : "percentage"
-			}]
+		setLowBatteryAlarm : {
+			parameters : {
+				password: passwordParameter,
+				enabled: {
+					type: "boolean"
+				},
+				percentage: {
+					type: "text",
+					pattern:"^[0-9]{2}$"
+				}
+				
+			}
 		},
-		changePassword : {
-			writable : true,
-			passwordRequired : true,
-			parameters : [{
-				type : "password",
-				name : "newPassword"
-			}]
+		setPassword : {
+			parameters : {
+				password: passwordParameter,
+				newPassword: passwordParameter
+			}
+		},
+		setAcc : {
+			parameters : {
+				password: passwordParameter,
+				enabled: {
+					type: "boolean"
+				}
+			}
+		},
+		setListenMode : {
+			parameters : {
+				password: passwordParameter,
+				enabled: {
+					type: "boolean"
+				}
+			}
+		},
+		setApnAndServer : {
+			parameters : {
+				password: passwordParameter,
+				ipAddress: {
+					type: "text",
+					pattern:"^[0-9]{1,3}\\.([0-9]){1,3}\\.([0-9]){1,3}\\.([0-9]){1,3}$"
+				},
+				port: {
+					type: "text",
+					pattern:"^[0-9]{1,5}$" // 65535
+				},
+				apn: {
+					type: "text"
+				}
+			}
+		},
+		setApnUserNameAndPassword: {
+			parameters : {
+				password: passwordParameter,
+				apnUserName: {
+					type: "text",
+					},
+				apnPassword: {
+					type: "text",
+				},
+			}
 		}
 	}
 };
+
