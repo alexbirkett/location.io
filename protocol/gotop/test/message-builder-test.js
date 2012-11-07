@@ -174,18 +174,15 @@ var testSetGeoFence = function() {
 		password : "123456",
 		index: 1,
 		enabled: true,
-		exit: false,
-		maxLatitude: 51.5,
-		minLatitiude: 50.5,
-		minLongitude: 1.75,
-		maxLongitude: 2.25
+		exit: true,
+		maxLatitude: 51.193125,
+		minLongitude: 9.21575,
+		minLatitude: 50.403097,
+		maxLongitude: 11.019925
 	});
-	//assert.equal(message, ":123456I1,1,1,51113525N009125670E50241115N011011173E#");
-
-}; 
-
-// 
-
+	console.log(message);
+	assert.equal(message, ":123456I1,1,1,51113525N009125670E50241115N011011173E#");
+};
 
 testSetAuthorizedNumber();
 testDeleteAuthorizedNumber();

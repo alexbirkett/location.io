@@ -61,7 +61,7 @@ exports.formatLatitude = function(latitude) {
 	var minutes = prependZeros(minutesAndFraction.minutes, 2);
 	var minutesFraction = prependZeros(minutesAndFraction.minutesFraction, 2);
 	var isPositiveNumber = parsedLatitude[1] == undefined;
-	var longitude = degrees + minutes + minutesFraction + getLatitudeHemisphere(isPositiveNumber);
-	return longitude;
+	var latitiude = degrees + minutes + minutesFraction + getLatitudeHemisphere(isPositiveNumber);
+	return latitiude;
 };
 

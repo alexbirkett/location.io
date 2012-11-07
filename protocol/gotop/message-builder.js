@@ -72,8 +72,14 @@ messageBuilders.setGeoFence  = function(messageValue) {
 // ":123456I1,1,1,51113525N009125670E50241115N011011173E#"
 //  :123456Ix,y,z, aabbccddefffgghhiijkkllmmnnepppqqrrssj#
 
- return ":" + messageValue.password + "I" + messageValue.index + "," +  (messageValue.enabled ? 1 : 0) + "," + (messageValue.exit ? 1 : 0);
-
+ return ":" + messageValue.password + 
+        "I" + messageValue.index +
+        "," + (messageValue.enabled ? 1 : 0) + 
+        "," + (messageValue.exit ? 1 : 0) + 
+        "," + util.formatLatitude(messageValue.maxLatitude)
+            + util.formatLongitude(messageValue.minLongitude)
+            + util.formatLatitude(messageValue.minLatitude)
+            + util.formatLongitude(messageValue.maxLongitude) + "#";
 }
 
 
