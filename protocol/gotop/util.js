@@ -19,11 +19,11 @@ var parseLatLng = function(latlng) {
 	return  /^(-)?([0-9]*)\.([0-9]*)$/i.exec(latlng + "");
 };
 
-var calculteMinutesAndMinutesFraction = function(val) {
+var calculteMinutesAndSeconds = function(val) {
 	var returnValue = {};
 	var minutes = (val * 60);
 	returnValue.minutes = Math.floor(minutes); // round 
-	returnValue.minutesFraction = ((minutes - returnValue.minutes).toFixed(2) + "").substr(2);
+	returnValue.seconds = Math.round((minutes - returnValue.minutes) * 60);
 	return returnValue;
 };
 
@@ -46,22 +46,22 @@ var getLatitudeHemisphere = function(positiveNumber) {
 exports.formatLongitude = function(longitude) {
 	var parsedLongitude = parseLatLng(longitude);
 	var degrees = prependZeros(parsedLongitude[2], 3);
-	var minutesAndFraction = calculteMinutesAndMinutesFraction(parseFloat("0." + parsedLongitude[3]));
-	var minutes = prependZeros(minutesAndFraction.minutes, 2);
-	var minutesFraction = prependZeros(minutesAndFraction.minutesFraction, 2);
-	var isPositiveNumber = parsedLongitude[1] == undefined;
-	var longitude = degrees + minutes + minutesFraction + getLongitudeHemisphere(isPositiveNumber);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + parsedLongitude[3]));
+	var minutes = prependZeros(minutesAndSeconds.minutes, 2);
+	var seconds = prependZeros(minutesAndSeconds.seconds, 2);
+	var isPositiveNumber = parsedLongitude[1] == undefined;s
+	var longitude = degrees + minutes + seconds + getLongitudeHemisphere(isPositiveNumber);
 	return longitude;
 };
 
 exports.formatLatitude = function(latitude) {
 	var parsedLatitude = parseLatLng(latitude);
 	var degrees = prependZeros(parsedLatitude[2], 2);
-	var minutesAndFraction = calculteMinutesAndMinutesFraction(parseFloat("0." + parsedLatitude[3]));
-	var minutes = prependZeros(minutesAndFraction.minutes, 2);
-	var minutesFraction = prependZeros(minutesAndFraction.minutesFraction, 2);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + parsedLatitude[3]));
+	var minutes = prependZeros(minutesAndSeconds.minutes, 2);
+	var seconds = prependZeros(minutesAndSeconds.seconds, 2);
 	var isPositiveNumber = parsedLatitude[1] == undefined;
-	var latitiude = degrees + minutes + minutesFraction + getLatitudeHemisphere(isPositiveNumber);
+	var latitiude = degrees + minutes + seconds + getLatitudeHemisphere(isPositiveNumber);
 	return latitiude;
 };
 
