@@ -1,4 +1,5 @@
 var goTopMessageParser = require('./parser');
+var buildCommand = require('./message-builder');
 var events = require('events');
 
 var GoTopProtocolHandler = function(eventEmitter) {
@@ -74,19 +75,21 @@ GoTopProtocolHandler.prototype.setAuthorizedNumber = function(password, index, v
 };
 
 
-GoTopProtocolHandler.prototype.sendCommand = function(command, callback) {
+GoTopProtocolHandler.prototype.sendCommand = function(commandName, commandParameters, callback) {
 	
-	console.log('sendCommand ' + command);
-	var message = null;
-	if (command == 'update') {
-		message = ':123456F#';
-	}
-
-	if (message != null) {
-		console.log('sending message' + message);
-		this.socket.write(message, function() {
-			callback();
+	console.log("commandName " + commandName);
+	console.log(commandParameters);
+	
+	try {
+		var message = buildCommand(commandName, commandParameters);
+		this.socket.write(message, function(err) {
+			callback(err);
 		});
+	} catch(e) {
+		console.log("build command failed " + e);
+		process.nextTick(function() {
+			callback(e + "");
+		})
 	}
 };
 
