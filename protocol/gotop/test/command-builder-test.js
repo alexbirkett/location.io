@@ -1,9 +1,9 @@
 var assert = require('assert');
 
-var buildCommandMessage = require('../message-builder');
+var buildCommand = require('../command-builder');
 
 var testSetAuthorizedNumber = function() {
-	var message = buildCommandMessage('setAuthorizedNumber', {
+	var message = buildCommand('setAuthorizedNumber', {
 		authorizedNumber : "+1555555",
 		password : "123456",
 		index : 1
@@ -11,7 +11,7 @@ var testSetAuthorizedNumber = function() {
 	assert.equal(message, ":123456A1,+1555555#");
 
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			authorizedNumber : "+1555555",
 			password : "123456",
 			index : 0
@@ -19,7 +19,7 @@ var testSetAuthorizedNumber = function() {
 	}, Error);
 	
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			authorizedNumber : "+1555555",
 			password : "123456",
 			index : 6
@@ -27,7 +27,7 @@ var testSetAuthorizedNumber = function() {
 	}, Error);
 	
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			authorizedNumber : "1555555",
 			password : "123456",
 			index : 1
@@ -36,7 +36,7 @@ var testSetAuthorizedNumber = function() {
 	
 	// missing index
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			authorizedNumber : "+1555555",
 			password : "123456"
 		});
@@ -44,7 +44,7 @@ var testSetAuthorizedNumber = function() {
 
 	// missing password
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			authorizedNumber : "+1555555",
 			index : 1
 		});
@@ -53,7 +53,7 @@ var testSetAuthorizedNumber = function() {
 	
 	// missing password
 	assert.throws(function() {
-		buildCommandMessage('setAuthorizedNumber', {
+		buildCommand('setAuthorizedNumber', {
 			password : "123456",
 			index : 1
 		});
@@ -62,7 +62,7 @@ var testSetAuthorizedNumber = function() {
 };
 
 var testDeleteAuthorizedNumber = function() {
-	var message = buildCommandMessage('deleteAuthorizedNumber', {
+	var message = buildCommand('deleteAuthorizedNumber', {
 		password : "123456",
 		index : 2
 	});
@@ -71,21 +71,21 @@ var testDeleteAuthorizedNumber = function() {
 
 
 var testLocateOneTime = function() {
-	var message = buildCommandMessage('locateOneTime', {
+	var message = buildCommand('locateOneTime', {
 		password : "123456",
 	});
 	assert.equal(message, ":123456F#");
 };
 
 var testSetContinuousTracking = function() {
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "123456",
 		enabled: true,
 		interval: "5s"
 	});
 	assert.equal(message, ":123456M1,005S#");
 	
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "555555",
 		enabled: true,
 		interval: "10S"
@@ -93,14 +93,14 @@ var testSetContinuousTracking = function() {
 	assert.equal(message, ":555555M1,010S#");
 	
 
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "123456",
 		enabled: true,
 		interval: "200m"
 	});
 	assert.equal(message, ":123456M1,200M#");
 	
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "123456",
 		enabled: true,
 		interval: "30M"
@@ -108,14 +108,14 @@ var testSetContinuousTracking = function() {
 	assert.equal(message, ":123456M1,030M#");
 	
 	
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "123456",
 		enabled: false,
 		interval: "1h"
 	});
 	
 	
-	var message = buildCommandMessage('setContinuousTracking', {
+	var message = buildCommand('setContinuousTracking', {
 		password : "123456",
 		enabled: false,
 		interval: "45H"
@@ -124,7 +124,7 @@ var testSetContinuousTracking = function() {
 	
 
 	assert.throws(function() {
-		buildCommandMessage('setContinuousTracking', {
+		buildCommand('setContinuousTracking', {
 			password : "123456",
 			enabled : false,
 			interval : "91H"
@@ -132,7 +132,7 @@ var testSetContinuousTracking = function() {
 	}, Error); 
 	
 	assert.throws(function() {
-		buildCommandMessage('setContinuousTracking', {
+		buildCommand('setContinuousTracking', {
 			password : "123456",
 			enabled : false,
 			interval : "256S"
@@ -140,7 +140,7 @@ var testSetContinuousTracking = function() {
 	}, Error);
 	
 	assert.throws(function() {
-		buildCommandMessage('setContinuousTracking', {
+		buildCommand('setContinuousTracking', {
 			password : "123456",
 			enabled : false,
 			interval : "256m"
@@ -152,7 +152,7 @@ var testSetContinuousTracking = function() {
 
 var testSetSpeedingAlarm = function() {
 
-	var message = buildCommandMessage('setSpeedingAlarm', {
+	var message = buildCommand('setSpeedingAlarm', {
 		password : "123456",
 		speed: 80,
 		enabled: true
@@ -160,7 +160,7 @@ var testSetSpeedingAlarm = function() {
 	assert.equal(message, ":123456J1,080#");
 
 
-	var message = buildCommandMessage('setSpeedingAlarm', {
+	var message = buildCommand('setSpeedingAlarm', {
 		password : "123456",
 		speed: 80,
 		enabled: false
@@ -170,7 +170,7 @@ var testSetSpeedingAlarm = function() {
 
 var testSetGeoFence = function() {
 
-	var message = buildCommandMessage('setGeoFence', {
+	var message = buildCommand('setGeoFence', {
 		password : "123456",
 		index: 1,
 		enabled: true,
@@ -185,20 +185,20 @@ var testSetGeoFence = function() {
 
 var testSetTimeZone = function() {
 	
-	var message = buildCommandMessage('setTimeZone', {
+	var message = buildCommand('setTimeZone', {
 		password : "123456",
 		timeZone: "+08"
 	});
 	assert.equal(message, ":123456L+08#");
 	
-	var message = buildCommandMessage('setTimeZone', {
+	var message = buildCommand('setTimeZone', {
 		password : "123456",
 		timeZone: "-07"
 	});
 	assert.equal(message, ":123456L-07#");
 	
 	assert.throws(function() {
-		buildCommandMessage('setTimeZone', {
+		buildCommand('setTimeZone', {
 			password : "123456",
 			timeZone : "07"
 		});
@@ -209,7 +209,7 @@ var testSetTimeZone = function() {
 
 var testSetLowBatteryAlarm = function() {
 	
-	var message = buildCommandMessage('setLowBatteryAlarm', {
+	var message = buildCommand('setLowBatteryAlarm', {
 		password : "123456",
 		enabled: true,
 		percentage:40
@@ -220,7 +220,7 @@ var testSetLowBatteryAlarm = function() {
 
 var testSetPassword = function() {
 	
-	var message = buildCommandMessage('setPassword', {
+	var message = buildCommand('setPassword', {
 		password : "123456",
 		newPassword: "456789",
 	});
@@ -229,13 +229,13 @@ var testSetPassword = function() {
 };
 
 var testSetAcc = function() {
-	var message = buildCommandMessage('setAcc', {
+	var message = buildCommand('setAcc', {
 		password : "123456",
 		enabled: true
 	});
 	assert.equal(message, ":123456T1#");
 	
-	var message = buildCommandMessage('setAcc', {
+	var message = buildCommand('setAcc', {
 		password : "123456",
 		enabled: false
 	});
@@ -243,13 +243,13 @@ var testSetAcc = function() {
 };
 
 var testSetListenMode = function() {
-	var message = buildCommandMessage('setListenMode', {
+	var message = buildCommand('setListenMode', {
 		password : "123456",
 		enabled: true
 	});
 	assert.equal(message, ":123456U1#");
 	
-	var message = buildCommandMessage('setListenMode', {
+	var message = buildCommand('setListenMode', {
 		password : "123456",
 		enabled: false
 	});
@@ -257,7 +257,7 @@ var testSetListenMode = function() {
 };
 // 
 var testSetApnAndServer = function() {
-	var message = buildCommandMessage('setApnAndServer', {
+	var message = buildCommand('setApnAndServer', {
 		password : "123456",
 		ipAddress: "119.122.101.91",
 		port:7289,
@@ -267,7 +267,7 @@ var testSetApnAndServer = function() {
 };
 
 var testSetApnUserNameAndPassword = function() {
-	var message = buildCommandMessage('setApnUserNameAndPassword', {
+	var message = buildCommand('setApnUserNameAndPassword', {
 		password : "123456",
 		apnUserName: "internet",
 		apnPassword: "internet123"

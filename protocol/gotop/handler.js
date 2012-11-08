@@ -1,5 +1,5 @@
 var goTopMessageParser = require('./parser');
-var buildCommand = require('./message-builder');
+var buildCommand = require('./command-builder');
 var events = require('events');
 
 var GoTopProtocolHandler = function(eventEmitter) {
