@@ -37,7 +37,7 @@ exports.capabilities = {
 		setContinuousTracking : {
 			parameters : {
 				password: passwordParameter,
-				enabed : {
+				enabled : {
 					type:"boolean"
 				},
 				interval: {
@@ -77,7 +77,7 @@ exports.capabilities = {
 				minLongitude: {
 					type: "text"
 				},
-				minLatitiude: {
+				minLatitude: {
 					type: "text"
 				},
 				maxLongitude: {

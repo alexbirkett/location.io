@@ -1,11 +1,12 @@
 var capabilities = require('./capabilities').capabilities;
 var util = require('./util');
 
-var assertValidCommand = function(commandName, commandValue) {
+var assertValidCommand = function(commandName, commandParameters) {
 	var command = capabilities.commands[commandName];
 	for (var parameter in command.parameters) {
 		var regexp = new RegExp(command.parameters[parameter].pattern);
-		var parameterValue = commandValue[parameter];
+		var parameterValue = commandParameters[parameter];
+		console.log(parameterValue);
 		var match = regexp.test(parameterValue);
 		if (!match) {
 			var message = "parameterValue " + parameterValue + " does not match expression " + command.parameters[parameter].pattern;
@@ -14,9 +15,9 @@ var assertValidCommand = function(commandName, commandValue) {
 	}
 };
 
-var buildCommand = function(commandName, commandValue) {	
-	assertValidCommand(commandName, commandValue);
-	return messageBuilders[commandName](commandValue);
+var buildCommand = function(commandName, commandParameters) {	
+	assertValidCommand(commandName, commandParameters);
+	return messageBuilders[commandName](commandParameters);
 };
 
 var messageBuilders = {};
@@ -106,8 +107,7 @@ messageBuilders.setApnAndServer = function(messageValue) {
 };
 
 messageBuilders.setApnUserNameAndPassword = function(messageValue) {
-	return ":" + messageValue.password + "O" + messageValue.apnUserName + "," + messageValue.apnUserPassword + "#";
+	return ":" + messageValue.password + "O" + messageValue.apnUserName + "," + messageValue.apnPassword + "#";
 };
-
 
 module.exports = buildCommand;
