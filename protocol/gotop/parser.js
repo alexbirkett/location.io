@@ -15,6 +15,8 @@ function parseFrame(frame) {
 
 parseMessage = function(message) {
 	
+	console.log("raw message");
+	console.log(message + "");
 	var object = new Object();
 	var frame = parseFrame(message);
 	
