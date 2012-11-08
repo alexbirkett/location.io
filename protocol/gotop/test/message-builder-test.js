@@ -270,7 +270,7 @@ var testSetApnUserNameAndPassword = function() {
 	var message = buildCommandMessage('setApnUserNameAndPassword', {
 		password : "123456",
 		apnUserName: "internet",
-		apnUserPassword: "internet123"
+		apnPassword: "internet123"
 	});
 	assert.equal(message, ":123456Ointernet,internet123#");
 };
