@@ -5,7 +5,85 @@ var passwordParameter = {
 	pattern : "^[0-9]{6}$"
 }; 
 
+var locationParameter = {
+	available: {},
+	timestamp: {},
+	latitude: {},
+	longitude: {},
+	speed: {},
+	status: {
+		gsmSignal: {},
+		batteryLife: {}
+	},
+	network: {
+		cellId: {},
+		countryCode: {},
+		locationAreaCode :{},
+		networkCode: {}
+	}
+}
+
 exports.capabilities = {
+	messages: {
+		setAuthorizedNumberResponse: {
+			location: locationParameter
+		},
+		oneTimeLocate: {
+			location: locationParameter
+		},
+		setContinuousTrackingResponse : {
+			location: locationParameter
+		},
+		setSpeedingAlarmResponse : {
+			location: locationParameter
+		},
+		setGeoFenceResponse: {
+			location: locationParameter
+		},
+		setTimeZoneResponse: {
+			location: locationParameter
+		},
+		setLowBatteryAlarmResponse: {
+			location: locationParameter
+		},
+		setModifyPasswordResponse: {
+			location: locationParameter
+		},
+		setAccResponse: {
+			location: locationParameter,
+			enabled: {}
+		},
+		setListenModeResponse: {
+			location: locationParameter,
+			enabled: {}
+		},
+		setApnAndServerResponse: {
+			location: locationParameter
+		},
+		setApnAndServerResponse: {
+			location: locationParameter
+		},
+		setApnUserNameAndPassword: {
+			location: locationParameter
+		},
+		heartBeat: {
+		},
+		sosAlarm: {
+			location: locationParameter
+		},
+		geoAlarm: {
+			location: locationParameter
+		},
+		speedingAlarm : {
+			location: locationParameter
+		},
+		lowBatteryAlarm : {
+			location: locationParameter
+		},
+		error : {
+			location: locationParameter
+		}
+	},
 	commands : {
 		setAuthorizedNumber : {
 			parameters : {
