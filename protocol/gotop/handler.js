@@ -1,4 +1,4 @@
-var goTopMessageParser = require('./parser');
+var parseMessage = require('./parser');
 var buildCommand = require('./command-builder');
 var events = require('events');
 
@@ -7,8 +7,7 @@ var GoTopProtocolHandler = function(eventEmitter) {
 };
 
 GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
-	//console.log("handle connect " + this.test);
-
+	
 	var frameBuffer = data;
 	var self = this;
 	this.socket = socket;
@@ -16,14 +15,11 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 	socket.on('data', function(data) {
 		frameBuffer = Buffer.concat([frameBuffer, data]);
 		
-		//console.log('goTop data');
 		handleData();
 	});
 	socket.on('close', function(data) {
 		self.eventEmitter.emit('tracker-disconnected', self.getId());
 	});
-	
-	//console.log('goTop');
 	
 	var handleData = function() {
 		// 35 is #
@@ -33,47 +29,22 @@ GoTopProtocolHandler.prototype.handleConnection = function(socket, data) {
 		}
 	};
 	
-	
-	
 	var handleFrame = function(buffer) {
-		var message = goTopMessageParser(buffer);
+		var message = parseMessage(buffer);
 		self.setAndEmittIdIfrequired(message);
-		console.log(message.type);
-		switch(message.type) {
-		case 'ALM-A':
+		//console.log(message.type);
+		console.log(message);
+		self.eventEmitter.emit(message.type, self.getId(), message.location);
+		if (message.location != undefined) {
+			console.log('location update');
+			console.log(message.location);
 			self.eventEmitter.emit('location-update', self.getId(), message.location);
-			self.eventEmitter.emit('alarm', self.getId(), message.location);
-			break;
-		case 'CMD-T':
-			self.eventEmitter.emit('location-update', self.getId(), message.location);
-			break;
-	   case 'CMD-F':
-			self.eventEmitter.emit('location-update', self.getId(), message.location);
-			break;
-		case 'CMD-X':
-			self.eventEmitter.emit('heart-beat', self.getId(), message.location);
-			break;
 		}
-	
-		self.eventEmitter.emit('message', message);
 	};
 	
 	handleData();
 	
 };
-
-function buildCommand(password, command, data) {
-	return ':' + password + ',' + command + data + '#';
-};
-
-GoTopProtocolHandler.prototype.setAuthorizedNumber = function(password, index, value, callback) {
-	if (index > 5) {
-		throw "only 5 authorized numbers supported";
-	}
-	this.sendCommand(buildCommand(password, 'A' + index, value));
-	
-};
-
 
 GoTopProtocolHandler.prototype.sendCommand = function(commandName, commandParameters, callback) {
 	

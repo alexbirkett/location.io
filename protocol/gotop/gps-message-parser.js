@@ -1,5 +1,7 @@
 // V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-82-10,000,24202-0324-0E26
 
+var executeParseFunctionAndCatchException = require('./util').executeParseFunctionAndCatchException;
+
 var latPattern = /^LAT:(\d{2}.\d*)(N|S)$/i;
 
 function parseLatitude(latString) {
@@ -92,26 +94,6 @@ function parseNetwork(networkString) {
 	object.locationAreaCode = parseInt(elements[3], 16);
 	object.cellId = parseInt(elements[4], 16);
 	return object;
-}
-
-function isArray(o) {
-	  return Object.prototype.toString.call(o) === '[object Array]';
-}
-
-/**
- * @param args can be a single argument or an array of arguments to pass to parseFunction
- */
-function executeParseFunctionAndCatchException(parseFunction, args, message) {	
-	// if argument is not array it inside an array
-	if (!isArray(args)) {
-		args = [args];
-	}
-	
-	try {
-		return parseFunction.apply(this, args);
-	} catch (e) {
-		console.log('could parse data ' + args + ' exception ' + e.message +  ' message ' + message);
-	}
 }
 
 var parseMessage = function(message) {

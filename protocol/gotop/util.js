@@ -69,3 +69,24 @@ exports.formatLatitude = function(latitude) {
 	return latitiude;
 };
 
+function isArray(o) {
+	  return Object.prototype.toString.call(o) === '[object Array]';
+}
+
+/**
+ * @param args can be a single argument or an array of arguments to pass to parseFunction
+ */
+exports.executeParseFunctionAndCatchException = function(parseFunction, args, message) {	
+	// if argument is not array it inside an array
+	if (!isArray(args)) {
+		args = [args];
+	}
+	
+	try {
+		return parseFunction.apply(this, args);
+	} catch (e) {
+		console.log('could parse data ' + args + ' exception ' + e.message +  ' message ' + message);
+	}
+}
+
+
