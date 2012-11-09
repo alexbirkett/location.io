@@ -88,13 +88,13 @@ var parseMessageType = function(type) {
 }
 
 
-var framePattern = /^#([^,]+),([^,]+),?(.*)#$/;
+var framePattern = /([^,]+),([^,]+),?(.*)$/;
 
 parseMessage = function(message) {
 	var matchArray = framePattern.exec(message);
 	var frame = new Object();
 	if (matchArray != null) {
-		frame.serialNumber = matchArray[1];
+		frame.trackerId = matchArray[1];
 		frame.type = executeParseFunctionAndCatchException(parseMessageType,matchArray[2], message);
 		if ( matchArray[3] != "") {
 			frame.location = executeParseFunctionAndCatchException(parseGpsMessage, matchArray[3], message);	
@@ -103,4 +103,24 @@ parseMessage = function(message) {
 	return frame;
 };
 
-module.exports = parseMessage;
+var findFrameAndParseMessage = function(buffer) {
+	var returnObject = {};
+	returnObject.buffer = buffer; // pass back the buffer if we can't parse the message yet
+	var messageStartIndex = -1;
+	
+	for (var i = 0; i < buffer.length; i++) {
+		if (buffer.readUInt8(i) == 35) {	
+			if (messageStartIndex > -1) {
+				returnObject.message = parseMessage(buffer.slice(messageStartIndex + 1, i));
+				returnObject.buffer = buffer.slice(i + 1);
+				break;
+			} else {
+				messageStartIndex = i;
+			}
+		}
+	}
+	return returnObject;
+
+}
+
+module.exports = findFrameAndParseMessage;
