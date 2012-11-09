@@ -47,7 +47,7 @@ var datePattern = /^DATE:(\d{2})(\d{2})(\d{2})$/i;
 var timePattern = /^TIME:(\d{2})(\d{2})(\d{2})$/i;
 
 function parseDate(dateString, timeString) {
-	var date = new Date();
+	var date = new Date(0);
 	
 	var dateElements = datePattern.exec(dateString);
 	
