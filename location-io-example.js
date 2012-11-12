@@ -2,10 +2,6 @@ var LocationIo = require('./location-io');
 
 var locationIo = new LocationIo();
 
-locationIo.on("message", function(message) {
-	//console.log(message);
-});
-
 locationIo.on("tracker-connected", function(trackerId) {
 	console.log('new connection ' + trackerId);
 });
