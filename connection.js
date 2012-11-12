@@ -19,23 +19,27 @@ Connection.prototype.attachSocket = function(socket) {
 
 	var setAndEmittIdIfrequired = function(message) {
 		if (self.id == null) {
-			self.id = self.protocolModule.getName() + message.trackerId;
-			self.eventEmitter.emit('tracker-connected', self.id, self.protocolModule.getName());
+			self.id = message.trackerId;
+			self.eventEmitter.emit('tracker-connected', self.getId(), self.protocolModuleName);
 		}
 	}; 
 
 	var detectProtocolModuleIfRequired = function() {
 		console.log('detect protocol if required');
-		if (self.protocolModulemodule == null) {
-			try {				
-				protocolModules.forEach(function(moduleToTest) {
+		if (self.protocolModule == null) {
+			try {
+				
+				for (var protocolModuleName in protocolModules) {
+					var moduleToTest = protocolModules[protocolModuleName];
+					
 					if (moduleToTest.isSupportedProtocol(self.frameBuffer)) {
 						self.protocolModule = moduleToTest;
-						console.log('using ' + self.protocolModule.getName() + 'protocol module');
-						return false;
+						self.protocolModuleName = protocolModuleName;
+						console.log('using ' + protocolModuleName + 'protocol module');
+						break;
 					}
-				});
-				
+					
+				}								
 				if (self.protocolModule == null) {
 					console.log('closing socket')
 					// could not detect protocol
@@ -50,7 +54,7 @@ Connection.prototype.attachSocket = function(socket) {
 	
 	var handleMessage = function(message) {
 		setAndEmittIdIfrequired(message);
-		self.eventEmitter.emit("message", self.id, message);
+		self.eventEmitter.emit("message", self.getId(), message);
 	}; 
 
 	this.socket.on('data', function(data) {
@@ -87,9 +91,6 @@ Connection.prototype.attachSocket = function(socket) {
 
 Connection.prototype.sendCommand = function(commandName, commandParameters, callback) {
 	
-	console.log("commandName " + commandName);
-	console.log(commandParameters);
-	
 	try {
 		var message = this.protocolModule.buildCommand(commandName, commandParameters);
 		this.socket.write(message, function(err) {
@@ -104,5 +105,5 @@ Connection.prototype.sendCommand = function(commandName, commandParameters, call
 };
 
 Connection.prototype.getId = function() {
-	return this.id;
+	return this.protocolModuleName + this.id;
 };

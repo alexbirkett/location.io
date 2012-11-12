@@ -15,8 +15,5 @@ module.exports = {
 		} else {
 			return false;
 		}
-	},
-	getName: function() {
-		return "gotop";
 	}
 };
