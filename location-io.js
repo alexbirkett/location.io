@@ -2,60 +2,66 @@
 var net = require('net');
 var fs = require('fs');
 var ProtocolIdentifier = require('./protocol-identifier');
-var GoTopProtocolHandler = require('./protocol/gotop/handler');
 var events = require('events');
 var util = require('util');
+var Connection = require('./connection');
 
-var tk103 = function(socket) {
-	
-};
-var phonelocator = function(socket) {
-	
-};
-
-var protocolIdentifer = new ProtocolIdentifier(phonelocator, GoTopProtocolHandler, tk103);
-
-
-var TrackerProtocolHandler = function() {
+var LocationIo = function() {
 	events.EventEmitter.call(this);
 };
 
-util.inherits(TrackerProtocolHandler, events.EventEmitter);
+util.inherits(LocationIo, events.EventEmitter);
 
-TrackerProtocolHandler.prototype.createServer = function(port) {
+LocationIo.prototype.createServer = function(port) {
 
+	var self = this;
 	this.emit('server_up', "server up");
 	var server = net.createServer();
-	var self = this;
 	
-	server.on('connection', function(socket) {
-		socket.setKeepAlive(true,  600000);
-			
-		socket.once('data', function(data) {
-			var ConnectionHandler = protocolIdentifer.identifyProtocol(data);
-			var connectionHandler = new ConnectionHandler(self);
-			connectionHandler.handleConnection(socket, data);
-		});
+	this.connections = {};
 	
-
-		socket.on('close', function(data) {
-	
-		});
-		
-		socket.on('error', function() {
-			console.log('socket error occured');
-		});
-		
-
+	server.on('connection', function(socket) {	
+		var connection = new Connection(self);
+		connection.attachSocket(socket);
+		self.connections[socket.remoteAddress+":"+socket.remotePort] = connection;
 	});
 
 	server.on('close', function(socket) {
 		console.log('socket closed');
+		self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
 	server.listen(port);
 };
 
-module.exports = TrackerProtocolHandler;
+LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParameters, callback) {
+	console.log('trackerId ' + trackerId)
+	var connection = this.findConnectionById(trackerId);
+	if (connection == undefined) {
+		process.nextTick(function() {
+			callback('unknown tracker');
+		});
+	} else {
+		connection.sendCommand(commandName, commandParameters, callback);
+	}
+}
+
+LocationIo.prototype.findConnectionById = function(id) {
+	console.log('connections');
+	console.log(this.connections);
+	console.log('finding tracker id ' + id);
+	
+	for (var socket in this.connections) {
+		
+		var connection = this.connections[socket];
+		console.log('testing connection ' + connection.getId());
+			
+		if (connection.getId() == id) {
+			return connection;
+		}
+	}
+}
+
+module.exports = LocationIo;
 
 
