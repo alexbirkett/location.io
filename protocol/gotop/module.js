@@ -1,6 +1,6 @@
 
 module.exports = {
-	getCapabilities: require('./capabilities').capabilities,
+	capabilities: require('./capabilities'),
 	parse: require('./parser'),
 	buildCommand: require('./command-builder'),
 	

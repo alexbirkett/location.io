@@ -23,7 +23,7 @@ var locationParameter = {
 	}
 }
 
-exports.capabilities = {
+module.exports = {
 	messages: {
 		setAuthorizedNumberResponse: {
 			location: locationParameter

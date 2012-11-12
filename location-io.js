@@ -12,6 +12,8 @@ var LocationIo = function() {
 
 util.inherits(LocationIo, events.EventEmitter);
 
+LocationIo.prototype.protocolModules = require('./modules');
+
 LocationIo.prototype.createServer = function(port) {
 
 	var self = this;
@@ -19,9 +21,9 @@ LocationIo.prototype.createServer = function(port) {
 	var server = net.createServer();
 	
 	this.connections = {};
-	
+
 	server.on('connection', function(socket) {	
-		var connection = new Connection(self);
+		var connection = new Connection(self, self.protocolModules);
 		connection.attachSocket(socket);
 		self.connections[socket.remoteAddress+":"+socket.remotePort] = connection;
 	});
@@ -44,7 +46,7 @@ LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParam
 	} else {
 		connection.sendCommand(commandName, commandParameters, callback);
 	}
-}
+};
 
 LocationIo.prototype.findConnectionById = function(id) {
 	console.log('connections');
@@ -60,7 +62,12 @@ LocationIo.prototype.findConnectionById = function(id) {
 			return connection;
 		}
 	}
-}
+};
+
+LocationIo.prototype.getCapabilities = function(protocolName) {
+	console.log(this.protocolModules);
+	return this.protocolModules[protocolName].capabilities;
+};
 
 module.exports = LocationIo;
 

@@ -1,12 +1,11 @@
 
 
-var protocolModules = require('./modules');
-
-var Connection = function(eventEmitter) {
+var Connection = function(eventEmitter, protocolModules) {
 	this.eventEmitter = eventEmitter;
 	this.frameBuffer = new Buffer(0);
 	this.id = null;
 	this.protocolModule = null;
+	this.protocolModules = protocolModules;
 }
 
 module.exports = Connection;
@@ -29,8 +28,8 @@ Connection.prototype.attachSocket = function(socket) {
 		if (self.protocolModule == null) {
 			try {
 				
-				for (var protocolModuleName in protocolModules) {
-					var moduleToTest = protocolModules[protocolModuleName];
+				for (var protocolModuleName in self.protocolModules) {
+					var moduleToTest = self.protocolModules[protocolModuleName];
 					
 					if (moduleToTest.isSupportedProtocol(self.frameBuffer)) {
 						self.protocolModule = moduleToTest;
