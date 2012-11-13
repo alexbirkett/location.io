@@ -1,6 +1,6 @@
 // V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-82-10,000,24202-0324-0E26
 
-var executeParseFunctionAndCatchException = require('./util').executeParseFunctionAndCatchException;
+var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
 
 var latPattern = /^LAT:(\d{2}.\d*)(N|S)$/i;
 

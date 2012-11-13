@@ -1,6 +1,6 @@
 
 var parseGpsMessage = require('./gps-message-parser');
-var executeParseFunctionAndCatchException = require('./util').executeParseFunctionAndCatchException;
+var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
 
 var lookupCommandResponseType = function(rawMessageType) {
 	var messageType;

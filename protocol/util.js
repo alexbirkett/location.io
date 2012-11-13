@@ -76,7 +76,7 @@ function isArray(o) {
 /**
  * @param args can be a single argument or an array of arguments to pass to parseFunction
  */
-exports.executeParseFunctionAndCatchException = function(parseFunction, args, message) {	
+exports.executeParseFunctionAndCatchException = function(parseFunction, args) {	
 	// if argument is not array it inside an array
 	if (!isArray(args)) {
 		args = [args];
@@ -85,7 +85,7 @@ exports.executeParseFunctionAndCatchException = function(parseFunction, args, me
 	try {
 		return parseFunction.apply(this, args);
 	} catch (e) {
-		console.log('could parse data ' + args + ' exception ' + e.message +  ' message ' + message);
+		console.log('could not parse data ' + args + ' exception ' + e.message);
 	}
 }
 

@@ -1,5 +1,5 @@
 var capabilities = require('./capabilities').capabilities;
-var util = require('./util');
+var util = require('../util');
 
 var assertValidCommand = function(commandName, commandParameters) {
 	var command = capabilities.commands[commandName];

@@ -35,9 +35,10 @@ function parseLongitude(degrees, minutes, hemisphere) {
 	return longitude;
 }
 
-exports.parseMessage = function(message) {
+var parseMessage = function(message) {
 	console.log('parse GPS message');
-
+	console.log(message);
+	
 	var messageArray = gpsMessagePattern.exec(message);
 	//console.log(messageArray);
 	var message = new Object();
@@ -75,3 +76,5 @@ exports.parseMessage = function(message) {
 	//console.log(message);
 	return message;
 };
+
+module.exports = parseMessage;
