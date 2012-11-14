@@ -9,6 +9,18 @@ var buildCommand = function(commandName, commandParameters) {
 
 var messageBuilders = {};
 
+var formatLatitude = function(latitude) {
+	var parsedLatitude = util.parseLatitude(latitude);
+	var latitiude = parsedLatitude.degrees + parsedLatitude.minutes + parsedLatitude.seconds + parsedLatitude.secondsFraction + parsedLatitude.hemisphere;
+	return latitiude;
+}; 
+
+var formatLongitude = function(longitude) {
+	var parsedLongitude = util.parseLongitude(longitude);
+	var longitude = parsedLongitude.degrees + parsedLongitude.minutes + parsedLongitude.seconds + parsedLongitude.secondsFraction + parsedLongitude.hemisphere;
+	return longitude;
+};
+
 messageBuilders.setAuthorizedNumber = function(messageValue) {
 	return ":" + messageValue.password + "A" + messageValue.index + "," + messageValue.authorizedNumber + "#";
 };
@@ -63,10 +75,10 @@ messageBuilders.setGeoFence  = function(messageValue) {
         "I" + messageValue.index +
         "," + (messageValue.enabled ? 1 : 0) + 
         "," + (messageValue.exit ? 1 : 0) + 
-        "," + util.formatLatitude(messageValue.maxLatitude)
-            + util.formatLongitude(messageValue.minLongitude)
-            + util.formatLatitude(messageValue.minLatitude)
-            + util.formatLongitude(messageValue.maxLongitude) + "#";
+        "," + formatLatitude(messageValue.maxLatitude)
+            + formatLongitude(messageValue.minLongitude)
+            + formatLatitude(messageValue.minLatitude)
+            + formatLongitude(messageValue.maxLongitude) + "#";
 };
 
 messageBuilders.setTimeZone  = function(messageValue) {

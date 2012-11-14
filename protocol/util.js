@@ -45,28 +45,32 @@ var getLatitudeHemisphere = function(positiveNumber) {
 	}
 };
 
-exports.formatLongitude = function(longitude) {
-	var parsedLongitude = parseLatLng(longitude);
-	var degrees = prependZeros(parsedLongitude[2], 3);
-	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + parsedLongitude[3]));
-	var minutes = prependZeros(minutesAndSeconds.minutes, 2);
-	var seconds = prependZeros(minutesAndSeconds.seconds, 2);
-	var secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
-	var isPositiveNumber = parsedLongitude[1] == undefined;
-	var longitude = degrees + minutes + seconds + secondsFraction + getLongitudeHemisphere(isPositiveNumber);
-	return longitude;
-};
 
-exports.formatLatitude = function(latitude) {
-	var parsedLatitude = parseLatLng(latitude);
-	var degrees = prependZeros(parsedLatitude[2], 2);
-	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + parsedLatitude[3]));
-	var minutes = prependZeros(minutesAndSeconds.minutes, 2);
-	var seconds = prependZeros(minutesAndSeconds.seconds, 2);
-	var secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
-	var isPositiveNumber = parsedLatitude[1] == undefined;
-	var latitiude = degrees + minutes + seconds + secondsFraction + getLatitudeHemisphere(isPositiveNumber);
-	return latitiude;
+exports.parseLongitude = function(longitude) {
+	var parsedLongitude = {};
+	var result = parseLatLng(longitude);
+	parsedLongitude.degrees = prependZeros(result[2], 3);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]));
+	parsedLongitude.minutes = prependZeros(minutesAndSeconds.minutes, 2);
+	parsedLongitude.seconds = prependZeros(minutesAndSeconds.seconds, 2);
+	parsedLongitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
+	var isPositiveNumber = result[1] == undefined;
+	parsedLongitude.hemisphere = getLongitudeHemisphere(isPositiveNumber);
+	//var longitude = degrees + minutes + seconds + secondsFraction + getLongitudeHemisphere(isPositiveNumber);
+	return parsedLongitude;
+}
+
+exports.parseLatitude = function(latitude) {
+	var parsedLatitude = {};
+	var result = parseLatLng(latitude);
+	parsedLatitude.degrees = prependZeros(result[2], 2);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]));
+	parsedLatitude.minutes = prependZeros(minutesAndSeconds.minutes, 2);
+	parsedLatitude.seconds = prependZeros(minutesAndSeconds.seconds, 2);
+	parsedLatitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
+	var isPositiveNumber = result[1] == undefined;
+	parsedLatitude.hemisphere = getLatitudeHemisphere(isPositiveNumber);
+	return parsedLatitude;
 };
 
 function isArray(o) {
@@ -91,6 +95,15 @@ exports.executeParseFunctionAndCatchException = function(parseFunction, args) {
 
 exports.assertValidCommand = function(commandName, commandParameters, capabilities) {
 	var command = capabilities.commands[commandName];
+	
+	if (command == undefined) {
+		throw new Error('command ' + commandName + ' is not defined in capabilities file');
+	}
+	
+	if (command.parameters == undefined) {
+		throw new Error('command ' + commandName + ' has no parameters defined in capabilities file');
+	}
+	
 	for (var parameter in command.parameters) {
 		var regexp = new RegExp(command.parameters[parameter].pattern);
 		var parameterValue = commandParameters[parameter];
@@ -101,4 +114,24 @@ exports.assertValidCommand = function(commandName, commandParameters, capabiliti
 		}
 	}
 };
+
+exports.parseTimeInterval = function(interval) {
+
+	var result = /^([0-9]{1,3})(s)?(m)?(h)?$/i.exec(interval);
+	
+	var intervalInSeconds;
+	
+	var intervalInt = parseInt(result[1], 10);
+			
+	if (result[2] != undefined) {
+		intervalInSeconds = intervalInt
+	}
+	if (result[3] != undefined) {
+		intervalInSeconds = intervalInt * 60;
+	}
+	if (result[4] != undefined) {
+		intervalInSeconds = intervalInt * 60 * 60;
+	}
+	return intervalInSeconds;
+}
 
