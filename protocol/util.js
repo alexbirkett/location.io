@@ -58,7 +58,7 @@ exports.parseLongitude = function(longitude) {
 	parsedLongitude.hemisphere = getLongitudeHemisphere(isPositiveNumber);
 	//var longitude = degrees + minutes + seconds + secondsFraction + getLongitudeHemisphere(isPositiveNumber);
 	return parsedLongitude;
-}
+};
 
 exports.parseLatitude = function(latitude) {
 	var parsedLatitude = {};
@@ -91,7 +91,7 @@ exports.executeParseFunctionAndCatchException = function(parseFunction, args) {
 	} catch (e) {
 		console.log('could not parse data ' + args + ' exception ' + e.message);
 	}
-}
+};
 
 exports.assertValidCommand = function(commandName, commandParameters, capabilities) {
 	var command = capabilities.commands[commandName];
@@ -133,5 +133,5 @@ exports.parseTimeInterval = function(interval) {
 		intervalInSeconds = intervalInt * 60 * 60;
 	}
 	return intervalInSeconds;
-}
+};
 
