@@ -10,13 +10,13 @@ var buildCommand = function(commandName, commandParameters) {
 var messageBuilders = {};
 
 var formatLatitude = function(latitude) {
-	var parsedLatitude = util.parseLatitude(latitude);
+	var parsedLatitude = util.parseLatitude(latitude, 2);
 	var latitiude = parsedLatitude.degrees + parsedLatitude.minutes + parsedLatitude.seconds + parsedLatitude.secondsFraction + parsedLatitude.hemisphere;
 	return latitiude;
 }; 
 
 var formatLongitude = function(longitude) {
-	var parsedLongitude = util.parseLongitude(longitude);
+	var parsedLongitude = util.parseLongitude(longitude, 2);
 	var longitude = parsedLongitude.degrees + parsedLongitude.minutes + parsedLongitude.seconds + parsedLongitude.secondsFraction + parsedLongitude.hemisphere;
 	return longitude;
 };
