@@ -89,4 +89,16 @@ exports.executeParseFunctionAndCatchException = function(parseFunction, args) {
 	}
 }
 
+exports.assertValidCommand = function(commandName, commandParameters, capabilities) {
+	var command = capabilities.commands[commandName];
+	for (var parameter in command.parameters) {
+		var regexp = new RegExp(command.parameters[parameter].pattern);
+		var parameterValue = commandParameters[parameter];
+		var match = regexp.test(parameterValue);
+		if (!match) {
+			var message = "parameterValue " + parameterValue + " does not match expression " + command.parameters[parameter].pattern;
+			throw new Error(message);
+		}
+	}
+};
 

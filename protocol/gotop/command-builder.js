@@ -1,21 +1,9 @@
-var capabilities = require('./capabilities').capabilities;
+var capabilities = require('./capabilities');
 var util = require('../util');
 
-var assertValidCommand = function(commandName, commandParameters) {
-	var command = capabilities.commands[commandName];
-	for (var parameter in command.parameters) {
-		var regexp = new RegExp(command.parameters[parameter].pattern);
-		var parameterValue = commandParameters[parameter];
-		var match = regexp.test(parameterValue);
-		if (!match) {
-			var message = "parameterValue " + parameterValue + " does not match expression " + command.parameters[parameter].pattern;
-			throw new Error(message);
-		}
-	}
-};
 
 var buildCommand = function(commandName, commandParameters) {	
-	assertValidCommand(commandName, commandParameters);
+	util.assertValidCommand(commandName, commandParameters, capabilities);
 	return messageBuilders[commandName](commandParameters);
 };
 
