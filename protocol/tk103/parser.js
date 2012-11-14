@@ -1,8 +1,24 @@
 var parseGpsMessage = require('./gps-message-parser');
+var constants = require('./constants');
 
 var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
 
-// Constants names are taken 'as is' from the "GPS Tracker Communication Protocol v1.6 document"
+var loginMessagePattern = /(.{12})(.*)/;
+
+var parseLoginMessage = function(message, frame) {
+	var matchArray = loginMessagePattern.exec(message);
+	frame.serialNumber = matchArray[1];
+	frame.location = parseGpsMessage(matchArray[2]);
+};
+
+var responseToSetUpPassingBackTheIsochronalAndContinuousMessagePattern = /(.{4})(.{2})(.{2})/;
+var parseResponseToSetUpPassingBackTheIsochronalAndContinuousMessage = function(message, frame) {
+	var matchArray = responseToSetUpPassingBackTheIsochronalAndContinuousMessagePattern.exec(message);
+	
+	frame.seconds = matchArray[1];
+	frame.hours = matchArray[2];
+	frame.minutes = matchArray[3];
+};
 
 
 var alarmTypes = {
@@ -19,10 +35,7 @@ var alarmTypes = {
 var alarmMessagePattern = /(.)(.*)/;
 
 var parseAlarmMessage = function(message, frame) {
-	console.log('alarmMessage ');
-	console.log(message);
 	var matchArray = alarmMessagePattern.exec(message);
-	console.log('alarmType ' + matchArray[1]);
 	frame.alarmType = alarmTypes[matchArray[1]];
 	frame.location = parseGpsMessage(matchArray[2]);
 };
@@ -34,8 +47,6 @@ var gpsMessageOnlyParse = function(message, frame) {
 var responseToSetUpVehicleMaxAndMinSpeedMessagePattern = /H(.*)L(.*)/;
 
 var responseToSetUpVehicleMaxAndMinSpeedParse = function(message, frame) {
-	console.log('responseToSetUpVehicleMaxAndMinSpeedParse');
-	console.log(message);
 	var matchArray = responseToSetUpVehicleMaxAndMinSpeedMessagePattern.exec(message);
 	// this is guesswork, the document does not specify what H and L are.
 	frame.maxSpeed = matchArray[1];
@@ -66,7 +77,6 @@ var responseToReadingTheTerminalVersionMessage = function(message, frame) {
 var dispatchScreenSendsAShortMessageToTheCenterParse = function(message, frame) {
 	var length = message.readUInt16LE(0);
 	frame.message = message.slice(2);
-	//console.log("length " + length + "message length " + frame.message.length);
 };
 
 var notImplemented = function() {
@@ -80,14 +90,18 @@ var answerToSettingGeoFenceMessagesMessagesTypes = {
 };
 
 var answerToGroupNumbersParse = function(message, frame) {
-	console.log('answerToDownloadingGroupNumbersParse');
 	frame.status = answerToSettingGeoFenceMessagesMessagesTypes[message];
 };
 
 var uploadGroupNumbersParse = function(message, frame) {
 	// todo
-}
+};
+
+
+
 var messageTypes = {
+	'P05': [constants.messages.LOGIN_MESSAGE, parseLoginMessage, 'AP05'],
+	'S08': [constants.messages.RESPONSE_TO_SET_UP_PASSING_BACK_THE_ISOCHRONAL_AND_CONTINUOUS_MESSAGE, parseResponseToSetUpPassingBackTheIsochronalAndContinuousMessage ],
 	'O01': ['alarmMessage', parseAlarmMessage, 'AS01'],
 	'P04': ['answerToMessageOfCallingTheRoll', gpsMessageOnlyParse],
 	'R00': ['isochronousAndContinuesFeedbackMessage', gpsMessageOnlyParse],
@@ -137,10 +151,8 @@ function parseMessage(message) {
 		trackerIdlength++;
 	}
 	frame.trackerId = message.slice(0, trackerIdlength);
-	console.log('tracker id ' + frame.trackerId);
 
 	var messageCode = message.slice(trackerIdlength + 1, trackerIdlength + 4);
-	console.log('message code ' + messageCode);
 	var messageType = executeParseFunctionAndCatchException(lookupMessageType, messageCode, message);
 	
 	frame.type = messageType[0];
@@ -148,7 +160,6 @@ function parseMessage(message) {
 	
 	if (parseFunction != undefined) {
 		var messageBody = message.slice(trackerIdlength + 4);
-		console.log('message body ' + messageBody);
 		executeParseFunctionAndCatchException(parseFunction, [messageBody, frame], message);
 	}
 	

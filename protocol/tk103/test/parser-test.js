@@ -1,5 +1,7 @@
 var parse = require('../parser');
+var constants = require('../constants');
 var assert = require('assert');
+
 
 //tk103.parseMessage("(013632782450BP05000013632782450110601V5955.5002N01034.4865E000.020184973.73000000000L000086C0)");
 
@@ -21,6 +23,18 @@ var ALARM_MESSAGE = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734
 
 
 // from protocol document
+function testLoginMessage() {
+	var MESSAGE = new Buffer("(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"); 
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type, message.type,constants.messages.LOGIN_MESSAGE);
+	assert.notEqual(message.location, undefined);
+}
+
+function testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage() {
+	var MESSAGE = new Buffer("(013612345678BS0800050014)");
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type,constants.messages.RESPONSE_TO_SET_UP_PASSING_BACK_THE_ISOCHRONAL_AND_CONTINUOUS_MESSAGE);
+}
 
 function testParseAlarmMessge() {
 	var MESSAGE = new Buffer("(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)");
@@ -78,7 +92,6 @@ function testAnswerToSettingGeoFenceMessagesMessages() {
 	var MESSAGE = new Buffer("(013612345678BU0001)");
 	var message = parse(MESSAGE).message;
 	assert.equal(message.type, 'answerToSettingGeoFenceMessagesMessages');
-	console.log(message);
 }
 
 function testObtainTheTerminalLocationMessage() {
@@ -194,6 +207,8 @@ function testAlarmForDataOffsetAndMessagesReturn() {
 	assert.notEqual(message.location, undefined);
 }
 
+testLoginMessage();
+testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage();
 testParseAlarmMessge();
 testAnswerToMessageOfCallingTheRoll();
 testIsochronousAndContinuesFeedbackMessage();
