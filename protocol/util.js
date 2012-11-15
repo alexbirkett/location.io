@@ -19,13 +19,13 @@ var parseLatLng = function(latlng) {
 	return  /^(-)?([0-9]*)\.([0-9]*)$/i.exec(latlng + "");
 };
 
-var calculteMinutesAndSeconds = function(val, numberOfDecimalPlacesForFraction) {
+var calculteMinutesAndSeconds = function(val) {
 	var returnValue = {};
 	var minutes = (val * 60);
 	returnValue.minutes = Math.floor(minutes); // round 
 	var seconds = (minutes - returnValue.minutes) * 60;
 	returnValue.seconds = Math.floor(seconds);
-	returnValue.secondsFraction = ((seconds - returnValue.seconds).toFixed(numberOfDecimalPlacesForFraction) + "").substr(numberOfDecimalPlacesForFraction);
+	returnValue.secondsFraction = ((seconds - returnValue.seconds).toFixed(2) + "").substr(2);
 	return returnValue;
 };
 
@@ -46,28 +46,28 @@ var getLatitudeHemisphere = function(positiveNumber) {
 };
 
 
-exports.parseLongitude = function(longitude, numberOfDecimalPlacesForFraction) {
+exports.parseLongitude = function(longitude) {
 	var parsedLongitude = {};
 	var result = parseLatLng(longitude);
 	parsedLongitude.degrees = prependZeros(result[2], 3);
-	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]), numberOfDecimalPlacesForFraction);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]));
 	parsedLongitude.minutes = prependZeros(minutesAndSeconds.minutes, 2);
 	parsedLongitude.seconds = prependZeros(minutesAndSeconds.seconds, 2);
-	parsedLongitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, numberOfDecimalPlacesForFraction);
+	parsedLongitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
 	var isPositiveNumber = result[1] == undefined;
 	parsedLongitude.hemisphere = getLongitudeHemisphere(isPositiveNumber);
 	//var longitude = degrees + minutes + seconds + secondsFraction + getLongitudeHemisphere(isPositiveNumber);
 	return parsedLongitude;
 };
 
-exports.parseLatitude = function(latitude, numberOfDecimalPlacesForFraction) {
+exports.parseLatitude = function(latitude) {
 	var parsedLatitude = {};
 	var result = parseLatLng(latitude);
 	parsedLatitude.degrees = prependZeros(result[2], 2);
-	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]), numberOfDecimalPlacesForFraction);
+	var minutesAndSeconds = calculteMinutesAndSeconds(parseFloat("0." + result[3]));
 	parsedLatitude.minutes = prependZeros(minutesAndSeconds.minutes, 2);
 	parsedLatitude.seconds = prependZeros(minutesAndSeconds.seconds, 2);
-	parsedLatitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, numberOfDecimalPlacesForFraction);
+	parsedLatitude.secondsFraction = prependZeros(minutesAndSeconds.secondsFraction, 2);
 	var isPositiveNumber = result[1] == undefined;
 	parsedLatitude.hemisphere = getLatitudeHemisphere(isPositiveNumber);
 	return parsedLatitude;
