@@ -24,7 +24,7 @@ Connection.prototype.attachSocket = function(socket) {
 	}; 
 
 	var detectProtocolModuleIfRequired = function() {
-		console.log('detect protocol if required');
+		//console.log('detect protocol if required');
 		if (self.protocolModule == null) {
 			try {
 				
@@ -34,7 +34,7 @@ Connection.prototype.attachSocket = function(socket) {
 					if (moduleToTest.isSupportedProtocol(self.frameBuffer)) {
 						self.protocolModule = moduleToTest;
 						self.protocolModuleName = protocolModuleName;
-						console.log('using ' + protocolModuleName + 'protocol module');
+						console.log('using ' + protocolModuleName + ' protocol module');
 						break;
 					}
 					
