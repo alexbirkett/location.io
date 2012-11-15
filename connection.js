@@ -93,6 +93,7 @@ Connection.prototype.attachSocket = function(socket) {
 
 Connection.prototype.sendCommand = function(commandName, commandParameters, callback) {
 	console.log('sending commmand ' + commandName);
+	commandParameters.trackerId = this.id;
 	console.log(commandParameters);
 	try {
 		var message = this.protocolModule.buildCommand(commandName, commandParameters);
