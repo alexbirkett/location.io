@@ -41,13 +41,13 @@ function testLoginMessage() {
 function testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage() {
 	var MESSAGE = new Buffer("(013612345678BS0800050014)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type,constants.messages.RESPONSE_TO_SET_UP_PASSING_BACK_THE_ISOCHRONAL_AND_CONTINUOUS_MESSAGE);
+	assert.equal(message.type,constants.messages.CONTINUOUS_ANSWER_SETTING_ISOCHRONOUS_FEEDBACK_MESSAGE);
 }
 
 function testParseAlarmMessge() {
 	var MESSAGE = new Buffer("(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'alarmMessage');
+	assert.equal(message.type, constants.messages.ALARM_MESSAGE);
 	assert.equal(message.alarmType, 'sos');
 	assert.notEqual(message.location, undefined);
 }
@@ -55,7 +55,7 @@ function testParseAlarmMessge() {
 function testAnswerToMessageOfCallingTheRoll() {
 	var MESSAGE = new Buffer("(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'answerToMessageOfCallingTheRoll');
+	assert.equal(message.type, constants.messages.ANSWER_CALLING_MESSAGE);
 	assert.notEqual(message.location, undefined);
 	//console.log(message);
 }
@@ -63,7 +63,7 @@ function testAnswerToMessageOfCallingTheRoll() {
 function testIsochronousAndContinuesFeedbackMessage() {
 	var MESSAGE = new Buffer("(013612345678BR00080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'isochronousAndContinuesFeedbackMessage');
+	assert.equal(message.type, constants.messages.ISOCHRONOUS_FOR_CONTINUES_FEEDBACK_MESSAGE);
 	assert.notEqual(message.location, undefined);
 }
 
@@ -71,35 +71,58 @@ function testContinuouslyPassingBackEndingMessage() {
 	// this example is derived from the isochronousAndContinuesFeedbackMessage message, not from the protocol document
 	var MESSAGE = new Buffer("(013612345678BR02080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'continuouslyPassingBackEndingMessage');
+	assert.equal(message.type, constants.messages.CONTINUES_FEEDBACK_ENDING_MESSAGE);
 	assert.notEqual(message.location, undefined);
 }
 
 function testResponseToSetUpVehicleMaxAndMinSpeed() {
 	var MESSAGE = new Buffer("(013612345678BP12H0501L030)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'setVehicleMaxAndMinSpeedResponse');
+	assert.equal(message.type, constants.messages.SETUP_THE_SPEED_OF_THE_CAR);
 }
 
 function testResponseToCircuitControl() {
 	// this example is homemade, not from the protocol document
 	var MESSAGE = new Buffer("(013612345678BV001)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'setCircuitControlResponse');
+	assert.equal(message.type, constants.messages.CONTROL_CIRCUIT);
 }
 
 function testResponseToOilControl() {
 	// this example is homemade, not from the protocol document
 	var MESSAGE = new Buffer("(013612345678BV011)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'setOilControlResponse');
+	assert.equal(message.type, constants.messages.CONTROL_OIL);
+}
+
+
+function testAnswerTheRestartedMessageOfTheDevice() {
+// this example is homemade, not from the protocol document
+	var MESSAGE = new Buffer("(013612345678BT00)");
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type, constants.messages.ANSWER_THE_RESTARTED_MESSAGE_OF_THE_DEVICE);
+}
+
+function testAnswerTheSettingACCOpenSendingDataIntervals() {
+// this example is homemade, not from the protocol document
+	var MESSAGE = new Buffer("(013612345678BR05)");
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_ACC_OPEN_SENDING_DATA_INTERVALS);
+}
+
+
+function testAnswerTheSettingAccCloseSendingDataIntervals() {
+// this example is homemade, not from the protocol document
+	var MESSAGE = new Buffer("(013612345678BR06)");
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_ACC_CLOSE_SENDING_DATA_INTERVALS);
 }
 
 function testAnswerToSettingGeoFenceMessagesMessages() {
 	// this example is homemade, not from the protocol document
 	var MESSAGE = new Buffer("(013612345678BU0001)");
 	var message = parse(MESSAGE).message;
-	assert.equal(message.type, 'answerToSettingGeoFenceMessagesMessages');
+	assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_GEO_FENCE_MESSAGE);
 }
 
 function testObtainTheTerminalLocationMessage() {
@@ -225,6 +248,10 @@ testContinuouslyPassingBackEndingMessage();
 testResponseToSetUpVehicleMaxAndMinSpeed();
 testResponseToCircuitControl();
 testResponseToOilControl();
+testAnswerTheRestartedMessageOfTheDevice();
+testAnswerTheSettingACCOpenSendingDataIntervals();
+testAnswerTheSettingAccCloseSendingDataIntervals();
+
 testAnswerToSettingGeoFenceMessagesMessages();
 testObtainTheTerminalLocationMessage();
 testResponseToMonitoringCommands();
