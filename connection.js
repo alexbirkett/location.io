@@ -72,6 +72,9 @@ Connection.prototype.attachSocket = function(socket) {
 					break;
 				} else {
 					handleMessage(result.message);
+					if (result.requiredMessageAck != undefined) {
+						self.sendCommand(result.requiredMessageAck, result.message, function() {});
+					}
 				}
 			}
 			
@@ -89,9 +92,11 @@ Connection.prototype.attachSocket = function(socket) {
 };
 
 Connection.prototype.sendCommand = function(commandName, commandParameters, callback) {
-	
+	console.log('sending commmand ' + commandName);
+	console.log(commandParameters);
 	try {
 		var message = this.protocolModule.buildCommand(commandName, commandParameters);
+		console.log('sending to tracker: ' + message)
 		this.socket.write(message, function(err) {
 			callback(err);
 		});
