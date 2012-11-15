@@ -77,6 +77,27 @@ exports.parseLatitude = function(latitude) {
 	return parsedLatitude;
 };
 
+var parseLatLngMinDec = function(latlng, degreeDecimalPlaces, getHemesphere) {
+	var parsedLatLng = {};
+	var result = parseLatLng(latlng);
+	parsedLatLng.degrees = prependZeros(result[2], degreeDecimalPlaces);
+
+	var minutes = calculateMinutes(result[3]);
+	parsedLatLng.minutes = prependZeros(Math.floor(minutes), 2);
+	parsedLatLng.minutes = parsedLatLng.minutes + "." + calculateDecimal(minutes, 3);
+	var isPositiveNumber = result[1] == undefined;
+	parsedLatLng.hemisphere = getHemesphere(isPositiveNumber);
+	return parsedLatLng;
+}
+
+exports.parseLongitudeMinDec = function(longitude) {
+	return parseLatLngMinDec(longitude, 3, getLongitudeHemisphere);
+};
+
+exports.parseLatitudeMinDec = function(latitude) {
+	return parseLatLngMinDec(latitude, 2, getLatitudeHemisphere);
+};
+
 function isArray(o) {
 	  return Object.prototype.toString.call(o) === '[object Array]';
 }
