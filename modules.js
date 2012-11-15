@@ -1,6 +1,6 @@
 
 protocolModules = {};
-var protocols = ['gotop'];
+var protocols = ['gotop', 'tk103'];
 
 
 protocols.forEach(function(moduleName) {
