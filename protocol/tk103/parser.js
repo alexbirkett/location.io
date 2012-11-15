@@ -3,8 +3,14 @@ var constants = require('./constants');
 
 var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
 
-var loginMessagePattern = /(.{12})(.*)/;
+var handshakeSignalMessagePattern = /(.*)HSO/;
 
+var parseHandshakeSignalMessage = function(message, frame) {
+	var matchArray = handshakeSignalMessagePattern.exec(message);
+	frame.serialNumber = matchArray[1];
+};
+
+var loginMessagePattern = /(.{12})(.*)/;
 var parseLoginMessage = function(message, frame) {
 	var matchArray = loginMessagePattern.exec(message);
 	frame.serialNumber = matchArray[1];
@@ -97,9 +103,8 @@ var uploadGroupNumbersParse = function(message, frame) {
 	// todo
 };
 
-
-
 var messageTypes = {
+	'P00' :[constants.messages.HANDSHAKE_SIGNAL_MESSAGE, parseHandshakeSignalMessage, 'AP01'],
 	'P05': [constants.messages.LOGIN_MESSAGE, parseLoginMessage, 'AP05'],
 	'S08': [constants.messages.RESPONSE_TO_SET_UP_PASSING_BACK_THE_ISOCHRONAL_AND_CONTINUOUS_MESSAGE, parseResponseToSetUpPassingBackTheIsochronalAndContinuousMessage ],
 	'O01': ['alarmMessage', parseAlarmMessage, 'AS01'],

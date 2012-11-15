@@ -23,6 +23,14 @@ var ALARM_MESSAGE = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734
 
 
 // from protocol document
+
+function testAnswerHandshakeSignalMessage() {
+	var MESSAGE = new Buffer("(013612345678BP00000013612345678HSO)"); 
+	var message = parse(MESSAGE).message;
+	assert.equal(message.type, message.type,constants.messages.ANSWER_HANDSHAKE_SIGNAL_MESSAGE);
+	assert.equal(message.serialNumber, "000013612345678");
+}
+
 function testLoginMessage() {
 	var MESSAGE = new Buffer("(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"); 
 	var message = parse(MESSAGE).message;
@@ -207,6 +215,7 @@ function testAlarmForDataOffsetAndMessagesReturn() {
 	assert.notEqual(message.location, undefined);
 }
 
+testAnswerHandshakeSignalMessage();
 testLoginMessage();
 testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage();
 testParseAlarmMessge();
