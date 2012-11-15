@@ -83,7 +83,7 @@ Connection.prototype.attachSocket = function(socket) {
 	});
 	
 	this.socket.on('close', function(data) {
-		self.eventEmitter.emit('tracker-disconnected', self.id);
+		self.eventEmitter.emit('tracker-disconnected', self.getId());
 	});
 
 	this.socket.on('error', function() {
