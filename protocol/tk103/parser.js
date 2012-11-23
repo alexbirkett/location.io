@@ -10,10 +10,10 @@ var parseHandshakeSignalMessage = function(message, frame) {
 	frame.serialNumber = matchArray[1];
 };
 
-var loginMessagePattern = /(.{12})(.*)/;
+var loginMessagePattern = /(.{15})(.*)/;
 var parseLoginMessage = function(message, frame) {
 	var matchArray = loginMessagePattern.exec(message);
-	frame.serialNumber = matchArray[1];
+	frame.terminalId = matchArray[1];
 	frame.location = parseGpsMessage(matchArray[2]);
 };
 
@@ -33,8 +33,8 @@ var alarmTypes = {
 	'2':'sos',
 	'3':'vehicleAntiTheftAndAlarming',
 	'4':'lowSpeedAlert',
-	'5':'geoFence',
-	'6':'overSpeedAlert',
+	'5':'overSpeedAlert',
+	'6':'geoFence',
 	'7':'movementAlert'
 };
 
@@ -161,10 +161,10 @@ function parseMessage(message, result) {
 	result.frame = frame;
 	
 	var trackerIdlength = 0;
-	while(message.readInt8(trackerIdlength) != 66) { // 66 is B
+	while(message.readInt8(trackerIdlength) != 66 && trackerIdlength < message.length) { // 66 is B
 		trackerIdlength++;
 	}
-	frame.trackerId = message.slice(0, trackerIdlength);
+	frame.trackerId = message.slice(0, trackerIdlength)+"";
 
 	var messageCode = message.slice(trackerIdlength + 1, trackerIdlength + 4);
 	var messageType = executeParseFunctionAndCatchException(lookupMessageType, messageCode, message);
