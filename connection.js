@@ -57,27 +57,34 @@ Connection.prototype.attachSocket = function(socket) {
 	}; 
 
 	this.socket.on('data', function(data) {
-		self.frameBuffer = Buffer.concat([self.frameBuffer, data]);
-		detectProtocolModuleIfRequired();
-		
-		//console.log('data');
-		
-		if (self.protocolModule != null) {
-			
-			while (self.frameBuffer.length > 0) {
-				var result = self.protocolModule.parse(self.frameBuffer);
-				self.frameBuffer = result.buffer;
-				if (result.message == undefined) {
-					// could not parse message
-					break;
-				} else {
-					handleMessage(result.message);
-					if (result.requiredMessageAck != undefined) {
-						self.sendCommand(result.requiredMessageAck, result.message, function() {});
+	
+		try {
+			self.frameBuffer = Buffer.concat([self.frameBuffer, data]);
+			detectProtocolModuleIfRequired();
+
+			//console.log('data');
+
+			if (self.protocolModule != null) {
+
+				while (self.frameBuffer.length > 0) {
+					var result = self.protocolModule.parse(self.frameBuffer);
+					self.frameBuffer = result.buffer;
+					if (result.message == undefined) {
+						// could not parse message
+						break;
+					} else {
+						handleMessage(result.message);
+						if (result.requiredMessageAck != undefined) {
+							self.sendCommand(result.requiredMessageAck, result.message, function() {
+							});
+						}
 					}
 				}
+
 			}
-			
+		} catch (e) {
+			console.log('error parsing data from ' + self.getId());
+			//self.socket.destroy();
 		}
 
 	});
