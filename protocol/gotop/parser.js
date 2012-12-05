@@ -103,24 +103,31 @@ parseMessage = function(message) {
 	return frame;
 };
 
-var findFrameAndParseMessage = function(buffer) {
-	var returnObject = {};
-	returnObject.buffer = buffer; // pass back the buffer if we can't parse the message yet
-	var messageStartIndex = -1;
-	
-	for (var i = 0; i < buffer.length; i++) {
-		if (buffer.readUInt8(i) == 35) {	
-			if (messageStartIndex > -1) {
-				returnObject.message = parseMessage(buffer.slice(messageStartIndex + 1, i));
-				returnObject.buffer = buffer.slice(i + 1);
-				break;
-			} else {
-				messageStartIndex = i;
+var findFrameAndParseMessage = function(buffer, callback) {
+	var messageStartIndex = 0;
+	var error = null;
+	var message;
+
+	try {
+		if (buffer.length < 0 || buffer.readUInt8(0) == 35) {
+			for (var i = 1; i < buffer.length; i++) {
+				if (buffer.readUInt8(i) == 35) {
+					message = parseMessage(buffer.slice(messageStartIndex + 1, i));
+					buffer = buffer.slice(i + 1);
+					break;
+				}
 			}
 		}
-	}
-	return returnObject;
 
-}
+	} catch(e) {
+		error = e;
+	}
+
+	process.nextTick(function() {
+		callback(error, message, buffer);
+	});
+
+}; 
+
 
 module.exports = findFrameAndParseMessage;

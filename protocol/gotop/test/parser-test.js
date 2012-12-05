@@ -1,7 +1,6 @@
 var parseMessage = require('../parser');
 var assert = require('assert');
 var vows = require('vows');
-var DataConsumedEnum = require('../../data-consumed-enum');
 
 var CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 var CMD_X = "#861785001515349,CMD-X#";
@@ -28,7 +27,7 @@ vows.describe('gotop').addBatch({
 			topic : function(banana) {
 				parseMessage(new Buffer(CMD_T), this.callback);
 			},
-			'should be a setContinuousTrackingResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setContinuousTrackingResponse' : function(err, message, buffer) {
 				var expectedMessage = {
 					trackerId : '861785001515349',
 					type : 'setContinuousTrackingResponse',
@@ -52,7 +51,6 @@ vows.describe('gotop').addBatch({
 				};
 
 				assert.deepEqual(message, expectedMessage);
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -60,7 +58,7 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_X), this.callback);
 			},
-			'should be a heartBeat' : function(err, dataConsumed, message, buffer) {
+			'should be a heartBeat' : function(err, message, buffer) {
 
 				var expectedMessage = {
 					trackerId : '861785001515349',
@@ -68,7 +66,6 @@ vows.describe('gotop').addBatch({
 				};
 
 				assert.deepEqual(message, expectedMessage);
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -76,10 +73,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(ALM_A), this.callback);
 			},
-			'should be an sosAlarm' : function(err, dataConsumed, message, buffer) {
+			'should be an sosAlarm' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'sosAlarm');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -87,10 +83,8 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_T_GPS101), this.callback);
 			},
-			'should be a setContinuousTrackingResponse' : function(err, dataConsumed, message, buffer) {
-
+			'should be a setContinuousTrackingResponse' : function(err, message, buffer) {
 				assert.equal(message.type, 'setContinuousTrackingResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -98,10 +92,8 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(ERROR), this.callback);
 			},
-			'should be an error' : function(err, dataConsumed, message, buffer) {
-
+			'should be an error' : function(err, message, buffer) {
 				assert.equal(message.type, 'error');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -109,10 +101,8 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(ERROR2), this.callback);
 			},
-			'should be an error' : function(err, dataConsumed, message, buffer) {
-
+			'should be an error' : function(err, message, buffer) {
 				assert.equal(message.type, 'error');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -120,10 +110,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_A1), this.callback);
 			},
-			'should be a setAuthorizedNumberResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setAuthorizedNumberResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setAuthorizedNumberResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -131,10 +120,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_A1), this.callback);
 			},
-			'should be a setAuthorizedNumberResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setAuthorizedNumberResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setAuthorizedNumberResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -142,10 +130,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_F), this.callback);
 			},
-			'shoud be a oneTimeLocate' : function(err, dataConsumed, message, buffer) {
+			'shoud be a oneTimeLocate' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'oneTimeLocate');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -153,10 +140,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_C), this.callback);
 			},
-			'should be setApnAndServerResponse' : function(err, dataConsumed, message, buffer) {
+			'should be setApnAndServerResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setApnAndServerResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -175,10 +161,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_U1), this.callback);
 			},
-			'should be a setListenModeResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setListenModeResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setListenModeResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -186,10 +171,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_N), this.callback);
 			},
-			'should be a setLowBatteryAlarmResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setLowBatteryAlarmResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setLowBatteryAlarmResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -197,10 +181,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_H), this.callback);
 			},
-			'should be a setModifyPasswordResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setModifyPasswordResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setModifyPasswordResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -208,10 +191,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_J), this.callback);
 			},
-			'should be a setSpeedingAlarmResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setSpeedingAlarmResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setSpeedingAlarmResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
@@ -219,35 +201,28 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(CMD_L), this.callback);
 			},
-			'should be a setTimeZoneResponse' : function(err, dataConsumed, message, buffer) {
+			'should be a setTimeZoneResponse' : function(err, message, buffer) {
 
 				assert.equal(message.type, 'setTimeZoneResponse');
-				assert.equal(dataConsumed, DataConsumedEnum.Yes);
 				assert.equal(buffer.length, 0);
 			}
 		},
 		'test multiple frames' : { topic : function() {
-				console.log('parse message');
 				parseMessage(new Buffer(MULTIPLE_CMD), this.callback);
 			}, 'after heartbeat': { 
-					topic: function(dataConsumed, message, buffer) {
+					topic: function(message, buffer) {
 					assert.equal(message.type, 'heartBeat');
-					assert.equal(dataConsumed, DataConsumedEnum.Yes);
 					assert.notEqual(buffer.length, 0);
 					parseMessage(buffer, this.callback);
 				},
 				'after setAuthorizedNumberResponse' : {
-					topic: function(dataConsumed, message, buffer) {
-						console.log(message.type);
+					topic: function(message, buffer) {
 						assert.equal(message.type, 'setAuthorizedNumberResponse');
-						assert.equal(dataConsumed, DataConsumedEnum.Yes);
 						assert.notEqual(buffer.length, 0);
 						parseMessage(buffer, this.callback);
 					},
-					'after oneTimeLocate': function(err, dataConsumed, message, buffer) {
-						console.log(message.type);
+					'after oneTimeLocate': function(err, message, buffer) {
 						assert.equal(message.type, 'oneTimeLocate');
-						assert.equal(dataConsumed, DataConsumedEnum.Yes);
 						assert.equal(buffer.length, 0);
 					}
 				}
@@ -259,8 +234,7 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 				parseMessage(new Buffer(PARTIAL_MESSAGE), this.callback);
 			},
-			'should return more data required' : function(err, dataConsumed, message, buffer) {
-				assert.equal(dataConsumed, DataConsumedEnum.MoreDataRequired);
+			'should return more data required' : function(err, message, buffer) {
 				assert.notEqual(buffer.length, 0);
 			}
 		}
