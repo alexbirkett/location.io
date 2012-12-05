@@ -4,6 +4,11 @@
     "description": "Location.IO facilitates the creation of GPS tracking solutions by providing a common interface to tracking hardware",
     "engine": "node >= 0.8.3",
     "dependencies": {
-        "hashmap": "0.9.x"
-    }
+        "hashmap": "0.9.x",
+        "vows": "0.7.x",
+        "enum": "0.2.x"
+    },
+    "scripts": {
+  		"test": "expresso test/*"
+	}
 }
