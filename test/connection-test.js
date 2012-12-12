@@ -64,7 +64,7 @@ vows.describe('connection.parse').addBatch({
 			}, protocolModules);
 			connection._parse(new Buffer(7), this.callback);
 		},
-		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, connection) {
+		'should remove module that returns an error' : function(err, message, data, connection) {
 			assert.isNull(err);
 			assert.isNull(message); // no message was sent back
 			assert.equal(data.length, 7); // we get back the same buffer we passed in
