@@ -70,6 +70,33 @@ vows.describe('connection.parse').addBatch({
 			assert.equal(data.length, 7); // we get back the same buffer we passed in
 			assert.equal(connection.protocolModules.length, 2); // the module that threw an error should have been removed
 		}
+	},
+	'parse when first module returns a message' : {
+		topic : function() {
+			var protocolModules = [{
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback(null, 'message', buffer);
+					});
+				}
+			}, {
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback(null, null, buffer);
+					});
+				}
+			}];
+
+			var connection = new Connection(function() {
+			}, protocolModules);
+			connection._parse(new Buffer(12), this.callback);
+		},
+		'should not call parse on second module in list' : function(err, message, data, connection) {
+			assert.isNull(err);
+			assert.equal(message, 'message');
+			assert.equal(data.length, 12); // we get back the same buffer we passed in
+			assert.equal(connection.protocolModules.length, 1); // only the module that returned the message should callback
+		}
 	}
 }).export(module);
 // Export the Suite
