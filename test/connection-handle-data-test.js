@@ -25,32 +25,30 @@ var getParseFunction = function(meta) {
 	return parse;
 };
 
-var firstTest = function(testCallback) {
-	var self = {};
-	self.dataBuffer = new Buffer("hello world");
-	self.protocolModules = [1, 2, 3];
-
-	var meta = {};
-
-	meta.handleMessageCallCount = 0;
-	meta.messagesHandled = [];
-	
-	var handleMessage = function(message) {
-		meta.messagesHandled[meta.handleMessageCallCount] = message;
-		meta.handleMessageCallCount++;
-	};
-	
-	var allDoneCallback = function() {
-		testCallback(self, meta);
-	};
-	connection._handleData(self, getParseFunction(meta), handleMessage, allDoneCallback);
-}; 
-
 
 vows.describe('connection.handleData').addBatch({
 	'handle data returns a message' : {
 		topic : function() {
-			firstTest(this.callback);
+			var self = {};
+			self.dataBuffer = new Buffer("hello world");
+		//	self.protocolModules = [1, 2, 3];
+
+			var meta = {};
+			var testCaseCallback = this.callback;
+			
+			meta.handleMessageCallCount = 0;
+			meta.messagesHandled = [];
+	
+			var handleMessage = function(message) {
+				meta.messagesHandled[meta.handleMessageCallCount] = message;
+				meta.handleMessageCallCount++;
+			};
+	
+			var handleDataDoneCallback = function() {
+				testCaseCallback(self, meta);
+			};
+			
+			connection._handleData(self, getParseFunction(meta), handleMessage, handleDataDoneCallback);
 		},
 		'should return a message' : function(self, meta) {
 			console.log('self');
