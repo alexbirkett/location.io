@@ -1,39 +1,33 @@
 var forEach = require('async-foreach').forEach;
 require('smarter-buffer');
 
-var getId = function(self) {
-	return self.protocolModules[0].name + self.id;
-}
-module.exports.getId = getId;
-
-module.exports.attachSocket = function(socket, protocolModules, callback) {
-	var self = socket;
-	self.protocolModules = protocolModules.slice(); // make a copy of the array, not its contents
+module.exports.attachSocket = function(self, socket, protocolModules, callback) {
+	self.protocolModules = protocolModules;
 	
 	socket.setKeepAlive(true, 600000);	
 
 	var setAndEmittIdIfrequired = function(message) {
 		
-		if (self.id == null) {
-			self.id = message.trackerId;
-			callback('tracker-connected', getId(self), self.protocolModules[0]);
+		if (!self.id) {
+			self.id = self.protocolModules[0].name + message.trackerId;
+			callback('tracker-connected', self.id, self.protocolModules[0].name);
 		}
 	}; 
 	
 	var handleMessage = function(message) {
 		setAndEmittIdIfrequired(message);
-		callback("message", getId(self), message);
+		callback("message", self.id, message);
 	}; 
 
 	socket.on('data', function(data) {
 		bufferAndHandleData(self, data, handleData, parse, function(message) {
 			setAndEmittIdIfrequired(message);
-			callback('message', getId(self), message);
+			callback('message', self.id, message);
 		});
 	});
 	
 	socket.on('close', function(data) {
-		callback('tracker-disconnected', getId(self));
+		callback('tracker-disconnected', self.id);
 	});
 
 	socket.on('error', function() {
@@ -58,20 +52,20 @@ var handleData = function(self, parseFunction, handleMessageFunction, callback) 
 	}
 	
 	var doCallCallback = function() {
-		if ( typeof (callback) == "function") {
+		if (typeof (callback) == "function") {
 			callback(null);
 		}
 	};
 
 	var handleParseComplete = function(err, message, data, protocolModules) {
-	
+
+		self.dataBuffer = Buffer.smarterConcat([data, self.dataBuffer]);
+		self.protocolModules = protocolModules;
+			
 		if (message) {
 			handleMessageFunction(message);
 		}
 		
-		self.dataBuffer = Buffer.smarterConcat([data, self.dataBuffer]);
-		self.protocolModules = protocolModules;
-	
 		if (message && self.dataBuffer.length > 0) {
 			kickOffParse();
 		} else {

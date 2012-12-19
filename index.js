@@ -27,8 +27,23 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	
 	this.connections = {};
 
-	server.on('connection', function(socket) {	
-		connection.attachSocket(socket, self.protocolModules, emitFunction);
+	var createProtocolModuleArray = function() {
+		
+		var moduleArray = [];
+		for (var moduleName in this.protocolModules) {
+			var module = this.protocolModules[moduleName];
+			module.name = moduleName;
+			moduleArray.push(module);
+		}
+		
+		console.log('returning ');
+		console.log(moduleArray);
+		return moduleArray;
+	};
+	
+	server.on('connection', function(socket) {
+		console.log('socket connected');
+		connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
 		self.connections[socket.remoteAddress+":"+socket.remotePort] = socket;
 	});
 
@@ -60,7 +75,7 @@ LocationIo.prototype.findConnectionById = function(id) {
 	for (var socket in this.connections) {
 		
 		var connection = this.connections[socket];
-		console.log('testing connection ' + connection.getId());
+		console.log('testing connection ' + connection.id);
 			
 		if (connection.id == id) {
 			return connection;
@@ -69,6 +84,8 @@ LocationIo.prototype.findConnectionById = function(id) {
 };
 
 LocationIo.prototype.getCapabilities = function(protocolName) {
+	console.log('protocol name ' + protocolName);
+	console.log(protocolName);
 	console.log(this.protocolModules);
 	
 	
