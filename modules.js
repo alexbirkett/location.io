@@ -1,13 +1,11 @@
 
-protocolModules = [];
-var protocols = ['gotop'/*, 'tk103'*/];
+protocolModules = {};
+var protocols = ['gotop', 'tk103'];
 
-var index = 0;
 
 protocols.forEach(function(moduleName) {
-	protocolModules[index] = require('./protocol/' + moduleName + '/module');
-	protocolModules[index].name = moduleName;
-	index++;
+	protocolModules[moduleName] = require('./protocol/' + moduleName + '/module');
+		
 });
 
 module.exports = protocolModules;
