@@ -1,4 +1,4 @@
-var LocationIo = require('./location-io');
+var LocationIo = require('./index');
 
 var locationIo = new LocationIo();
 

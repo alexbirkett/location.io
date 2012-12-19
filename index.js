@@ -1,10 +1,9 @@
 //require('v8-profiler');
 var net = require('net');
 var fs = require('fs');
-var ProtocolIdentifier = require('./protocol-identifier');
 var events = require('events');
 var util = require('util');
-var Connection = require('./connection');
+var connection = require('./connection');
 
 var LocationIo = function() {
 	events.EventEmitter.call(this);
@@ -14,18 +13,23 @@ util.inherits(LocationIo, events.EventEmitter);
 
 LocationIo.prototype.protocolModules = require('./modules');
 
-LocationIo.prototype.createServer = function(port) {
+LocationIo.prototype.createServer = function(port, emitFunction) {
 
 	var self = this;
-	this.emit('server_up', "server up");
+	if (!emitFunction) {
+		emitFunction = function() {
+			self.emit.apply(self, arguments);
+		};
+	}
+
+	emitFunction('server_up', "server up");
 	var server = net.createServer();
 	
 	this.connections = {};
 
 	server.on('connection', function(socket) {	
-		var connection = new Connection(self, self.protocolModules);
-		connection.attachSocket(socket);
-		self.connections[socket.remoteAddress+":"+socket.remotePort] = connection;
+		connection.attachSocket(socket, self.protocolModules, emitFunction);
+		self.connections[socket.remoteAddress+":"+socket.remotePort] = socket;
 	});
 
 	server.on('close', function(socket) {
@@ -38,13 +42,13 @@ LocationIo.prototype.createServer = function(port) {
 
 LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParameters, callback) {
 	console.log('trackerId ' + trackerId)
-	var connection = this.findConnectionById(trackerId);
-	if (connection == undefined) {
+	var socket = this.findConnectionById(trackerId);
+	if (socket == undefined) {
 		process.nextTick(function() {
 			callback('unknown tracker');
 		});
 	} else {
-		connection.sendCommand(commandName, commandParameters, callback);
+		connection.sendCommand(socket, socket, commandName, commandParameters, callback);
 	}
 };
 
@@ -58,7 +62,7 @@ LocationIo.prototype.findConnectionById = function(id) {
 		var connection = this.connections[socket];
 		console.log('testing connection ' + connection.getId());
 			
-		if (connection.getId() == id) {
+		if (connection.id == id) {
 			return connection;
 		}
 	}
@@ -66,6 +70,8 @@ LocationIo.prototype.findConnectionById = function(id) {
 
 LocationIo.prototype.getCapabilities = function(protocolName) {
 	console.log(this.protocolModules);
+	
+	
 	return this.protocolModules[protocolName].capabilities;
 };
 

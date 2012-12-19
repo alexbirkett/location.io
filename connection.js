@@ -1,111 +1,143 @@
+var forEach = require('async-foreach').forEach;
+require('smarter-buffer');
 
-
-var Connection = function(eventEmitter, protocolModules) {
-	this.eventEmitter = eventEmitter;
-	this.frameBuffer = new Buffer(0);
-	this.id = null;
-	this.protocolModule = null;
-	this.protocolModules = protocolModules;
+var getId = function(self) {
+	return self.protocolModules[0].name + self.id;
 }
+module.exports.getId = getId;
 
-module.exports = Connection;
-
-Connection.prototype.attachSocket = function(socket) {
-	var self = this;
+module.exports.attachSocket = function(socket, protocolModules, callback) {
+	var self = socket;
+	self.protocolModules = protocolModules.slice(); // make a copy of the array, not its contents
 	
-	this.socket = socket;
-	this.socket.setKeepAlive(true, 600000);	
+	socket.setKeepAlive(true, 600000);	
 
 	var setAndEmittIdIfrequired = function(message) {
+		
 		if (self.id == null) {
 			self.id = message.trackerId;
-			self.eventEmitter.emit('tracker-connected', self.getId(), self.protocolModuleName);
+			callback('tracker-connected', getId(self), self.protocolModules[0]);
 		}
 	}; 
-
-	var detectProtocolModuleIfRequired = function() {
-		//console.log('detect protocol if required');
-		if (self.protocolModule == null) {
-			try {
-				
-				for (var protocolModuleName in self.protocolModules) {
-					var moduleToTest = self.protocolModules[protocolModuleName];
-					
-					if (moduleToTest.isSupportedProtocol(self.frameBuffer)) {
-						self.protocolModule = moduleToTest;
-						self.protocolModuleName = protocolModuleName;
-						console.log('using ' + protocolModuleName + ' protocol module');
-						break;
-					}
-					
-				}								
-				if (self.protocolModule == null) {
-					console.log('closing socket')
-					// could not detect protocol
-					self.socket.destroy();
-				}
-			} catch (e) {
-				console.log('execption occurred ' + e);
-				// wait for more data
-			}
-		};
-	};
 	
 	var handleMessage = function(message) {
 		setAndEmittIdIfrequired(message);
-		self.eventEmitter.emit("message", self.getId(), message);
+		callback("message", getId(self), message);
 	}; 
 
-	this.socket.on('data', function(data) {
-	
-		try {
-			self.frameBuffer = Buffer.concat([self.frameBuffer, data]);
-			detectProtocolModuleIfRequired();
-
-			//console.log('data');
-
-			if (self.protocolModule != null) {
-
-				while (self.frameBuffer.length > 0) {
-					var result = self.protocolModule.parse(self.frameBuffer);
-					self.frameBuffer = result.buffer;
-					if (result.message == undefined) {
-						// could not parse message
-						break;
-					} else {
-						handleMessage(result.message);
-						if (result.requiredMessageAck != undefined) {
-							self.sendCommand(result.requiredMessageAck, result.message, function() {
-							});
-						}
-					}
-				}
-
-			}
-		} catch (e) {
-			console.log('error parsing data from ' + self.getId());
-			//self.socket.destroy();
-		}
-
+	socket.on('data', function(data) {
+		bufferAndHandleData(self, data, handleData, parse, function(message) {
+			setAndEmittIdIfrequired(message);
+			callback('message', getId(self), message);
+		});
 	});
 	
-	this.socket.on('close', function(data) {
-		self.eventEmitter.emit('tracker-disconnected', self.getId());
+	socket.on('close', function(data) {
+		callback('tracker-disconnected', getId(self));
 	});
 
-	this.socket.on('error', function() {
+	socket.on('error', function() {
 		console.log('socket error occured');
 	});
 };
 
-Connection.prototype.sendCommand = function(commandName, commandParameters, callback) {
+
+var bufferAndHandleData = function(self, data, handleDataFunction, parseFunction, handleMessageFunction) {
+	self.dataBuffer = Buffer.smarterConcat([self.dataBuffer, data]);
+	if (!self.handlingData) {
+		handleDataFunction(self, parseFunction, handleMessageFunction);
+	}
+};
+
+module.exports._bufferAndHandleData = bufferAndHandleData;
+
+var handleData = function(self, parseFunction, handleMessageFunction, callback) {
+	
+	if (self.handlingData) {
+		throw "already handling data";
+	}
+	
+	var doCallCallback = function() {
+		if ( typeof (callback) == "function") {
+			callback(null);
+		}
+	};
+
+	var handleParseComplete = function(err, message, data, protocolModules) {
+	
+		if (message) {
+			handleMessageFunction(message);
+		}
+		
+		self.dataBuffer = Buffer.smarterConcat([data, self.dataBuffer]);
+		self.protocolModules = protocolModules;
+	
+		if (message && self.dataBuffer.length > 0) {
+			kickOffParse();
+		} else {
+			self.handlingData = false;
+			doCallCallback();
+		}
+	}; 
+
+	
+	var kickOffParse = function() {
+		self.handlingData = true;
+		parseFunction(self.dataBuffer, self.protocolModules, handleParseComplete);
+		self.dataBuffer = undefined;
+	};
+	
+	
+	if (!self.handlingData) {
+		kickOffParse();
+	} 
+};
+
+module.exports._handleData = handleData;
+
+var parse = function(data, protocolModules, callback) {
+    var message = null;
+ 
+	forEach(protocolModules, function(module, index, arr) {
+		var done = this.async();
+
+		try {
+			module.parse(data, function(error, m, buffer) {
+
+				var coninueLoop = true;
+				if (error) {
+					// remove this module so we don't attempt to use it again
+					protocolModules.splice(index, 1);
+				} else {
+					if (m) {
+						protocolModules = [module];
+						// this module can parse the message - it will be used from now on
+						data = buffer;
+						coninueLoop = false;
+						message = m;
+					}
+				}
+				done(coninueLoop);
+			});
+		} catch (e) {
+			done(true);
+		}
+
+	}, function() {
+		callback(null, message, data, protocolModules);
+	});
+		
+};
+module.exports._parse = parse;
+
+module.exports.sendCommand = function(self, socket, commandName, commandParameters, callback) {
 	console.log('sending commmand ' + commandName);
-	commandParameters.trackerId = this.id;
+	commandParameters.trackerId = self.id;
 	console.log(commandParameters);
 	try {
-		var message = this.protocolModule.buildCommand(commandName, commandParameters);
+		var message = self.protocolModules[0].buildCommand(commandName, commandParameters);
 		console.log('sending to tracker: ' + message)
-		this.socket.write(message, function(err) {
+		socket.write(message, function(err) {
 			callback(err);
 		});
 	} catch(e) {
@@ -116,6 +148,3 @@ Connection.prototype.sendCommand = function(commandName, commandParameters, call
 	}
 };
 
-Connection.prototype.getId = function() {
-	return this.protocolModuleName + this.id;
-};
