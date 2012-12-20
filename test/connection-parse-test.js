@@ -164,6 +164,37 @@ vows.describe('connection.parse').addBatch({
 			assert.equal(data.length, 2); // we get back the same buffer we passed in
 			assert.equal(protocolModules.length, 1); // only the module that returned the message should callback
 		}
+	},
+	'parse when parse function does not callback' : {
+		topic : function() {
+			var protocolModules = [{
+				parse : function(buffer, callback) {
+					// do nothing
+				}
+			}];
+
+			connection._parse(new Buffer(2),protocolModules, this.callback);
+		},
+		'should time out' : function(err, message, data, protocolModules) {
+			console.log(arguments);
+			assert.equal(err, "timeout");
+		}
+	},
+	'parse when parse function callsback in after timeout' : {
+		topic : function() {
+			var protocolModules = [{
+				parse : function(buffer, callback) {
+					setTimeout(function() {
+						callback(null);
+					}, 1500);
+				}
+			}];
+
+			connection._parse(new Buffer(2),protocolModules, this.callback);
+		},
+		'should time out' : function(err, message, data, protocolModules) {
+			assert.equal(err, "timeout");
+		}
 	}
 }).export(module);
 // Export the Suite
