@@ -180,7 +180,7 @@ vows.describe('connection.parse').addBatch({
 			assert.equal(err, "timeout");
 		}
 	},
-	'parse when parse function callsback in after timeout' : {
+	'parse when parse function calls back after timeout' : {
 		topic : function() {
 			var protocolModules = [{
 				parse : function(buffer, callback) {
@@ -194,6 +194,57 @@ vows.describe('connection.parse').addBatch({
 		},
 		'should time out' : function(err, message, data, protocolModules) {
 			assert.equal(err, "timeout");
+		}
+	},
+	'parse when one module does not return a message and another times out' : {
+		topic : function() {
+			var protocolModules = [{
+				parse : function(buffer, callback) {
+					
+				}
+			}, {
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback(null, null, buffer);
+					});
+				},
+				remaining: true
+			}];
+
+			connection._parse(new Buffer(2),protocolModules, this.callback);
+		},
+		'should return null message' : function(err, message, data, protocolModules) {
+			assert.isNull(err);
+			assert.isNull(message);
+			assert.equal(protocolModules.length, 1);
+			assert.isTrue(protocolModules[0].remaining);
+		}
+	},
+	'parse when one module times out and another does not return a message' : {
+		topic : function() {
+			var protocolModules = [
+			{
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback(null, null, null);
+					});
+				},
+				remaining: true
+			},
+			{
+				parse : function(buffer, callback) {
+					
+				}
+			}];
+
+			connection._parse(new Buffer(2),protocolModules, this.callback);
+		},
+		'should return null message' : function(err, message, data, protocolModules) {
+			assert.isNull(err);
+			assert.isNull(message);
+			assert.equal(protocolModules.length, 1);
+			assert.isTrue(protocolModules[0].remaining);
+			assert.equal(data.length, 2);
 		}
 	}
 }).export(module);
