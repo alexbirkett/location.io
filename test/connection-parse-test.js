@@ -3,7 +3,7 @@ var vows = require('vows'), assert = require('assert');
 var connection = require('../connection');
 
 vows.describe('connection.parse').addBatch({
-	'parse with one module that returns a message' : {
+	'parse with three modules, the last one of which returns a message' : {
 		topic : function() {
 			var protocolModules = [{
 				parse : function(buffer, callback) {
@@ -24,6 +24,33 @@ vows.describe('connection.parse').addBatch({
 					});
 				},
 				desiredModule : true
+			}];
+			
+			connection._parse(new Buffer(0) ,protocolModules, this.callback);
+		},
+		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, protocolModules) {
+			assert.isNull(err);
+			assert.equal(message, "message");
+			assert.equal(data.length, 0);
+			assert.equal(protocolModules.length, 1);
+		}
+	},
+	'parse with two modules, the last one of which returns a message' : {
+		topic : function() {
+			var protocolModules = [{
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback("error", null, buffer);
+					});
+				},
+				desiredModuleA : false
+			}, {
+				parse : function(buffer, callback) {
+					process.nextTick(function() {
+						callback(null, "message", buffer);
+					});
+				},
+				desiredModuleA : true
 			}];
 			
 			connection._parse(new Buffer(0) ,protocolModules, this.callback);
@@ -124,16 +151,16 @@ vows.describe('connection.parse').addBatch({
 			}, {
 				parse : function(buffer, callback) {
 					process.nextTick(function() {
-						callback(null, "null", buffer);
+						callback(null, "message", buffer);
 					});
 				}
 			}];
 
 			connection._parse(new Buffer(2),protocolModules, this.callback);
 		},
-		'should ignore broken module' : function(err, message, data, protocolModules) {
+		'should call back' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
-			assert.equal(message, "null");
+			assert.equal(message, "message");
 			assert.equal(data.length, 2); // we get back the same buffer we passed in
 			assert.equal(protocolModules.length, 1); // only the module that returned the message should callback
 		}
