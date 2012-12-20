@@ -117,13 +117,18 @@ var parse = function(data, protocolModules, callback) {
  
  	var protocolModulesCopy = protocolModules.slice();
  	
- 	var error = null;
+ 	var error = true;
+ 	
 	forEach(protocolModulesCopy, function(module, index, arr) {
 		var done = this.async();
 
 		parseWrapper(module.parse, data, function(errorFromParser, messageFromParser, buffer) {
-
-			error = errorFromParser;
+			
+			if (error) {
+				// if error has been set to null, then at least one module is not passing back an error
+				error = errorFromParser;
+			}
+			
 			var coninueLoop = true;
 			if (errorFromParser) {
 				// remove this module so we don't attempt to use it again
