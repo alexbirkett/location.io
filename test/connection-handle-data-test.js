@@ -117,6 +117,40 @@ vows.describe('connection.handleData').addBatch({
 			assert.equal(meta.parseCallCount, 4);
 		}
 	},
+	'handleData handles data when icomplete message is sent to parser' : {
+		topic : function() {
+			var self = {};
+			self.dataBuffer = new Buffer("wont_get_parsed_on_first_pass_because_not_followed_by_space");
+	
+			process.nextTick(function() {
+				self.dataBuffer = new Buffer(" will_get_parsed_on_second_pass_because_followed_by_space ");
+			});
+			var meta = {};
+			var testCaseCallback = this.callback;
+			
+			meta.handleMessageCallCount = 0;
+			meta.messagesHandled = [];
+	
+			var handleMessage = function(message) {
+				meta.messagesHandled[meta.handleMessageCallCount] = message;
+				meta.handleMessageCallCount++;
+			};
+	
+			var handleDataDoneCallback = function() {
+				testCaseCallback(self, meta);
+			};
+			
+			connection._handleData(self, getSimpleParser(meta), handleMessage, handleDataDoneCallback);
+		},
+		'should pass back two messages after three rounds of parsing' : function(self, meta) {
+			assert.equal(self.dataBuffer.length, 0);
+			assert.isFalse(self.handlingData);
+			assert.equal(meta.handleMessageCallCount, 2);
+			assert.equal(meta.messagesHandled[0], "wont_get_parsed_on_first_pass_because_not_followed_by_space");
+			assert.equal(meta.messagesHandled[1], "will_get_parsed_on_second_pass_because_followed_by_space");
+			assert.equal(meta.parseCallCount, 3);
+		}
+	},
 	'bufferAndHandleData handlesData when not already handling data' : {
 		topic : function() {
 			var meta = {};
