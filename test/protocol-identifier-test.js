@@ -43,11 +43,21 @@ vows.describe('protocol-identifier-tests').addBatch({
     'handles gotop message': {
         topic: function() {
         	var port = getNextPort();
-        	testMessage(port,gotTopMessage, this.callback);
+        	testMessage(port, gotTopMessage, this.callback);
 			
         },
         'should be gotop message': function (id, protocol) {
 			assert.equal(protocol, "gotop");
+        }
+    },
+    'handles tk103 message': {
+        topic: function() {
+        	var port = getNextPort();
+        	testMessage(port, gotTopMessage, this.callback);
+			
+        },
+        'should be gotop message': function (id, protocol) {
+			assert.equal(protocol, "tk103");
         }
     },
   
