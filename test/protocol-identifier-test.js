@@ -12,37 +12,39 @@ var LocationIo = require('../index');
 var locationIo = new LocationIo();
 
 var nextPort = 11235;
+
 var getNextPort = function() {
 	return nextPort++;
 }
 
+var testMessage = function(port, message, callback) {
+	locationIo.createServer(port, function(eventType, id, protocol) {
+			if (eventType == 'tracker-connected') {
+				locationIo.close(function() {
+					callback(id, protocol);
+				});		
+			} else if (eventType == 'server-up') {
+				async.series([
+			   		function(callback)	{
+							trackerSimulator.connect({host: 'localhost', port: port}, callback);
+		   			},
+		    		function(callback) {
+		    			var messageArray = [message];
+			    		trackerSimulator.sendMessage(messageArray, 1, 2, callback);
+		    		}
+		    ],function(err) {
+						trackerSimulator.destroy();
+			});
+		}
+	});	
+};
+
 vows.describe('protocol-identifier-tests').addBatch({
     'handles gotop message': {
         topic: function() {
-        	var callback = this.callback;
         	var port = getNextPort();
-        	var protocolType;
-			locationIo.createServer(port, function(eventType, id, protocol) {
-				//var eventAruments = arguments;
-				console.log('event type ' + eventType);
-				if (eventType == 'tracker-connected') {
-					locationIo.close(function() {
-						callback(id, protocol);
-					});		
-				} else if (eventType == 'server-up') {
-					async.series([
-			   			function(callback)	{
-			   				trackerSimulator.connect({host: 'localhost', port: port}, callback);
-			   			},
-			    		function(callback) {
-			    			var messages = [gotTopMessage];
-			    			trackerSimulator.sendMessage(messages, 1, 2, callback);
-			    		}
-					],function(err) {
-						trackerSimulator.destroy();
-					});
-				}
-			});
+        	testMessage(port,gotTopMessage, this.callback);
+			
         },
         'should be gotop message': function (id, protocol) {
 			assert.equal(protocol, "gotop");
