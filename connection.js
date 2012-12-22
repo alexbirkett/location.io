@@ -99,17 +99,30 @@ var parseWrapper = function(parsefunction, data, callback) {
 		parsing = false;
 		callback("timeout");
 	}, 1000); // 1 second
+	
+	var calledBackSynchronously = true;
 		
 	var callCallback = function() {
 		if (parsing) {
 			clearTimeout(timeoutId);
-			callback.apply(this, arguments);
+			var outerArguments = arguments;
+			
+			if (calledBackSynchronously) {
+				callback.apply(this, arguments);
+			} else {
+				process.nextTick(function() {
+					callback.apply(this, outerArguments);
+				});
+			}
+			
 			parsing = false;
 		}
 	}
 
+
 	try {
 		parsefunction(data, callCallback);
+		calledBackSynchronously = false;
 	} catch(e) {
 		callCallback(e);
 	}
