@@ -3,11 +3,9 @@ var async = require('async');
 var forEach = require('async-foreach').forEach;
 
 function sliceString(string, sliceLength, index) {
-	console.log('string length ' + string.length + ' slice length' + sliceLength  + 'index  ' + index);
-	var beginPos = index*sliceLength;
+	var beginPos = index * sliceLength;
 	var endPos = beginPos + sliceLength;
 	
-	console.log('begin pos ' + beginPos + ' end pos ' + endPos);
 	var slice;
 	if (beginPos < string.length) {
 		if (endPos < string.length) {
@@ -21,10 +19,10 @@ function sliceString(string, sliceLength, index) {
 	return slice;
 }
 
-var SLICE_LENGTH = 1;
+var SLICE_LENGTH = 1000;
 function buildSliceArray(message) {
 	var slices = [];
-	for(var i = 0;true;i++) {
+	for(var i = 0; true; i++) {
 		try {
 			var slice = sliceString(message, SLICE_LENGTH, i);
 			slices.push(slice);
@@ -48,12 +46,6 @@ function sendMessage(message, client, pauseBetweenSlices, callback) {
 	async.forEachSeries(slices, sendNextSlice, function() {
 		callback();
 	});
-}
-
-function createEvent(name) {
-	event = new Object();
-	event.name = name;
-	return event;
 }
 
 var client;
