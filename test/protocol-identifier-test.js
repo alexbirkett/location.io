@@ -22,15 +22,13 @@ vows.describe('protocol-identifier-tests').addBatch({
         	var callback = this.callback;
         	var port = getNextPort();
         	var protocolType;
-			locationIo.createServer(port, function(eventType, id, message) {
+			locationIo.createServer(port, function(eventType, id, protocol) {
 				//var eventAruments = arguments;
 				console.log('event type ' + eventType);
 				if (eventType == 'tracker-connected') {
-					protocolType = message;
-				} else if (eventType == 'message') {
 					locationIo.close(function() {
-						callback(id, message, protocolType);
-					});
+						callback(id, protocol);
+					});		
 				} else if (eventType == 'server-up') {
 					async.series([
 			   			function(callback)	{
@@ -38,7 +36,7 @@ vows.describe('protocol-identifier-tests').addBatch({
 			   			},
 			    		function(callback) {
 			    			var messages = [gotTopMessage];
-			    			trackerSimulator.sendMessage(messages, 1000, 2, callback);
+			    			trackerSimulator.sendMessage(messages, 1, 2, callback);
 			    		}
 					],function(err) {
 						trackerSimulator.destroy();
@@ -46,7 +44,7 @@ vows.describe('protocol-identifier-tests').addBatch({
 				}
 			});
         },
-        'should be gotop message': function (id, message, protocol) {
+        'should be gotop message': function (id, protocol) {
 			assert.equal(protocol, "gotop");
         }
     },
