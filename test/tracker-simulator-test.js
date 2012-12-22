@@ -60,7 +60,7 @@ vows.describe('buffer').addBatch({
 			   	},
 			    function(callback) {
 			    	var messages = ['hello', 'world'];
-			    	trackerSimulator.sendMessage(messages, 1000, 2, callback);
+			    	trackerSimulator.sendMessage(messages, 1000, 2, 1, callback);
 			    }
 			],function(err) {
 				trackerSimulator.destroy();

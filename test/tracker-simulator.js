@@ -19,12 +19,11 @@ function sliceString(string, sliceLength, index) {
 	return slice;
 }
 
-var SLICE_LENGTH = 1000;
-function buildSliceArray(message) {
+function buildSliceArray(message, sliceLength) {
 	var slices = [];
 	for(var i = 0; true; i++) {
 		try {
-			var slice = sliceString(message, SLICE_LENGTH, i);
+			var slice = sliceString(message, sliceLength, i);
 			slices.push(slice);
 		} catch(e) {
 			break;
@@ -33,8 +32,8 @@ function buildSliceArray(message) {
 	return slices;
 }
 
-function sendMessage(message, client, pauseBetweenSlices, callback) {
-	var slices = buildSliceArray(message);
+function sendMessage(message, client, pauseBetweenSlices, sliceLength, callback) {
+	var slices = buildSliceArray(message, sliceLength);
 	var sendNextSlice = function(slice, sendSliceCallback) {
 		client.write(slice);
 		setTimeout(function() {
@@ -54,12 +53,12 @@ module.exports.connect = function(connectOptions, callback) {
 	client = net.createConnection(connectOptions, callback);
 }
 
-module.exports.sendMessage = function(messages, pauseBetweenMessages, pauseBetweenSlices, callback) {
+module.exports.sendMessage = function(messages, pauseBetweenMessages, pauseBetweenSlices, sliceLength, callback) {
 
 	forEach(messages, function(message, index, arr) {
 		var done = this.async();
 
-		sendMessage(message, client, pauseBetweenSlices, function() {
+		sendMessage(message, client, pauseBetweenSlices, sliceLength, function() {
 			setTimeout(function() {
 				done();
 			}, pauseBetweenMessages);
