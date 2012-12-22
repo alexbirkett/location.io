@@ -2,12 +2,12 @@ var vows = require('vows'), assert = require('assert');
 
 var connection = require('../connection');
 
-var getSimpleParser = function(meta) {
+var getSimpleParser = function(meta, synchronous) {
 
 	meta.parseCallCount = 0;
 
 	var parse = function(data, protocolModules, callback) {
-		process.nextTick(function() {
+		var doParse = function() {
 			meta.parseCallCount++;
 			
 			var dataToPassBack = data;
@@ -29,16 +29,22 @@ var getSimpleParser = function(meta) {
 
 			callback(null, message, dataToPassBack, protocolModules);
 		
-		});
+		};
+		if (synchronous) {
+			doParse();
+		} else {
+			process.nextTick(doParse);
+		}
 	};
 	return parse;
 };
 
-vows.describe('connection.handleData').addBatch({
-	'test simple parser': {
+
+var getTestSimpleParserContext = function(sync) {
+	return {
 		topic: function() {
 			var meta = {};
-			var parse = getSimpleParser(meta);
+			var parse = getSimpleParser(meta, sync);
 			var buffer = new Buffer("hello ");
 			parse(buffer, null, this.callback);
 			
@@ -49,8 +55,11 @@ vows.describe('connection.handleData').addBatch({
 			assert.equal(dataToPassBack.length, 0);
 			assert.isNull(protocolModules);
  		}
-	},
-	'handleData returns messages' : {
+	};
+};
+
+var getPassedBackUnconsumedDataContext = function(sync) {
+	return {
 		topic : function() {
 			var self = {};
 			self.dataBuffer = new Buffer("in good faith i_will_not_get_sent_back_because_im_not_followed_by_a_space");
@@ -70,7 +79,7 @@ vows.describe('connection.handleData').addBatch({
 				testCaseCallback(self, meta);
 			};
 			
-			connection._handleData(self, getSimpleParser(meta), handleMessage, handleDataDoneCallback);
+			connection._handleData(self, getSimpleParser(meta, sync), handleMessage, handleDataDoneCallback);
 		},
 		'should pass back messages and left overdata' : function(self, meta) {
 			assert.equal(self.dataBuffer + '', 'i_will_not_get_sent_back_because_im_not_followed_by_a_space');
@@ -81,8 +90,11 @@ vows.describe('connection.handleData').addBatch({
 			assert.equal(meta.messagesHandled[2], "faith");
 			assert.equal(meta.parseCallCount, 4);
 		}
-	},
-	'handleData handles incremental data' : {
+	}
+};
+
+var getHandlesIncrementalDataContext = function(sync) {
+	return {
 		topic : function() {
 			var self = {};
 			self.dataBuffer = new Buffer("in good");
@@ -105,10 +117,12 @@ vows.describe('connection.handleData').addBatch({
 				testCaseCallback(self, meta);
 			};
 			
-			connection._handleData(self, getSimpleParser(meta), handleMessage, handleDataDoneCallback);
+			connection._handleData(self, getSimpleParser(meta, sync), handleMessage, handleDataDoneCallback);
 		},
-		'should pass back messages and left overdata' : function(self, meta) {
-			assert.equal(self.dataBuffer + '', 'i_will_not_get_sent_back_because_im_not_followed_by_a_space');
+		'should pass back messages and unconsumed data' : function(self, meta) {
+			console.log(self);
+			console.log(meta);
+			//assert.equal(self.dataBuffer + '', 'i_will_not_get_sent_back_because_im_not_followed_by_a_space');
 			assert.isFalse(self.handlingData);
 			assert.equal(meta.handleMessageCallCount, 3);
 			assert.equal(meta.messagesHandled[0], "in");
@@ -116,8 +130,12 @@ vows.describe('connection.handleData').addBatch({
 			assert.equal(meta.messagesHandled[2], "faith");
 			assert.equal(meta.parseCallCount, 4);
 		}
-	},
-	'handleData handles data when icomplete message is sent to parser' : {
+	};
+};
+
+
+var getHandlesIncompleteMessageContext = function(sync) {
+	return {
 		topic : function() {
 			var self = {};
 			self.dataBuffer = new Buffer("wont_get_parsed_on_first_pass_because_not_followed_by_space");
@@ -140,7 +158,7 @@ vows.describe('connection.handleData').addBatch({
 				testCaseCallback(self, meta);
 			};
 			
-			connection._handleData(self, getSimpleParser(meta), handleMessage, handleDataDoneCallback);
+			connection._handleData(self, getSimpleParser(meta,sync), handleMessage, handleDataDoneCallback);
 		},
 		'should pass back two messages after three rounds of parsing' : function(self, meta) {
 			assert.equal(self.dataBuffer.length, 0);
@@ -150,7 +168,18 @@ vows.describe('connection.handleData').addBatch({
 			assert.equal(meta.messagesHandled[1], "will_get_parsed_on_second_pass_because_followed_by_space");
 			assert.equal(meta.parseCallCount, 3);
 		}
-	},
+	};
+};
+
+vows.describe('connection.handleData').addBatch({
+	'test simple parser sync': getTestSimpleParserContext(true),
+	'test simple parser async':  getTestSimpleParserContext(false),
+	'handleData passes back unconsumed data sync' : getPassedBackUnconsumedDataContext(false),
+	'handleData passes back unconsumed data async' : getPassedBackUnconsumedDataContext(true),
+	'handleData handles incremental data sync' : getHandlesIncrementalDataContext(false),
+	'handleData handles incremental data async' : getHandlesIncrementalDataContext(true),
+	'handleData handles data when incomplete message is sent to parser sync' : getHandlesIncompleteMessageContext(false),
+	'handleData handles data when incomplete message is sent to parser async' : getHandlesIncompleteMessageContext(true),
 	'bufferAndHandleData handlesData when not already handling data' : {
 		topic : function() {
 			var meta = {};
