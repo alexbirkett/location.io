@@ -64,9 +64,7 @@ var handleData = function(self, parseFunction, handleMessageFunction, callback) 
 		
 		self.dataBuffer = Buffer.smarterConcat([data, self.dataBuffer]);
 		self.protocolModules = protocolModules;
-		
-		console.log('data buffer after pase ' + self.dataBuffer);
-			
+				
 		if (message) {
 			handleMessageFunction(message);
 		}
@@ -95,7 +93,6 @@ var handleData = function(self, parseFunction, handleMessageFunction, callback) 
 module.exports._handleData = handleData;
 
 var parseWrapper = function(parsefunction, data, callback) {
-	console.log('data to parse ' + data);
 	var parsing = true;
 	
 	var timeoutId = setTimeout(function() {
