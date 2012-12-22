@@ -47,18 +47,22 @@ function sendMessage(message, client, pauseBetweenSlices, sliceLength, callback)
 	});
 }
 
-var client;
 
-module.exports.connect = function(connectOptions, callback) {
-	client = net.createConnection(connectOptions, callback);
+var TrackerSimulator = function() {
 }
 
-module.exports.sendMessage = function(messages, pauseBetweenMessages, pauseBetweenSlices, sliceLength, callback) {
+module.exports = TrackerSimulator;
 
+TrackerSimulator.prototype.connect = function(connectOptions, callback) {
+	this.client = net.createConnection(connectOptions, callback);
+}
+
+TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages, pauseBetweenSlices, sliceLength, callback) {
+	var self = this;
 	forEach(messages, function(message, index, arr) {
 		var done = this.async();
 
-		sendMessage(message, client, pauseBetweenSlices, sliceLength, function() {
+		sendMessage(message, self.client, pauseBetweenSlices, sliceLength, function() {
 			setTimeout(function() {
 				done();
 			}, pauseBetweenMessages);
@@ -70,7 +74,7 @@ module.exports.sendMessage = function(messages, pauseBetweenMessages, pauseBetwe
 	});
 }; 
 
-module.exports.destroy = function() {
-	client.destroy();
+TrackerSimulator.prototype.destroy = function() {
+	this.client.destroy();
 }
 	

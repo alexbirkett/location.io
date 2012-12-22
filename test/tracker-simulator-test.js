@@ -1,4 +1,4 @@
-var trackerSimulator = require('./tracker-simulator');
+var TrackerSimulator = require('./tracker-simulator');
 var assert = require('assert');
 var vows = require('vows');
 var async = require('async');
@@ -48,9 +48,10 @@ var getNextPort = function() {
 	return nextPort++;
 }
 
-vows.describe('buffer').addBatch({
+vows.describe('tracker-simulator').addBatch({
     'handles hello and world': {
         topic: function() {
+        	var trackerSimulator = new TrackerSimulator();
         	var port = getNextPort();
         	createServer(port, this.callback);
         	
