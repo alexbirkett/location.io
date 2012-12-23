@@ -172,14 +172,14 @@ var getHandlesIncompleteMessageContext = function(sync) {
 };
 
 vows.describe('connection.handleData').addBatch({
-	'test simple parser sync': getTestSimpleParserContext(true),
+	//'test simple parser sync': getTestSimpleParserContext(true),
 	'test simple parser async':  getTestSimpleParserContext(false),
 	'handleData passes back unconsumed data sync' : getPassedBackUnconsumedDataContext(false),
-	'handleData passes back unconsumed data async' : getPassedBackUnconsumedDataContext(true),
+	//'handleData passes back unconsumed data async' : getPassedBackUnconsumedDataContext(true),
 	'handleData handles incremental data sync' : getHandlesIncrementalDataContext(false),
-	'handleData handles incremental data async' : getHandlesIncrementalDataContext(true),
+	//'handleData handles incremental data async' : getHandlesIncrementalDataContext(true),
 	'handleData handles data when incomplete message is sent to parser sync' : getHandlesIncompleteMessageContext(false),
-	'handleData handles data when incomplete message is sent to parser async' : getHandlesIncompleteMessageContext(true),
+	//'handleData handles data when incomplete message is sent to parser async' : getHandlesIncompleteMessageContext(true),
 	'bufferAndHandleData handlesData when not already handling data' : {
 		topic : function() {
 			var meta = {};
