@@ -163,7 +163,7 @@ function parseMessage(message) {
 	while(message.readInt8(trackerIdlength) != 66 && trackerIdlength < message.length) { // 66 is B
 		trackerIdlength++;
 	}
-	frame.trackerId = message.slice(0, trackerIdlength)+"";
+	frame.trackerId = message.slice(1, trackerIdlength)+"";
 
 	var messageCode = message.slice(trackerIdlength + 1, trackerIdlength + 4);
 	var messageType = executeParseFunctionAndCatchException(lookupMessageType, messageCode, message);
@@ -181,6 +181,7 @@ function parseMessage(message) {
 
 var findFrameAndParseMessage = function(buffer, callback) {
 	// pass back the buffer if we can't parse the message yet
+	console.log('buffer ' + buffer);
 	var messageStartIndex = -1;
 	var message;
 	var bufferToReturn = buffer;
