@@ -138,7 +138,7 @@ var parse = function(data, protocolModules, callback) {
 	forEach(protocolModulesCopy, function(module, index, arr) {
 		var done = this.async();
 
-		parseWrapper(module.parse, data, function(errorFromParser, messageFromParser, buffer) {
+		parseWrapper(module.parseMessage, data, function(errorFromParser, messageFromParser, buffer) {
 			
 			if (error) {
 				// if error has been set to null, then at least one module is not passing back an error
@@ -174,7 +174,7 @@ module.exports.sendCommand = function(self, socket, commandName, commandParamete
 	commandParameters.trackerId = self.id;
 	console.log(commandParameters);
 	try {
-		var message = self.protocolModules[0].buildCommand(commandName, commandParameters);
+		var message = self.protocolModules[0].sendMessage(commandName, commandParameters);
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
 			callback(err);

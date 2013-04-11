@@ -1,6 +1,6 @@
 
 module.exports = {
 	capabilities: require('./capabilities'),
-	parse: require('./parser'),
-	buildCommand: require('./command-builder')
+	parseMessage: require('./parser'),
+	sendMessage: require('./command-builder')
 };
