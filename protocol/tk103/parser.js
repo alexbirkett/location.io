@@ -166,7 +166,7 @@ function parseMessage(message) {
 	frame.trackerId = message.slice(1, trackerIdlength)+"";
 
 	var messageCode = message.slice(trackerIdlength + 1, trackerIdlength + 4);
-	var messageType = executeParseFunctionAndCatchException(lookupMessageType, messageCode, message);
+	var messageType = executeParseFunctionAndCatchException(lookupMessageType, messageCode);
 	
 	frame.type = messageType[0];
 	var parseFunction = messageType[1];
