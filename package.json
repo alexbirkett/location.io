@@ -6,7 +6,10 @@
     "dependencies": {
         "hashmap": "0.9.x",
         "vows": "0.7.x",
-        "enum": "0.2.x"
+        "enum": "0.2.x",
+        "async-foreach": "0.1.x",
+        "smarter-buffer": "0.0.x",
+        "async": "0.1.x"
     },
     "scripts": {
   		"test": "expresso test/*"

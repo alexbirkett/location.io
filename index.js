@@ -18,11 +18,12 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	var self = this;
 	if (!emitFunction) {
 		emitFunction = function() {
+			//console.log(arguments);
 			self.emit.apply(self, arguments);
 		};
 	}
 
-	emitFunction('server_up', "server up");
+	
 	var server = net.createServer();
 	
 	this.connections = {};
@@ -36,8 +37,6 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 			moduleArray.push(module);
 		}
 		
-		console.log('returning ');
-		console.log(moduleArray);
 		return moduleArray;
 	};
 	
@@ -49,10 +48,13 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 
 	server.on('close', function(socket) {
 		console.log('socket closed');
-		self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
+	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
-	server.listen(port);
+	server.listen(port, undefined, undefined, function() {
+		emitFunction('server-up', "server up");
+	});
+	this.server = server;
 };
 
 LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParameters, callback) {
@@ -92,6 +94,12 @@ LocationIo.prototype.getCapabilities = function(protocolName) {
 	return this.protocolModules[protocolName].capabilities;
 };
 
+LocationIo.prototype.close = function(callback) {
+	console.log('closing server');
+	this.server.close(callback);
+};
+
+	
 module.exports = LocationIo;
 
 

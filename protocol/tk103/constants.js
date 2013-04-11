@@ -40,12 +40,16 @@ module.exports.messages  = {
 
 };
 
-module.exports.commands  = {
-	// These names are taked 'as is' from the 1.5 version of the protocol document
+
+module.exports.messageAcks = {
 	ANSWER_HANDSHAKE_SIGNAL_MESSAGE: "answerHandshakeSignalMessage",
 	DEVICE_LOGIN_RESPONSE_MESSAGE: "deviceLoginResponseMessage",
+	ANSWER_ALARM_MESSAGE: "answerAlarmMessage"
+};
+
+module.exports.commands  = {
+	// These names are taken 'as is' from the 1.5 version of the protocol document
 	SAME_TIME_CONTINUES_FEEDBACK_CONFIGURE: "sameTimeContinuesFeedbackConfigure",
-	ANSWER_ALARM_MESSAGE: "answerAlarmMessage",
 	ONE_TIME_ENQUIRY_MESSAGE: "oneTimeEnquiryMessage",
 	SETTING_VEHICLE_HIGH_AND_LOW_LIMIT_SPEED: "settingVehicleHighAndLowLimitSpeed",
 	CIRCUIT_CONTROL_SIGNAL: "circuitControlSignal",
@@ -57,3 +61,4 @@ module.exports.commands  = {
 	SET_ACC_CLOSE_SENDING_DATA_INTERVALS: "setAccCloseSendingDataIntervals",
 	SETTING_GEO_FENCE_MESSAGE: "settingGeoFenceMessage"
 };
+

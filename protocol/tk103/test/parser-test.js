@@ -1,6 +1,13 @@
-var parse = require('../parser');
-var constants = require('../constants');
+
 var assert = require('assert');
+var vows = require('vows');
+var async = require('async');
+var LocationIo = require('../../../index.js');
+var forEach = require('async-foreach').forEach;
+var TrackerSimulator = require('../../../test/tracker-simulator.js');
+var constants = require('../constants');
+
+var nextPort = 3141;
 
 
 //tk103.parseMessage("(013632782450BP05000013632782450110601V5955.5002N01034.4865E000.020184973.73000000000L000086C0)");
@@ -9,7 +16,6 @@ var assert = require('assert');
 
 //tk103.parseMessage("(013500001111BP05000013500001111120903V5954.7918N01044.1389E000.0135036208.5800000000L000000)");
 
-var DOG_TRACKER_LOGIN = "(013500001112BP05000013500001112120903A5956.1894N01046.9892E006.0160134061.9600000000L00000000)";
 
 //console.log(parse(new Buffer(DOG_TRACKER_LOGIN)));
 
@@ -21,36 +27,96 @@ var DOG_TRACKER_ISOCHRONOUS_FOR_CONTINUES_FEEDBACK_MESSAGE = "(013500001112BR001
 var ALARM_MESSAGE = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734.62000000000L000000)";
 //console.log(parse(new Buffer(ALARM_MESSAGE)));
 
+var sendData = function(data, callback) {
+    var port = nextPort++;
+	var locationIo = new LocationIo();
+	var trackerSimulator = new TrackerSimulator();
+	locationIo.createServer(port, function(eventType, id, message) {
+			console.log('event type ' + eventType);
+			if (eventType == 'message') {
+				locationIo.close(function() {
+					console.log('calling back');
+					callback(id, message);
+				});		
+			} else if (eventType == 'server-up') {
+				async.series([
+			   		function(callback)	{
+						trackerSimulator.connect({host: 'localhost', port: port}, callback);
+		   			},
+		    		function(callback) {
+		    			console.log('sending message');
+		    			var messageArray = [data];
+			    		trackerSimulator.sendMessage(messageArray, 1000, 50, 100, callback);
+		    		}
+		    ],function(err) {
+				console.log('error ' + err);
+				trackerSimulator.destroy();
+			});
+		}
+	});	
+};
 
-// from protocol document
+vows.describe('tk103-parser-tests').addBatch({
+   'handles login message (from dog tracker)': {
+        topic: function() {
+        	var DOG_TRACKER_LOGIN = "(013500001112BP05000013500001112120903A5956.1894N01046.9892E006.0160134061.9600000000L00000000)";
+        	sendData(DOG_TRACKER_LOGIN, this.callback);
+			
+        },
+        'should be a login message': function (id, message) {
+			console.log(message);
+			assert.equal(message.type, constants.messages.LOGIN_MESSAGE);
+        }
+    },
+    'handles login message': {
+        topic: function() {
+            var MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
+            sendData(MESSAGE, this.callback);    
+        },
+        'should be a login message': function (id, message) {
+            console.log(message);
+            assert.equal(message.type, constants.messages.LOGIN_MESSAGE);
+            assert.notEqual(message.location, undefined);
+        }
+    },
+    'handles handshake signal message': {
+        topic: function() {
+            var MESSAGE = "(013612345678BP00000013612345678HSO)"; 
+            sendData(MESSAGE, this.callback);
+            
+        },
+        'should be handshake signal message': function (id, message) {
+           assert.equal(message.type, constants.messages.HANDSHAKE_SIGNAL_MESSAGE);
+           assert.equal(message.serialNumber, "000013612345678");
+           assert.equal(message.trackerId, "013612345678");
+        }
+    },
+    'handles \'answer setting isochronous feedback message\'': {
+        topic: function() {
+            var MESSAGE = "(013612345678BS0800050014)";
+            sendData(MESSAGE, this.callback);
+            
+        },
+        'should be  \'answer setting isochronous feedback message\'': function (id, message) {
+            assert.equal(message.type,constants.messages.CONTINUOUS_ANSWER_SETTING_ISOCHRONOUS_FEEDBACK_MESSAGE);    
+        }
+    },
+    'handles alarm  message': {
+        topic: function() {
+           var MESSAGE = "(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)";
+           sendData(MESSAGE, this.callback);
+            
+        },
+        'should be handshake alarm message': function (id, message) {
+            assert.equal(message.type, constants.messages.ALARM_MESSAGE);
+            assert.equal(message.alarmType, 'sos');
+            assert.notEqual(message.location, undefined);
+        }
+    },
+  
+}).export(module); // Export the Suite
 
-function testAnswerHandshakeSignalMessage() {
-	var MESSAGE = new Buffer("(013612345678BP00000013612345678HSO)"); 
-	var message = parse(MESSAGE).message;
-	assert.equal(message.type, message.type,constants.messages.ANSWER_HANDSHAKE_SIGNAL_MESSAGE);
-	assert.equal(message.serialNumber, "000013612345678");
-}
 
-function testLoginMessage() {
-	var MESSAGE = new Buffer("(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"); 
-	var message = parse(MESSAGE).message;
-	assert.equal(message.type, message.type,constants.messages.LOGIN_MESSAGE);
-	assert.notEqual(message.location, undefined);
-}
-
-function testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage() {
-	var MESSAGE = new Buffer("(013612345678BS0800050014)");
-	var message = parse(MESSAGE).message;
-	assert.equal(message.type,constants.messages.CONTINUOUS_ANSWER_SETTING_ISOCHRONOUS_FEEDBACK_MESSAGE);
-}
-
-function testParseAlarmMessge() {
-	var MESSAGE = new Buffer("(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)");
-	var message = parse(MESSAGE).message;
-	assert.equal(message.type, constants.messages.ALARM_MESSAGE);
-	assert.equal(message.alarmType, 'sos');
-	assert.notEqual(message.location, undefined);
-}
 
 function testAnswerToMessageOfCallingTheRoll() {
 	var MESSAGE = new Buffer("(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)");
@@ -238,7 +304,7 @@ function testAlarmForDataOffsetAndMessagesReturn() {
 	assert.notEqual(message.location, undefined);
 }
 
-testAnswerHandshakeSignalMessage();
+/*testAnswerHandshakeSignalMessage();
 testLoginMessage();
 testResponseToSetUpPassingBackTheIsochronalAndContinuousMessage();
 testParseAlarmMessge();
@@ -268,6 +334,6 @@ testResponseToCenterSendAnInstantMessageToTheAdvertisingScreen();
 testCompensationDataReturnMessages();
 testAnswerToDownloadingGroupNumbers();
 testAnswerToCancelingGroupNumbers();
-testAlarmForDataOffsetAndMessagesReturn();
+testAlarmForDataOffsetAndMessagesReturn();*/
 
 console.log('done');
