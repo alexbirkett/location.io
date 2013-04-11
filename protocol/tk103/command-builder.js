@@ -1,4 +1,4 @@
-var capabilities = require('./capabilities');
+var capabilities = require('./api');
 var util = require('../util');
 var constants = require('./constants');
 

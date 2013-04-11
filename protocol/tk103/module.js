@@ -1,5 +1,5 @@
 module.exports = {
-	capabilities: require('./capabilities'),
+	api: require('./api'),
 	parseMessage: require('./parser'),
 	sendMessage: require('./command-builder')
 };
