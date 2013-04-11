@@ -44,8 +44,6 @@
 // One time enqiry message AP00 -> BP04
 // 
 
-var constants = require('./constants');
-
 var trackerIdParameter = {
 	pattern: ""
 };
