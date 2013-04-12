@@ -13,11 +13,6 @@ module.exports.attachSocket = function(self, socket, protocolModules, callback) 
 			callback('tracker-connected', self.id, self.protocolModules[0].name);
 		}
 	}; 
-	
-	var handleMessage = function(message) {
-		setAndEmittIdIfrequired(message);
-		callback("message", self.id, message);
-	}; 
 
 	socket.on('data', function(data) {
 		bufferAndHandleData(self, data, handleData, parse, function(message) {
