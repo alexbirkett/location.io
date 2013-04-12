@@ -160,3 +160,10 @@ exports.parseTimeInterval = function(interval) {
 	return intervalInSeconds;
 };
 
+exports.getTimeIntervalAsFourHexDigits = function(interval) {
+    if (interval > 0xFFFF) {
+        throw new Error('max interval is ' + 0xFFFF)
+    }
+    return prependZeros(interval.toString(16), 4).toUpperCase();
+};
+

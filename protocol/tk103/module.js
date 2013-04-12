@@ -1,5 +1,4 @@
 module.exports = {
-	api: require('./api'),
-	parseMessage: require('./parser'),
-	sendMessage: require('./command-builder')
+	//commands: require('./commands'),
+	parseMessage: require('./parser')
 };
