@@ -44,14 +44,14 @@ var sendData = function(data, callback) {
 		   			},
 		    		function(callback) {
 		    			console.log('sending message');
-		    			var messageArray = [data];
-			    		trackerSimulator.sendMessage(messageArray, 1000, 50, 100, callback);
+			    		trackerSimulator.sendMessage(data, 1000, 50, 100, callback);
 		    		}
-		    ],function(err) {
-				console.log('error ' + err);
-				trackerSimulator.destroy();
-			});
-		}
+		           ],
+		           function(err) {
+				    console.log('error ' + err);
+				        trackerSimulator.destroy();
+		      	});
+		  }
 	});	
 };
 

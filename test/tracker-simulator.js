@@ -32,7 +32,9 @@ function buildSliceArray(message, sliceLength) {
 	return slices;
 }
 
-function sendMessage(message, client, pauseBetweenSlices, sliceLength, callback) {
+
+
+function sendMessage(message, client, pauseBetweenSlices, sliceLength, callback) {	
 	var slices = buildSliceArray(message, sliceLength);
 	var sendNextSlice = function(slice, sendSliceCallback) {
 		client.write(slice);
@@ -57,8 +59,18 @@ TrackerSimulator.prototype.connect = function(connectOptions, callback) {
 	this.client = net.createConnection(connectOptions, callback);
 }
 
+function isArray(o) {
+      return Object.prototype.toString.call(o) === '[object Array]';
+}
+
 TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages, pauseBetweenSlices, sliceLength, callback) {
 	var self = this;
+	
+    if (!isArray(messages)) {
+        console.log('message is not array');
+        messages = [messages];
+    }
+	
 	forEach(messages, function(message, index, arr) {
 		var done = this.async();
 
