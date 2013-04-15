@@ -41,7 +41,6 @@ var sendData = function(data, callback, numberOfBytesToWaitFor) {
 						trackerSimulator.connect({host: 'localhost', port: port}, callback);
 		   			},
 		    		function(callback) {
-		    			console.log('sending message');
 			    		trackerSimulator.sendMessage(data, 1000, 50, 100, callback);
 		    		},
 		    		function(callback) {
@@ -49,7 +48,6 @@ var sendData = function(data, callback, numberOfBytesToWaitFor) {
 		    		}
 		           ],
 		           function(err, data) {
-				       console.log('error ' + err);      
 				       var dataReceivedByClient = data[2];
 				       callback(err, returnObject.message, dataReceivedByClient);
 				       trackerSimulator.destroy();
