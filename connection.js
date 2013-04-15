@@ -17,7 +17,11 @@ module.exports.attachSocket = function(self, socket, protocolModules, callback) 
 	socket.on('data', function(data) {
 		bufferAndHandleData(self, data, handleData, parse, function(message) {
 			setAndEmittIdIfrequired(message);
-			callback('message', self.id, message);
+			callback('message', self.id, message);			
+			sendAck(self.protocolModules[0], socket, message, function(err) {
+			    
+			});
+			    
 		});
 	});
 	
@@ -163,6 +167,20 @@ var parse = function(data, protocolModules, callback) {
 		
 };
 module.exports._parse = parse;
+
+var sendAck = function(module, socket, message, callback) {
+    var ack;
+    
+    if (module.buildAck != undefined) {
+       ack = module.buildAck(message);    
+    }
+    
+    if (ack != undefined) {
+        socket.write(ack, function(err) {
+            callback(err);
+        });
+    }
+}
 
 module.exports.sendCommand = function(self, socket, commandName, commandParameters, callback) {
 	console.log('sending commmand ' + commandName);

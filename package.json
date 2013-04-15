@@ -9,7 +9,8 @@
         "enum": "0.2.x",
         "async-foreach": "0.1.x",
         "smarter-buffer": "0.0.x",
-        "async": "0.1.x"
+        "async": "0.1.x",
+        "addTimeout": "0.4.0"
     },
     "scripts": {
   		"test": "expresso test/*"

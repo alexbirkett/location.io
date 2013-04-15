@@ -1,6 +1,7 @@
 var net = require('net');
 var async = require('async');
 var forEach = require('async-foreach').forEach;
+require('smarter-buffer');
 
 function sliceString(string, sliceLength, index) {
 	var beginPos = index * sliceLength;
@@ -57,6 +58,14 @@ module.exports = TrackerSimulator;
 
 TrackerSimulator.prototype.connect = function(connectOptions, callback) {
 	this.client = net.createConnection(connectOptions, callback);
+    var self = this;
+	this.client.on('data', function(data) {
+       self.buffer = Buffer.smarterConcat([self.buffer, data]); 
+       if (self.bytesCount && self.buffer.length > self.bytesCount) {
+           self.dataCallback(null, self.buffer); 
+       }
+  
+    });
 }
 
 function isArray(o) {
@@ -67,7 +76,6 @@ TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages
 	var self = this;
 	
     if (!isArray(messages)) {
-        console.log('message is not array');
         messages = [messages];
     }
 	
@@ -85,6 +93,20 @@ TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages
 		callback();
 	});
 }; 
+
+TrackerSimulator.prototype.waitForData = function(bytesCount, callback) {
+   var self = this;
+   if (self.buffer && self.buffer.length >= bytesCount) {
+       process.nextTick(function() {
+        //  console.log('data already available');
+        //  console.log(self.buffer);
+          callback(null, self.buffer); 
+       })
+   } else {
+       self.dataCallback = callback;
+       self.bytesCount = bytesCount;
+   }
+}
 
 TrackerSimulator.prototype.destroy = function() {
 	this.client.destroy();

@@ -7,7 +7,7 @@ var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('../../../test/tracker-simulator.js');
 
 var nextPort = 3141;
-
+var addTimeout = require("addTimeout");
 
 //tk103.parseMessage("(013632782450BP05000013632782450110601V5955.5002N01034.4865E000.020184973.73000000000L000086C0)");
 
@@ -26,17 +26,15 @@ var DOG_TRACKER_ISOCHRONOUS_FOR_CONTINUES_FEEDBACK_MESSAGE = "(013500001112BR001
 var ALARM_MESSAGE = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734.62000000000L000000)";
 //console.log(parse(new Buffer(ALARM_MESSAGE)));
 
-var sendData = function(data, callback) {
+var sendData = function(data, callback, numberOfBytesToWaitFor) {
     var port = nextPort++;
 	var locationIo = new LocationIo();
 	var trackerSimulator = new TrackerSimulator();
+	var returnObject = {};
 	locationIo.createServer(port, function(eventType, id, message) {
-			console.log('event type ' + eventType);
 			if (eventType == 'message') {
-				locationIo.close(function() {
-					console.log('calling back');
-					callback(id, message);
-				});		
+				returnObject.message = message;
+					
 			} else if (eventType == 'server-up') {
 				async.series([
 			   		function(callback)	{
@@ -45,84 +43,118 @@ var sendData = function(data, callback) {
 		    		function(callback) {
 		    			console.log('sending message');
 			    		trackerSimulator.sendMessage(data, 1000, 50, 100, callback);
+		    		},
+		    		function(callback) {
+		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(500, callback));
 		    		}
 		           ],
-		           function(err) {
-				    console.log('error ' + err);
-				        trackerSimulator.destroy();
+		           function(err, data) {
+				       console.log('error ' + err);      
+				       var dataReceivedByClient = data[2];
+				       callback(err, returnObject.message, dataReceivedByClient);
+				       trackerSimulator.destroy();
+                       locationIo.close(); 
 		      	});
 		  }
 	});	
 };
-
+          
 vows.describe('tk103-parser-messages').addBatch({
    'handles login message (from dog tracker)': {
         topic: function() {
         	var DOG_TRACKER_LOGIN = "(013500001112BP05000013500001112120903A5956.1894N01046.9892E006.0160134061.9600000000L00000000)";
-        	sendData(DOG_TRACKER_LOGIN, this.callback);
+        	sendData(DOG_TRACKER_LOGIN, this.callback, 18);
 			
         },
-        'should be a login message': function (id, message) {
-			console.log(message);
+        'should be a login message': function (err, message, returnedData) {
 			assert.equal(message.type, 'loginMessage');
+        },
+        'should send ACK from server to client': function (err, message, returnedData) {
+            assert.equal("(013500001112AP05)", returnedData);
         }
+    
     },
     'handles login message': {
         topic: function() {
             var MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
-            sendData(MESSAGE, this.callback);    
+            sendData(MESSAGE, this.callback, 1);    
         },
-        'should be a login message': function (id, message) {
-            console.log(message);
+        'should be a login message': function (id, message, returnedData) {
             assert.equal(message.type, 'loginMessage');
+        },
+        'message should contain a location': function (id, message, returnedData) {
             assert.notEqual(message.location, undefined);
+        },
+        'should send ACK from server to client': function (id, message, returnedData) {
+            assert.equal(returnedData, "(013612345678AP05)");
         }
     },
     'handles handshake signal message': {
         topic: function() {
             var MESSAGE = "(013612345678BP00000013612345678HSO)"; 
-            sendData(MESSAGE, this.callback);
-            
+            sendData(MESSAGE, this.callback, 1);       
         },
-        'should be handshake signal message': function (id, message) {
+        'should be handshake signal message': function (id, message, returnedData) {
            assert.equal(message.type, 'handshakeSignalMessage');
+        },
+        'should have serial number': function (id, message, returnedData) {
            assert.equal(message.serialNumber, "000013612345678");
            assert.equal(message.trackerId, "013612345678");
+        },
+        'should send ACK from server to client': function (id, message, returnedData) {
+           assert.equal(returnedData, "(013612345678AP01HSO)");
         }
     },
     'handles alarm message': {
         topic: function() {
            var MESSAGE = "(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)";
-           sendData(MESSAGE, this.callback);
+           sendData(MESSAGE, this.callback, 1);
             
         },
-        'should be handshake alarm message': function (id, message) {
+        'should be alarm message': function (id, message, returnedData) {
             assert.equal(message.type, 'alarmMessage');
-            assert.equal(message.alarmType, 'sos');
+            assert.notEqual(message.location, undefined);       
+        },
+        'message should contain a location': function (id, message, returnedData) {
             assert.notEqual(message.location, undefined);
+        },
+        'alarm type should be SOS': function (id, message, returnedData) {
+            assert.equal(message.alarmType, 'sos');
+        },
+        'should send ACK from server to client': function (id, message, returnedData) {
+           assert.equal(returnedData, "(013612345678AS012)");
         }
     },
     'handles locationUpdate': {
         topic: function() {
            var MESSAGE = "(013612345678BR00080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-           sendData(MESSAGE, this.callback);
-            
+           sendData(MESSAGE, this.callback, 1);
         },
         'should be locationUpdate message': function (id, message) {
             assert.equal(message.type, 'locationUpdate');
+        },
+        'message should contain a location': function (id, message, returnedData) {
             assert.notEqual(message.location, undefined);
+        },
+        'should not ACK from server to client': function (id, message, returnedData) {
+          assert.isUndefined(returnedData);
         }
     },
     'handles updatesEnding': {
         topic: function() {
            var MESSAGE = "(013612345678BR02080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-           sendData(MESSAGE, this.callback);        
+           sendData(MESSAGE, this.callback, 1);        
         },
         'should be updatesEnding message': function (id, message) {
             assert.equal(message.type, 'updatesEnding');
+        },
+        'message should contain a location': function (id, message, returnedData) {
             assert.notEqual(message.location, undefined);
+        },
+        'should not ACK from server to client': function (id, message, returnedData) {
+          assert.isUndefined(returnedData);
         }
-    },
+    }
     
   
 }).export(module); // Export the Suite
