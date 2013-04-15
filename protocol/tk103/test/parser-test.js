@@ -66,6 +66,9 @@ vows.describe('tk103-parser-messages').addBatch({
         	sendData(DOG_TRACKER_LOGIN, this.callback, 18);
 			
         },
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
         'should be a login message': function (err, message, returnedData) {
 			assert.equal(message.type, 'loginMessage');
         },
@@ -79,13 +82,16 @@ vows.describe('tk103-parser-messages').addBatch({
             var MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
             sendData(MESSAGE, this.callback, 1);    
         },
-        'should be a login message': function (id, message, returnedData) {
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
+        'should be a login message': function (err, message, returnedData) {
             assert.equal(message.type, 'loginMessage');
         },
-        'message should contain a location': function (id, message, returnedData) {
+        'message should contain a location': function (err, message, returnedData) {
             assert.notEqual(message.location, undefined);
         },
-        'should send ACK from server to client': function (id, message, returnedData) {
+        'should send ACK from server to client': function (err, message, returnedData) {
             assert.equal(returnedData, "(013612345678AP05)");
         }
     },
@@ -94,14 +100,17 @@ vows.describe('tk103-parser-messages').addBatch({
             var MESSAGE = "(013612345678BP00000013612345678HSO)"; 
             sendData(MESSAGE, this.callback, 1);       
         },
-        'should be handshake signal message': function (id, message, returnedData) {
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
+        'should be handshake signal message': function (err, message, returnedData) {
            assert.equal(message.type, 'handshakeSignalMessage');
         },
-        'should have serial number': function (id, message, returnedData) {
+        'should have serial number': function (err, message, returnedData) {
            assert.equal(message.serialNumber, "000013612345678");
            assert.equal(message.trackerId, "013612345678");
         },
-        'should send ACK from server to client': function (id, message, returnedData) {
+        'should send ACK from server to client': function (err, message, returnedData) {
            assert.equal(returnedData, "(013612345678AP01HSO)");
         }
     },
@@ -111,47 +120,56 @@ vows.describe('tk103-parser-messages').addBatch({
            sendData(MESSAGE, this.callback, 1);
             
         },
-        'should be alarm message': function (id, message, returnedData) {
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
+        'should be alarm message': function (err, message, returnedData) {
             assert.equal(message.type, 'alarmMessage');
             assert.notEqual(message.location, undefined);       
         },
-        'message should contain a location': function (id, message, returnedData) {
+        'message should contain a location': function (err, message, returnedData) {
             assert.notEqual(message.location, undefined);
         },
-        'alarm type should be SOS': function (id, message, returnedData) {
+        'alarm type should be SOS': function (err, message, returnedData) {
             assert.equal(message.alarmType, 'sos');
         },
-        'should send ACK from server to client': function (id, message, returnedData) {
+        'should send ACK from server to client': function (err, message, returnedData) {
            assert.equal(returnedData, "(013612345678AS012)");
         }
     },
     'handles locationUpdate': {
         topic: function() {
            var MESSAGE = "(013612345678BR00080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-           sendData(MESSAGE, this.callback, 1);
+           sendData(MESSAGE, this.callback, 0);
         },
-        'should be locationUpdate message': function (id, message) {
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
+        'should be locationUpdate message': function (err, message) {
             assert.equal(message.type, 'locationUpdate');
         },
-        'message should contain a location': function (id, message, returnedData) {
+        'message should contain a location': function (err, message, returnedData) {
             assert.notEqual(message.location, undefined);
         },
-        'should not ACK from server to client': function (id, message, returnedData) {
+        'should not ACK from server to client': function (err, message, returnedData) {
           assert.isUndefined(returnedData);
         }
     },
     'handles updatesEnding': {
         topic: function() {
            var MESSAGE = "(013612345678BR02080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-           sendData(MESSAGE, this.callback, 1);        
+           sendData(MESSAGE, this.callback, 0);        
         },
-        'should be updatesEnding message': function (id, message) {
+        'should not fail with error': function (err, message, returnedData) {
+            assert.isNull(err);
+        },
+        'should be updatesEnding message': function (err, message) {
             assert.equal(message.type, 'updatesEnding');
         },
-        'message should contain a location': function (id, message, returnedData) {
+        'message should contain a location': function (err, message, returnedData) {
             assert.notEqual(message.location, undefined);
         },
-        'should not ACK from server to client': function (id, message, returnedData) {
+        'should not ACK from server to client': function (err, message, returnedData) {
           assert.isUndefined(returnedData);
         }
     }

@@ -96,10 +96,8 @@ TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages
 
 TrackerSimulator.prototype.waitForData = function(bytesCount, callback) {
    var self = this;
-   if (self.buffer && self.buffer.length >= bytesCount) {
+   if (bytesCount < 1 || (self.buffer && self.buffer.length >= bytesCount)) {
        process.nextTick(function() {
-        //  console.log('data already available');
-        //  console.log(self.buffer);
           callback(null, self.buffer); 
        })
    } else {
