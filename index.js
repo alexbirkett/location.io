@@ -41,13 +41,13 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	};
 	
 	server.on('connection', function(socket) {
-		console.log('socket connected');
+		//console.log('socket connected');
 		connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
 		self.connections[socket.remoteAddress+":"+socket.remotePort] = socket;
 	});
 
 	server.on('close', function(socket) {
-		console.log('socket closed');
+		//console.log('socket closed');
 	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
@@ -95,7 +95,7 @@ LocationIo.prototype.getCapabilities = function(protocolName) {
 };
 
 LocationIo.prototype.close = function(callback) {
-	console.log('closing server');
+	//console.log('closing server');
 	this.server.close(callback);
 };
 
