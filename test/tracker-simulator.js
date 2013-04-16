@@ -55,13 +55,13 @@ var TrackerSimulator = function() {
 }
 
 module.exports = TrackerSimulator;
-
+       
 TrackerSimulator.prototype.connect = function(connectOptions, callback) {
 	this.client = net.createConnection(connectOptions, callback);
     var self = this;
 	this.client.on('data', function(data) {
        self.buffer = Buffer.smarterConcat([self.buffer, data]); 
-       if (self.bytesCount && self.buffer.length > self.bytesCount) {
+       if (self.bytesCount && self.buffer.length >= self.bytesCount) {
            self.dataCallback(null, self.buffer); 
        }
   
