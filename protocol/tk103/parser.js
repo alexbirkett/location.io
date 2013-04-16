@@ -81,7 +81,6 @@ function parseMessage(message) {
 
 var findFrameAndParseMessage = function(buffer, callback) {
 	// pass back the buffer if we can't parse the message yet
-	console.log('buffer ' + buffer);
 	var messageStartIndex = -1;
 	var message;
 	var bufferToReturn = buffer;
