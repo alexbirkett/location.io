@@ -13,9 +13,20 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 	var locationIo = new LocationIo();
 	var trackerSimulator = new TrackerSimulator();
 	var returnObject = {};
+	
+	var waitForMessage = function(callback) {
+	    if (returnObject.message) {
+	        process.nextTick(callback);
+	    } else {
+	        returnObject.callback = callback;
+	    }
+	};
 	locationIo.createServer(port, function(eventType, id, message) {
 			if (eventType == 'message') {
 				returnObject.message = message;
+				if (returnObject.callback) {
+				    returnObject.callback();
+				}
 					
 			} else if (eventType == 'server-up') {
 				async.series([
@@ -26,7 +37,10 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 			    		trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
 		    		},
 		    		function(callback) {
-		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(500, callback));
+		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(1500, callback));
+		    		},
+		    		function(callback) {
+		    		    waitForMessage(callback);
 		    		}
 		           ],
 		           function(err, data) {
@@ -39,11 +53,9 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 	});	
 };
           
-var suite = vows.describe('up-message-tests');
-
-var addBatch = function(sliceLength) {
+var createTests = function(sliceLength) {
     
-    suite.addBatch({
+    return {
        'handles login message (from dog tracker)': {
             topic: function() {
             	var DOG_TRACKER_LOGIN = "(013500001112BP05000013500001112120903A5956.1894N01046.9892E006.0160134061.9600000000L00000000)";
@@ -59,12 +71,11 @@ var addBatch = function(sliceLength) {
             'should send ACK from server to client': function (err, message, returnedData) {
                 assert.equal("(013500001112AP05)", returnedData);
             }
-        
         },
         'handles login message': {
             topic: function() {
                 var MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
-                sendData(MESSAGE, this.callback, 1, sliceLength);    
+                sendData(MESSAGE, this.callback, 18, sliceLength);    
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
@@ -82,7 +93,7 @@ var addBatch = function(sliceLength) {
         'handles handshake signal message': {
             topic: function() {
                 var MESSAGE = "(013612345678BP00000013612345678HSO)"; 
-                sendData(MESSAGE, this.callback, 1, sliceLength);       
+                sendData(MESSAGE, this.callback, 21, sliceLength);       
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
@@ -101,7 +112,7 @@ var addBatch = function(sliceLength) {
         'handles alarm message': {
             topic: function() {
                var MESSAGE = "(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)";
-               sendData(MESSAGE, this.callback, 1, sliceLength);
+               sendData(MESSAGE, this.callback, 19, sliceLength);
                 
             },
             'should not fail with error': function (err, message, returnedData) {
@@ -157,15 +168,26 @@ var addBatch = function(sliceLength) {
               assert.isUndefined(returnedData);
             }
         }
-        
-      
-    });
+    };
 
 }
 
+var suite = vows.describe('up-message-tests');
+
+var test = {};
+test.topic = function() {
+        return i;
+    }
+    test.result = function(err) {
+        console.log(err);
+    }
+    
+var tests = {};
 for (var i = 0; i < 150; i ++) {
-    addBatch(i + 1);
+    tests['test with slice length ' + i] = createTests(i + 1);
 }
 
+suite.addBatch(tests);
+    
 suite.export(module); // Export the Suite
 
