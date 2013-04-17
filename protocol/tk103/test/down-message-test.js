@@ -85,45 +85,28 @@ vows.describe('connection.parse').addBatch({
                 assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
             },
             
+      },
+      'test requestLocation': {
+            topic: function() {
+                testDownMessage("requestLocation", {}, 2, "(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               console.log("message received by tracker " + downMessageReceivedByTracker);
+               assert.equal("(013612345678AP00)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+               console.log(parsedAckRecievedByServer);
+            },
+            'ack should contain location': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isNotNull(parsedAckRecievedByServer.location);
+            }
+            
       }
 }).export(module);
-//tk103.parseMessage("(013632782450BP05000013632782450110601V5955.5002N01034.4865E000.020184973.73000000000L000086C0)");
-
-//tk103.parseMessage("(013500001111BP05000013500001111090215V0000.0000N00000.0000E000.0000144000.0000000000L000000)");
-
-//tk103.parseMessage("(013500001111BP05000013500001111120903V5954.7918N01044.1389E000.0135036208.5800000000L000000)");
-
-
-//console.log(parse(new Buffer(DOG_TRACKER_LOGIN)));
-
-
-var DOG_TRACKER_ISOCHRONOUS_FOR_CONTINUES_FEEDBACK_MESSAGE = "(013500001112BR00120903A5955.9535N01047.4548E000.0160957000.0000000000L00000000)";
-
-//parse(new Buffer(DOG_TRACKER_ISOCHRONOUS_FOR_CONTINUES_FEEDBACK_MESSAGE));
-
-var ALARM_MESSAGE = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734.62000000000L000000)";
-//console.log(parse(new Buffer(ALARM_MESSAGE)));
-
-/*
- *    'handles configureUpdateInterval': {
-        topic: function() {
-            var MESSAGE = "(013612345678BS0800050014)";
-            sendData(MESSAGE, this.callback);
-            
-        },
-        'should be configureUpdateInterval': function (id, message) {
-            assert.equal(message.type, 'configureUpdateInterval');    
-        }
-    },
- */
-
-function testAnswerToMessageOfCallingTheRoll() {
-    var MESSAGE = new Buffer("(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.ANSWER_CALLING_MESSAGE);
-    assert.notEqual(message.location, undefined);
-    //console.log(message);
-}
 
 function testResponseToSetUpVehicleMaxAndMinSpeed() {
     var MESSAGE = new Buffer("(013612345678BP12H0501L030)");
