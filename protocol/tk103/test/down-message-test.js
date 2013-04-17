@@ -88,18 +88,16 @@ vows.describe('connection.parse').addBatch({
       },
       'test requestLocation': {
             topic: function() {
-                testDownMessage("requestLocation", {}, 2, "(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)", this.callback);  
+                testDownMessage("requestLocation", {}, 18, "(013612345678BP04080525A2934.0133N10627.2544E000.0141830309.6200000000L00000023)", this.callback);  
             },
             'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
-                assert.isNull(err);
+               assert.isNull(err);
             },
             'message should be received by tracker': function(err, downMessageReceivedByTracker) {
-               console.log("message received by tracker " + downMessageReceivedByTracker);
                assert.equal("(013612345678AP00)", downMessageReceivedByTracker);
             },
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
-               console.log(parsedAckRecievedByServer);
             },
             'ack should contain location': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                 assert.isNotNull(parsedAckRecievedByServer.location);
