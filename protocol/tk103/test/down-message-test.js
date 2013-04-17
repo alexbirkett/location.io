@@ -1,4 +1,92 @@
+var assert = require('assert');
+var vows = require('vows');
+var async = require('async');
+var LocationIo = require('../../../index.js');
+var forEach = require('async-foreach').forEach;
+var TrackerSimulator = require('../../../test/tracker-simulator.js');
 
+
+var nextPort = 3141;
+var addTimeout = require("addTimeout");
+
+var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
+var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
+        
+var testDownMessage = function(messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
+    var port = nextPort++;
+    var locationIo = new LocationIo();
+    var trackerSimulator = new TrackerSimulator();
+    
+    var connectedTracker = {};
+    
+    var returnObject = {};
+        
+    var sendMessageCallback = function() {
+
+ 
+    };
+    
+    locationIo.createServer(port, function(eventType, id, message) {
+            if (eventType == 'tracker-connected') {
+                connectedTracker.id = id;
+            }
+            if (eventType == 'message') { 
+                returnObject.parsedAck = message;    
+            } else if (eventType == 'server-up') {
+                async.series([
+                    function(callback)  {
+                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
+                    },
+                    function(callback) {
+                        trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, callback);
+                    },
+                    function(callback) {
+                         trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback));
+                    },
+                    function(callback) {      
+                        locationIo.sendCommand(connectedTracker.id, messageName, parameters, callback);
+                        
+                        trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(1500, function(err, data) {
+                            returnObject.downMessageReceivedByTracker = data;
+                            trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, function() {});
+                        }));
+         
+                    }
+                   ],
+                   function(err, data) {
+                       var actualLoginResponse = data[2];
+                       if (actualLoginResponse != EXPECTED_LOGIN_RESPONSE) {
+                           throw "error logging in";
+                       }
+                       callback(err, returnObject.downMessageReceivedByTracker, returnObject.parsedAck);
+                       trackerSimulator.destroy();
+                       locationIo.close(); 
+
+                });
+          }
+    }); 
+};
+
+
+
+vows.describe('connection.parse').addBatch({
+     'test configureUpdateInterval': {
+            topic: function() {
+                var params = {'enabled':true,'interval': '20s', 'duration': '36m' }
+                testDownMessage( "configureUpdateInterval", params, 26, "(013612345678BS0800050014)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+                assert.equal("(013612345678AR0000140024)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            },
+            
+      }
+}).export(module);
 //tk103.parseMessage("(013632782450BP05000013632782450110601V5955.5002N01034.4865E000.020184973.73000000000L000086C0)");
 
 //tk103.parseMessage("(013500001111BP05000013500001111090215V0000.0000N00000.0000E000.0000144000.0000000000L000000)");

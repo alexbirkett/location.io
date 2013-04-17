@@ -62,7 +62,7 @@ TrackerSimulator.prototype.connect = function(connectOptions, callback) {
 	this.client.on('data', function(data) {
        self.buffer = Buffer.smarterConcat([self.buffer, data]); 
        if (self.bytesCount && self.buffer.length >= self.bytesCount) {
-           self.dataCallback(null, self.buffer); 
+          callWaitForDataCallback(self);
        }
   
     });
@@ -94,15 +94,23 @@ TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages
 	});
 }; 
 
+var callWaitForDataCallback = function(self) {
+    console.log('callback in waitForData');
+    var buffer = self.buffer;
+    self.buffer = undefined;
+    var callback = self.dataCallback;
+    self.callback = undefined;
+    callback(null, buffer); 
+}
+
 TrackerSimulator.prototype.waitForData = function(bytesCount, callback) {
    var self = this;
+   self.dataCallback = callback;
+   self.bytesCount = bytesCount;
    if (bytesCount < 1 || (self.buffer && self.buffer.length >= bytesCount)) {
        process.nextTick(function() {
-          callback(null, self.buffer); 
-       })
-   } else {
-       self.dataCallback = callback;
-       self.bytesCount = bytesCount;
+           callWaitForDataCallback(self);
+       });
    }
 }
 

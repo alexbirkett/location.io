@@ -1,5 +1,7 @@
 var util = require('../util');
 
+var api = require('./api');
+
 var buildSimpleCommand = function(messageValue, command) {
     return "(" + messageValue.trackerId + command + ")";
 }
@@ -24,7 +26,9 @@ var messages = {
         var durationInSeconds = messageValue.enabled ? util.parseTimeInterval(messageValue.duration) : 0;
         var durationHours = util.prependZeros(Math.floor(durationInSeconds / 3600).toString(16), 2).toUpperCase();
         var durationMinutes = util.prependZeros(Math.floor(durationInSeconds / 60).toString(16), 2).toUpperCase();
-        return "(" + messageValue.trackerId + "AR00" + util.getTimeIntervalAsFourHexDigits(intervalInSeconds) + durationHours + durationMinutes + ")";
+        var message = "(" + messageValue.trackerId + "AR00" + util.getTimeIntervalAsFourHexDigits(intervalInSeconds) + durationHours + durationMinutes + ")";
+        console.log(message);
+        return message;
     },
     requestLocation : function(messageValue) {
         return buildSimpleCommand(messageValue, "AP00");
@@ -87,6 +91,16 @@ var acks = {
 /*exports.configureUpdateInterval = function(messageValue) {
 
  }*/
+
+module.exports.buildMessage = function(messageName, parameters) {   
+    util.assertValidCommand(messageName, parameters, api);
+    var builder = messages[messageName];
+    
+    if (builder == undefined) {
+        throw "no command builder defined for message " + messageName;
+    }
+    return builder(parameters);
+};
 
 module.exports.buildAck = function(message) {
         if (message.type != undefined) {
