@@ -6,7 +6,7 @@ var buildSimpleCommand = function(messageValue, command) {
     return "(" + messageValue.trackerId + command + ")";
 }
 var buildsetAccSendingDataIntervals = function(messageValue, commandId) {
-    var time = getTimeIntervalAsFourHexDigits(util.parseTimeInterval(messageValue.interval));
+    var time = util.getTimeIntervalAsFourHexDigits(util.parseTimeInterval(messageValue.interval));
     return buildSimpleCommand(messageValue, commandId + time);
 }
 var alarmTypes = {

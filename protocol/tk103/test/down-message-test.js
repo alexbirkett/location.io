@@ -199,36 +199,31 @@ vows.describe('connection.parse').addBatch({
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
             } 
+      },
+      'test configureUpdateIntervalWhenAccOpen': {
+            topic: function() {
+                testDownMessage("configureUpdateIntervalWhenAccOpen", { interval:'20s' }, 22, "(013612345678BR05)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AR050014)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            } 
       }
 }).export(module);
 
 
 
-function testResponseToCircuitControl() {
-    // this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BV001)");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.CONTROL_CIRCUIT);
-}
-
-function testResponseToOilControl() {
-    // this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BV011)");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.CONTROL_OIL);
-}
 
 
-function testAnswerTheRestartedMessageOfTheDevice() {
-// this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BT00)");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.ANSWER_THE_RESTARTED_MESSAGE_OF_THE_DEVICE);
-}
 
 function testAnswerTheSettingACCOpenSendingDataIntervals() {
 // this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BR05)");
+    var MESSAGE = new Buffer("");
     var message = parse(MESSAGE).message;
     assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_ACC_OPEN_SENDING_DATA_INTERVALS);
 }

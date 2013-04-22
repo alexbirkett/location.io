@@ -76,8 +76,7 @@ module.exports = {
            // no implementation requred
         }, 
         configureUpdateIntervalWhenAccOpen : function(message, frame) {
-            console.log('configureUpdateIntervalWhenAccOpen ack parse not implemented');
-            console.log(message);
+           // no implementation requred
         }, 
         configureUpdateIntervalWhenAccClosed : function(message, frame) {
             console.log('configureUpdateIntervalWhenAccClosed ack parse not implemented');
