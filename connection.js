@@ -5,7 +5,8 @@ module.exports.attachSocket = function(self, socket, protocolModules, callback) 
 	self.protocolModules = protocolModules;
 	self.upMessagesCallbacks = {};
 	
-	socket.setKeepAlive(true, 30000);	
+	socket.setKeepAlive(true, 30000);
+	socket.setNoDelay(true);
 
 	var setAndEmittIdIfrequired = function(message) {
 		
