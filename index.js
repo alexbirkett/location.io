@@ -70,8 +70,6 @@ LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParam
 };
 
 LocationIo.prototype.findConnectionById = function(id) {
-	console.log('connections');
-	console.log(this.connections);
 	console.log('finding tracker id ' + id);
 	
 	for (var socket in this.connections) {
