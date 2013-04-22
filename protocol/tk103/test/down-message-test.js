@@ -227,32 +227,35 @@ vows.describe('connection.parse').addBatch({
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
             } 
+      },
+      'test configureGeofence': {
+            topic: function() {
+                var params = {
+                    trackerId : "013612345678",
+                    maxLongitude : 113.919583,
+                    minLongitude : 112.553867,
+                    maxLatitude : 22.7742,
+                    minLatitude : 22.7553,
+                    enabled : true
+                };
+                testDownMessage("configureGeofence", params, 61, "(013612345678BU0001)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AX051,N,2245.318,2246.452,E,11233.232,11355.175)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            } 
       }
 }).export(module);
 
 
-
-
-
-
-function testAnswerTheSettingACCOpenSendingDataIntervals() {
-// this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_ACC_OPEN_SENDING_DATA_INTERVALS);
-}
-
-
-function testAnswerTheSettingAccCloseSendingDataIntervals() {
-// this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BR06)");
-    var message = parse(MESSAGE).message;
-    assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_ACC_CLOSE_SENDING_DATA_INTERVALS);
-}
-
 function testAnswerToSettingGeoFenceMessagesMessages() {
     // this example is homemade, not from the protocol document
-    var MESSAGE = new Buffer("(013612345678BU0001)");
+    var MESSAGE = new Buffer("");
     var message = parse(MESSAGE).message;
     assert.equal(message.type, constants.messages.ANSWER_THE_SETTING_GEO_FENCE_MESSAGE);
 }
