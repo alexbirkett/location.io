@@ -99,14 +99,18 @@ module.exports.buildMessage = function(messageName, parameters) {
     if (builder == undefined) {
         throw "no command builder defined for message " + messageName;
     }
-    return builder(parameters);
+    var message = builder(parameters);
+    console.log('tk103 message ' + message);
+    return message;
 };
 
 module.exports.buildAck = function(message) {
         if (message.type != undefined) {
             var builder = acks[message.type];
             if (builder != undefined) {
-                return builder(message);
+                var ack = builder(message);
+                console.log('tk103 ack ' + ack);
+                return ack;
             }
         }
     }
