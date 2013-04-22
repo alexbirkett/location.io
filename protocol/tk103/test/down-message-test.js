@@ -185,6 +185,20 @@ vows.describe('connection.parse').addBatch({
             'switch is enabled in ack' :  function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                 assert.isFalse(parsedAckRecievedByServer.enabled);
             } 
+      },
+      'test restart': {
+            topic: function() {
+                testDownMessage("restartDevice", { }, 18, "(013612345678BT00)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AT00)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            } 
       }
 }).export(module);
 

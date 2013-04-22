@@ -73,8 +73,7 @@ module.exports = {
             frame.enabled = (message == '1');
         },
         restartDevice : function(message, frame) {
-            console.log('restartDevice ack parse not implemented');
-            console.log(message);
+           // no implementation requred
         }, 
         configureUpdateIntervalWhenAccOpen : function(message, frame) {
             console.log('configureUpdateIntervalWhenAccOpen ack parse not implemented');
