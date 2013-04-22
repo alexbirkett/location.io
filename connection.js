@@ -3,12 +3,14 @@ require('smarter-buffer');
 
 module.exports.attachSocket = function(self, socket, protocolModules, callback) {
 	self.protocolModules = protocolModules;
+	self.upMessagesCallbacks = {};
 	
 	socket.setKeepAlive(true, 600000);	
 
 	var setAndEmittIdIfrequired = function(message) {
 		
 		if (!self.id) {
+		    self.rawId = message.trackerId;
 			self.id = self.protocolModules[0].name + message.trackerId;
 			callback('tracker-connected', self.id, self.protocolModules[0].name);
 		}
@@ -18,9 +20,15 @@ module.exports.attachSocket = function(self, socket, protocolModules, callback) 
 		bufferAndHandleData(self, data, handleData, parse, function(message) {
 			setAndEmittIdIfrequired(message);
 			callback('message', self.id, message);			
+			
 			sendAck(self.protocolModules[0], socket, message, function(err) {
 			    
 			});
+			
+			if (self.upMessagesCallbacks[message.type] != undefined) {
+			    self.upMessagesCallbacks[message.type](null);
+			}
+			self.upMessagesCallbacks[message.type] = undefined;
 			    
 		});
 	});
@@ -184,16 +192,18 @@ var sendAck = function(module, socket, message, callback) {
 
 module.exports.sendCommand = function(self, socket, commandName, commandParameters, callback) {
 	console.log('sending commmand ' + commandName);
-	commandParameters.trackerId = self.id;
+	commandParameters.trackerId = self.rawId;
 	console.log(commandParameters);
 	try {
-		var message = self.protocolModules[0].sendMessage(commandName, commandParameters);
+		var message = self.protocolModules[0].buildMessage(commandName, commandParameters);
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
-			callback(err);
+			self.upMessagesCallbacks[commandName] = callback;
 		});
+		
+		
 	} catch(e) {
-		console.log("build command failed " + e);
+		console.log("build message failed " + e);
 		process.nextTick(function() {
 			callback(e + "");
 		})
