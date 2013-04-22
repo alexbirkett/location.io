@@ -58,7 +58,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                        if (actualLoginResponse != EXPECTED_LOGIN_RESPONSE) {
                            throw "error logging in";
                        }
-                       callback(err, returnObject.downMessageReceivedByTracker, returnObject.parsedAck);
+                       callback(err, returnObject.downMessageReceivedByTracker + '', returnObject.parsedAck);
                        trackerSimulator.destroy();
                        locationIo.close(); 
 
