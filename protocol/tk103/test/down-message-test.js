@@ -199,7 +199,7 @@ vows.describe('connection.parse').addBatch({
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
             } 
-      },
+      }, 
       'test configureUpdateIntervalWhenAccOpen': {
             topic: function() {
                 testDownMessage("configureUpdateIntervalWhenAccOpen", { interval:'20s' }, 22, "(013612345678BR05)", this.callback);  
@@ -209,6 +209,20 @@ vows.describe('connection.parse').addBatch({
             },
             'message should be received by tracker': function(err, downMessageReceivedByTracker) {
                assert.equal("(013612345678AR050014)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            } 
+      },
+     'test configureUpdateIntervalWhenAccClosed': {
+            topic: function() {
+                testDownMessage("configureUpdateIntervalWhenAccClosed", { interval:'1m' }, 22, "(013612345678BR06)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AR06003C)", downMessageReceivedByTracker);
             },
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
