@@ -67,10 +67,10 @@ module.exports = {
             gpsMessageOnlyParse(message, frame);
         },
         configureSwitch0 : function(message, frame) {
-            frame.circuitOpen = (message[0] == '1');
+            frame.enabled = (message  == '1');
         },
         configureSwitch1 : function(message, frame) {
-            frame.circuitOpen = (message[0] == '1');
+            frame.enabled = (message == '1');
         },
         restartDevice : function(message, frame) {
             console.log('restartDevice ack parse not implemented');

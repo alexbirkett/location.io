@@ -103,7 +103,7 @@ vows.describe('connection.parse').addBatch({
                 assert.isObject(parsedAckRecievedByServer.location);
             }    
       },
-      'configureSpeedAlert': {
+      'test configureSpeedAlert': {
             topic: function() {
                 testDownMessage("configureSpeedAlert", {'minSpeed': 30, 'maxSpeed' : 50}, 26, "(013612345678BP12H0501L030)", this.callback);  
             },
@@ -116,11 +116,78 @@ vows.describe('connection.parse').addBatch({
             'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
                assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
                // todo fix min max speed parsing
-               console.log(parsedAckRecievedByServer);
             }   
       },
-      
+      'test configureSwitch0 (enable)': {
+            topic: function() {
+                testDownMessage("configureSwitch0", {'enabled': true }, 19, "(013612345678BV001)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AV001)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            },
+            'switch is enabled in ack' :  function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isTrue(parsedAckRecievedByServer.enabled);
+            } 
+      },
+      'test configureSwitch0 (disable)': {
+            topic: function() {
+                testDownMessage("configureSwitch0", {'enabled': false }, 19, "(013612345678BV00)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AV000)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            },
+            'switch is enabled in ack' :  function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isFalse(parsedAckRecievedByServer.enabled);
+            } 
+      },
+      'test configureSwitch1 (enable)': {
+            topic: function() {
+                testDownMessage("configureSwitch1", {'enabled': true }, 19, "(013612345678BV011)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AV011)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            },
+            'switch is enabled in ack' :  function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isTrue(parsedAckRecievedByServer.enabled);
+            } 
+      },
+      'test configureSwitch1 (disable)': {
+            topic: function() {
+                testDownMessage("configureSwitch1", {'enabled': false }, 19, "(013612345678BV010)", this.callback);  
+            },
+            'should not fail with error': function (err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.isNull(err);
+            },
+            'message should be received by tracker': function(err, downMessageReceivedByTracker) {
+               assert.equal("(013612345678AV010)", downMessageReceivedByTracker);
+            },
+            'ack should be received by server': function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+               assert.equal('013612345678', parsedAckRecievedByServer.trackerId);
+            },
+            'switch is enabled in ack' :  function(err, downMessageReceivedByTracker, parsedAckRecievedByServer) {
+                assert.isFalse(parsedAckRecievedByServer.enabled);
+            } 
+      }
 }).export(module);
+
 
 
 function testResponseToCircuitControl() {
