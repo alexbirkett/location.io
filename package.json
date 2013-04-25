@@ -5,14 +5,16 @@
     "engine": "node >= 0.8.3",
     "dependencies": {
         "hashmap": "0.9.x",
-        "vows": "0.7.x",
         "enum": "0.2.x",
         "async-foreach": "0.1.x",
         "smarter-buffer": "0.0.x",
         "async": "0.1.x",
-        "addTimeout": "0.4.0"
+        "addTimeout": "git://github.com/alexbirkett/addTimeout.git#master"
+    },
+    "devDependencies": {
+        "vows": ">= 0.7.0"
     },
     "scripts": {
-        "test": "vows --spec"
+        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js"
     }
 }
