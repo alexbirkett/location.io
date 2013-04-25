@@ -100,7 +100,6 @@ module.exports.buildMessage = function(messageName, parameters) {
         throw "no command builder defined for message " + messageName;
     }
     var message = builder(parameters);
-    console.log('tk103 message ' + message);
     return message;
 };
 
@@ -109,7 +108,6 @@ module.exports.buildAck = function(message) {
             var builder = acks[message.type];
             if (builder != undefined) {
                 var ack = builder(message);
-                console.log('tk103 ack ' + ack);
                 return ack;
             }
         }

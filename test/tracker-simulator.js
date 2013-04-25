@@ -95,7 +95,6 @@ TrackerSimulator.prototype.sendMessage = function(messages, pauseBetweenMessages
 }; 
 
 var callWaitForDataCallback = function(self) {
-    console.log('callback in waitForData');
     var buffer = self.buffer;
     self.buffer = undefined;
     var callback = self.dataCallback;
