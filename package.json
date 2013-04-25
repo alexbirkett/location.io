@@ -13,6 +13,6 @@
         "addTimeout": "0.4.0"
     },
     "scripts": {
-  		"test": "expresso test/*"
-	}
+        "test": "vows --spec"
+    }
 }
