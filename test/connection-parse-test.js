@@ -6,19 +6,19 @@ vows.describe('connection.parse').addBatch({
 	'parse with three modules, the last one of which returns a message' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
 					});
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, buffer);
 					});
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, "message", buffer);
 					});
@@ -38,14 +38,14 @@ vows.describe('connection.parse').addBatch({
 	'parse with two modules, the last one of which returns a message' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
 					});
 				},
 				desiredModuleA : false
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, "message", buffer);
 					});
@@ -65,19 +65,19 @@ vows.describe('connection.parse').addBatch({
 	'parse with one module that returns a error and none that return a message' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
 					});
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, buffer);
 					});
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, buffer);
 					});
@@ -97,13 +97,13 @@ vows.describe('connection.parse').addBatch({
 	'parse when first module returns a message' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, 'message', buffer);
 					});
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, buffer);
 					});
@@ -122,11 +122,11 @@ vows.describe('connection.parse').addBatch({
 	'parse when first module thows an exception a message' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					throw "error";
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, "message", buffer);
 					});
@@ -145,11 +145,11 @@ vows.describe('connection.parse').addBatch({
 	'parse when first module callsback syncrhonously' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					callback(null, null, buffer);
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, "message", buffer);
 					});
@@ -168,7 +168,7 @@ vows.describe('connection.parse').addBatch({
 	'parse when parse function does not callback' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					// do nothing
 				}
 			}];
@@ -176,14 +176,13 @@ vows.describe('connection.parse').addBatch({
 			connection._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should time out' : function(err, message, data, protocolModules) {
-			console.log(arguments);
 			assert.equal(err, "timeout");
 		}
 	},
 	'parse when parse function calls back after timeout' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					setTimeout(function() {
 						callback(null);
 					}, 1500);
@@ -199,11 +198,11 @@ vows.describe('connection.parse').addBatch({
 	'parse when one module does not return a message and another times out' : {
 		topic : function() {
 			var protocolModules = [{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					
 				}
 			}, {
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, buffer);
 					});
@@ -224,7 +223,7 @@ vows.describe('connection.parse').addBatch({
 		topic : function() {
 			var protocolModules = [
 			{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, null, null);
 					});
@@ -232,7 +231,7 @@ vows.describe('connection.parse').addBatch({
 				remaining: true
 			},
 			{
-				parse : function(buffer, callback) {
+				parseMessage : function(buffer, callback) {
 					
 				}
 			}];
