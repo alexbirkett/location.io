@@ -54,6 +54,12 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	server.listen(port, undefined, undefined, function() {
 		emitFunction('server-up', "server up");
 	});
+	
+	server.on('error', function (e) {
+	   console.log('error ' + e);
+	   emitFunction('error', e);
+	});
+	    
 	this.server = server;
 };
 
