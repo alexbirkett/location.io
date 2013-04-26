@@ -29,7 +29,6 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 				}
 					
 			} else if (eventType == 'error') {
-			   console.log('error creating server');
 			   sendData(data, callback, numberOfBytesToWaitFor, sliceLength);
 			} else if (eventType == 'server-up') {
 				async.series([
