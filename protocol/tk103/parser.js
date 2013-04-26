@@ -1,55 +1,9 @@
 var parseGpsMessage = require('./gps-message-parser');
-//var constants = require('./constants');
-
 var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
-
 
 var lookupMessage = require('./message-types');
 var messageParsers = require('./message-parsers');
-/*var responseToCircuitControlParse = function(message, frame) {
-	frame.circuitOpen = message[0] = '1';
-};
 
-var responseToOilControlParse = function(message, frame) {
-	frame.oilOpen = message[0] = '1';
-};
-
-
-var responseToReadingTheTerminalVersionMessage = function(message, frame) {
-	frame.terminalVersion = message;
-};
-
-var dispatchScreenSendsAShortMessageToTheCenterParse = function(message, frame) {
-	var length = message.readUInt16LE(0);
-	frame.message = message.slice(2);
-};
-
-var notImplemented = function() {
-
-};
-
-var answerToSettingGeoFenceMessagesMessagesTypes = {
-	'1':'type',
-	'2':'success',
-	'3':'fail'
-};
-
-var answerToGroupNumbersParse = function(message, frame) {
-	frame.status = answerToSettingGeoFenceMessagesMessagesTypes[message];
-};
-
-var uploadGroupNumbersParse = function(message, frame) {
-	// todo
-};
-
-
-
-var lookupMessageType = function(code) {
-	return messageTypes[code];
-};
-
-//var answerDeviceLoginResponsePattern = /(\d+)(\d{6}[AV].+)/;
-*/
 function parseMessage(message) {
 	// we can't use regex here because we need to be able to pass the message body as a buffer to the parse function
 	var frame = {};
