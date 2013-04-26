@@ -63,7 +63,7 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	this.server = server;
 };
 
-LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParameters, callback) {
+LocationIo.prototype.sendMessage = function(trackerId, messageName, commandParameters, callback) {
 	console.log('trackerId ' + trackerId)
 	var socket = this.findConnectionById(trackerId);
 	if (socket == undefined) {
@@ -71,7 +71,7 @@ LocationIo.prototype.sendCommand = function(trackerId, commandName, commandParam
 			callback('unknown tracker');
 		});
 	} else {
-		connection.sendCommand(socket, socket, commandName, commandParameters, callback);
+		connection.sendMessage(socket, socket, messageName, commandParameters, callback);
 	}
 };
 

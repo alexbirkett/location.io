@@ -190,15 +190,15 @@ var sendAck = function(module, socket, message, callback) {
     }
 }
 
-module.exports.sendCommand = function(self, socket, commandName, commandParameters, callback) {
-	console.log('sending commmand ' + commandName);
+module.exports.sendMessage = function(self, socket, messageName, commandParameters, callback) {
+	console.log('sending message ' + messageName);
 	commandParameters.trackerId = self.rawId;
 	console.log(commandParameters);
 	try {
-		var message = self.protocolModules[0].buildMessage(commandName, commandParameters);
+		var message = self.protocolModules[0].buildMessage(messageName, commandParameters);
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
-			self.upMessagesCallbacks[commandName] = callback;
+			self.upMessagesCallbacks[messageName] = callback;
 		});
 		
 		

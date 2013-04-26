@@ -44,7 +44,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                          trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback));
                     },
                     function(callback) {      
-                        locationIo.sendCommand(connectedTracker.id, messageName, parameters, callback);
+                        locationIo.sendMessage(connectedTracker.id, messageName, parameters, callback);
                         
                         trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(1500, function(err, data) {
                             returnObject.downMessageReceivedByTracker = data;
