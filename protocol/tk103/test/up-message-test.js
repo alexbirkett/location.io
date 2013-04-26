@@ -28,6 +28,9 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 				    returnObject.callback();
 				}
 					
+			} else if (eventType == 'error') {
+			   console.log('error creating server');
+			   sendData(data, callback, numberOfBytesToWaitFor, sliceLength);
 			} else if (eventType == 'server-up') {
 				async.series([
 			   		function(callback)	{
@@ -37,7 +40,7 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
 			    		trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
 		    		},
 		    		function(callback) {
-		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(1500, callback));
+		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata'));
 		    		},
 		    		function(callback) {
 		    		    waitForMessage(callback);
