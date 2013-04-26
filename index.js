@@ -89,13 +89,11 @@ LocationIo.prototype.findConnectionById = function(id) {
 	}
 };
 
-LocationIo.prototype.getCapabilities = function(protocolName) {
+LocationIo.prototype.getApi = function(protocolName) {
 	console.log('protocol name ' + protocolName);
 	console.log(protocolName);
 	console.log(this.protocolModules);
-	
-	
-	return this.protocolModules[protocolName].capabilities;
+	return this.protocolModules[protocolName].api;
 };
 
 LocationIo.prototype.close = function(callback) {
