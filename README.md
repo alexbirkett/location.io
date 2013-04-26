@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/alexbirkett/location.io.png)](http://travis-ci.org/alexbirkett/location.io)
 location.io
 ===========
 
