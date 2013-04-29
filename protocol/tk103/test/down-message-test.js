@@ -3,7 +3,7 @@ var vows = require('vows');
 var async = require('async');
 var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
-var TrackerSimulator = require('../../../test/tracker-simulator.js');
+var TrackerSimulator = require('tracker-simulator');
 
 
 var nextPort = 3141;
@@ -38,10 +38,12 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                         trackerSimulator.connect({host: 'localhost', port: port}, callback);
                     },
                     function(callback) {
+                        
                         trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, callback);
                     },
                     function(callback) {
                          trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback));
+                         console.log('waitForData callback');
                     },
                     function(callback) {      
                         locationIo.sendMessage(connectedTracker.id, messageName, parameters, callback);

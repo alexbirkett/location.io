@@ -1,7 +1,7 @@
 
 var assert = require('assert');
 var vows = require('vows');
-var TrackerSimulator = require('./tracker-simulator');
+var TrackerSimulator = require('tracker-simulator');
 var async = require('async');
 
 var tk103message = "(012345678901BO012110601V5955.9527N01047.4330E000.023100734.62000000000L000000)";

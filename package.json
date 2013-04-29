@@ -12,7 +12,8 @@
         "addTimeout": "git://github.com/alexbirkett/addTimeout.git#master"
     },
     "devDependencies": {
-        "vows": ">= 0.7.0"
+        "vows": ">= 0.7.0",
+        "tracker-simulator": "git://github.com/alexbirkett/tracker-simulator.git#master"
     },
     "scripts": {
         "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js"

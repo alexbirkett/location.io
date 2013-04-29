@@ -3,7 +3,7 @@ var vows = require('vows');
 var async = require('async');
 var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
-var TrackerSimulator = require('../../../test/tracker-simulator.js');
+var TrackerSimulator = require('tracker-simulator');
 
 var nextPort = 3141;
 var addTimeout = require("addTimeout");
