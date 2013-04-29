@@ -1,5 +1,5 @@
 {
-    "name": "Locaiton.IO",
+    "name": "locaiton.io",
     "version": "0.0.1",
     "description": "Location.IO facilitates the creation of GPS tracking solutions by providing a common interface to tracking hardware",
     "engine": "node >= 0.10.5",
