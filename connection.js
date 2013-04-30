@@ -194,11 +194,17 @@ module.exports.sendMessage = function(self, socket, messageName, commandParamete
 	console.log('sending message ' + messageName);
 	commandParameters.trackerId = self.rawId;
 	console.log(commandParameters);
+	var module = self.protocolModules[0];
 	try {
-		var message = self.protocolModules[0].buildMessage(messageName, commandParameters);
+		var message = module.buildMessage(messageName, commandParameters);
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
-			self.upMessagesCallbacks[messageName] = callback;
+	        //@TODO no guarantee that protocols that don't require up messages to be ACKed also don't require down messages to be acked.
+		    if (module.buildAck) {
+	            self.upMessagesCallbacks[messageName] = callback;	        
+		    } else {
+		        callback();
+		    }
 		});
 		
 		
