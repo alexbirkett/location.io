@@ -42,7 +42,7 @@ var findFrameAndParseMessage = function(buffer, callback) {
 	try {
 		if (buffer.length > 0 && buffer.readUInt8(0) == 40) {
 			for (var i = 1; i < buffer.length; i++) {
-				var charValue = buffer.readUInt8(i)
+				var charValue = buffer.readUInt8(i);
 		
 				if (charValue == 41) {
 					message = parseMessage(buffer.slice(messageStartIndex + 1, i));
