@@ -1,6 +1,6 @@
 
 module.exports = {
-	api: require('./capabilities'),
+	api: require('./api'),
 	parseMessage: require('./parser'),
 	buildMessage: require('./command-builder')
 };
