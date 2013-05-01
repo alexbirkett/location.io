@@ -16,6 +16,6 @@
         "tracker-simulator": "git://github.com/alexbirkett/tracker-simulator.git#master"
     },
     "scripts": {
-        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js"
+        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/up-message-test.js"
     }
 }
