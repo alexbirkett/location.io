@@ -59,16 +59,16 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
                 
                 async.series([
                     function(callback)  {
-                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
+                        trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
                     },
                     function(callback) {
-                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(2000, callback, undefined, 'sendMessage'));
                     },
                     function(callback) {
                         trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata'));
                     },
                     function(callback) {
-                         waitForMessage(callback);
+                         waitForMessage( addTimeout(2000, callback, undefined, 'waitForMessage'));
                     }
                    ],
                    function(err, data) {
@@ -82,11 +82,15 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
 };
 var sliceLengh = 10;
 
-vows.describe('gotop').addBatch({
+var createTests = function(sliceLength) {
+    return {
 	'parserTests' : {
 		'cmdT' : {
 			topic : function(banana) {
 				sendData(CMD_T, 0, sliceLengh, this.callback);
+			},
+			'should not reutrn err':  function(err, message, returnedData) {
+			     assert.isNull(err);
 			},
 			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
 				var expectedMessage = {
@@ -118,6 +122,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_X, 0, sliceLengh, this.callback);
 			},
+            'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a heartBeat' : function(err, message, returnedData) {
 
 				var expectedMessage = {
@@ -132,6 +139,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(ALM_A, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be an sosAlarm' : function(err, message, returnedData) {
 				assert.equal(message.type, 'sosAlarm');
 			}
@@ -140,6 +150,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_T_GPS101, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setContinuousTrackingResponse');
 			}
@@ -148,6 +161,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(ERROR, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be an error' : function(err, message, returnedData) {
 				assert.equal(message.type, 'error');
 			}
@@ -156,6 +172,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(ERROR2, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be an error' : function(err, message, returnedData) {
 				assert.equal(message.type, 'error');
 			}
@@ -164,6 +183,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_A1, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setAuthorizedNumberResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setAuthorizedNumberResponse');
 			}
@@ -172,6 +194,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_F, 0, sliceLengh, this.callback);
     		},
+    		'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'shoud be a oneTimeLocate' : function(err, message, returnedData) {
 				assert.equal(message.type, 'oneTimeLocate');
 			}
@@ -180,6 +205,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_C, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be setApnAndServerResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setApnAndServerResponse');
 			}
@@ -199,6 +227,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_U1, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setListenModeResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setListenModeResponse');	
 			}
@@ -207,6 +238,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_N, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setLowBatteryAlarmResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setLowBatteryAlarmResponse');				
 			}
@@ -215,6 +249,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_H, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setModifyPasswordResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setModifyPasswordResponse');	
 			}
@@ -223,6 +260,9 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_J, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setSpeedingAlarmResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setSpeedingAlarmResponse');		
 			}
@@ -231,10 +271,34 @@ vows.describe('gotop').addBatch({
 			topic : function() {
 			    sendData(CMD_L, 0, sliceLengh, this.callback);
 			},
+			'should not reutrn err':  function(err, message, returnedData) {
+                 assert.isNull(err);
+            },
 			'should be a setTimeZoneResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setTimeZoneResponse');			
 			}
 		}
 	}
-}).export(module);
+}
+};
+
+
+var suite = vows.describe('gotop-up-message-tests');
+
+var test = {};
+test.topic = function() {
+    return i;
+}
+test.result = function(err) {
+    console.log(err);
+}
+var tests = {};
+for (var i = 0; i < 150; i++) {
+    tests['test with slice length ' + i] = createTests(i + 1);
+}
+
+
+suite.addBatch(tests);
+    
+suite.export(module); // Export the Suite
 
