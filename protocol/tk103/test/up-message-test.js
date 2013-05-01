@@ -4,9 +4,9 @@ var async = require('async');
 var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('tracker-simulator');
+var addTimeout = require("addTimeout");
 
 var nextPort = 3141;
-var addTimeout = require("addTimeout");
 
 var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
     var port = nextPort++;
