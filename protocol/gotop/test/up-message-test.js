@@ -59,16 +59,16 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
                 
                 async.series([
                     function(callback)  {
-                        trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
+                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
                     },
                     function(callback) {
-                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(2000, callback, undefined, 'sendMessage'));
+                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
                     },
                     function(callback) {
-                        trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata'));
+                        trackerSimulator.waitForData(numberOfBytesToWaitFor, callback );
                     },
                     function(callback) {
-                         waitForMessage( addTimeout(2000, callback, undefined, 'waitForMessage'));
+                         waitForMessage( callback);
                     }
                    ],
                    function(err, data) {
@@ -293,7 +293,7 @@ test.result = function(err) {
     console.log(err);
 }
 var tests = {};
-for (var i = 0; i < 100; i++) {
+for (var i = 0; i < 150; i++) {
     tests['test with slice length ' + i] = createTests(i + 1);
 }
 
