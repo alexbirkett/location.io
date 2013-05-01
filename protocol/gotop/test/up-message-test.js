@@ -285,20 +285,17 @@ var createTests = function(sliceLength) {
 
 var suite = vows.describe('gotop-up-message-tests');
 
-var test = {};
-test.topic = function() {
-    return i;
+var batch = {};
+for (var i = 0; i < 75; i++) {
+    batch['test with slice length ' + i] = createTests(i + 1);
 }
-test.result = function(err) {
-    console.log(err);
-}
-var tests = {};
-for (var i = 0; i < 150; i++) {
-    tests['test with slice length ' + i] = createTests(i + 1);
-}
+suite.addBatch(batch);
 
-
-suite.addBatch(tests);
-    
+var batch = {};
+for (var i = 75; i < 150; i++) {
+    batch['test with slice length ' + i] = createTests(i + 1);
+}
+suite.addBatch(batch);
+  
 suite.export(module); // Export the Suite
 
