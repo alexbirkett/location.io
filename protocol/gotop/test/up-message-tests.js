@@ -1,6 +1,11 @@
 var parseMessage = require('../parser');
 var assert = require('assert');
 var vows = require('vows');
+var async = require('async');
+var LocationIo = require('../../../index.js');
+var forEach = require('async-foreach').forEach;
+var TrackerSimulator = require('tracker-simulator');
+var addTimeout = require("addTimeout");
 
 var CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 var CMD_X = "#861785001515349,CMD-X#";
@@ -21,13 +26,69 @@ var CMD_L = '#012896001890042,CMD-L,A,DATE:121107,TIME:221314,LAT:59.9323000N,LO
 var MULTIPLE_CMD = CMD_X + CMD_A1 + CMD_F;
 var PARTIAL_MESSAGE = '#012896001890042,CMD-L,A,DATE:121107,TIME:221314,LAT';
 
+var nextPort = 6141;
+
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err.stack);
+});
+
+var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
+    var port = nextPort++;
+    var locationIo = new LocationIo();
+    var trackerSimulator = new TrackerSimulator();
+    var returnObject = {};
+    
+    var waitForMessage = function(callback) {
+        if (returnObject.message) {
+            process.nextTick(callback);
+        } else {
+            returnObject.callback = callback;
+        }
+    };
+
+    locationIo.createServer(port, function(eventType, id, message) {
+            if (eventType == 'message') {
+                returnObject.message = message;
+                if (returnObject.callback) {
+                    returnObject.callback();
+                }
+                    
+            } else if (eventType == 'error') {
+               sendData(data, callback, numberOfBytesToWaitFor, sliceLength);
+            } else if (eventType == 'server-up') {
+                
+                async.series([
+                    function(callback)  {
+                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
+                    },
+                    function(callback) {
+                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                    },
+                    function(callback) {
+                        trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata'));
+                    },
+                    function(callback) {
+                         waitForMessage(callback);
+                    }
+                   ],
+                   function(err, data) {
+                       var dataReceivedByClient = data[2];
+                       callback(err, returnObject.message, dataReceivedByClient);
+                       trackerSimulator.destroy();
+                       locationIo.close(); 
+                });
+          }
+    }); 
+};
+var sliceLengh = 10;
+
 vows.describe('gotop').addBatch({
 	'parserTests' : {
 		'cmdT' : {
 			topic : function(banana) {
-				parseMessage(new Buffer(CMD_T), this.callback);
+				sendData(CMD_T, 0, sliceLengh, this.callback);
 			},
-			'should be a setContinuousTrackingResponse' : function(err, message, buffer) {
+			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
 				var expectedMessage = {
 					trackerId : '861785001515349',
 					type : 'setContinuousTrackingResponse',
@@ -51,14 +112,13 @@ vows.describe('gotop').addBatch({
 				};
 
 				assert.deepEqual(message, expectedMessage);
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'cmdX' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_X), this.callback);
+			    sendData(CMD_X, 0, sliceLengh, this.callback);
 			},
-			'should be a heartBeat' : function(err, message, buffer) {
+			'should be a heartBeat' : function(err, message, returnedData) {
 
 				var expectedMessage = {
 					trackerId : '861785001515349',
@@ -66,176 +126,113 @@ vows.describe('gotop').addBatch({
 				};
 
 				assert.deepEqual(message, expectedMessage);
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'alarmA' : {
 			topic : function() {
-				parseMessage(new Buffer(ALM_A), this.callback);
+			    sendData(ALM_A, 0, sliceLengh, this.callback);
 			},
-			'should be an sosAlarm' : function(err, message, buffer) {
-
+			'should be an sosAlarm' : function(err, message, returnedData) {
 				assert.equal(message.type, 'sosAlarm');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'cmdTGps101' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_T_GPS101), this.callback);
+			    sendData(CMD_T_GPS101, 0, sliceLengh, this.callback);
 			},
-			'should be a setContinuousTrackingResponse' : function(err, message, buffer) {
+			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setContinuousTrackingResponse');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'testError' : {
 			topic : function() {
-				parseMessage(new Buffer(ERROR), this.callback);
+			    sendData(ERROR, 0, sliceLengh, this.callback);
 			},
-			'should be an error' : function(err, message, buffer) {
+			'should be an error' : function(err, message, returnedData) {
 				assert.equal(message.type, 'error');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'testError2' : {
 			topic : function() {
-				parseMessage(new Buffer(ERROR2), this.callback);
+			    sendData(ERROR2, 0, sliceLengh, this.callback);
 			},
-			'should be an error' : function(err, message, buffer) {
+			'should be an error' : function(err, message, returnedData) {
 				assert.equal(message.type, 'error');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'testCmdA1' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_A1), this.callback);
+			    sendData(CMD_A1, 0, sliceLengh, this.callback);
 			},
-			'should be a setAuthorizedNumberResponse' : function(err, message, buffer) {
-
+			'should be a setAuthorizedNumberResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setAuthorizedNumberResponse');
-				assert.equal(buffer.length, 0);
-			}
-		},
-		'testCmdA1A' : {
-			topic : function() {
-				parseMessage(new Buffer(CMD_A1), this.callback);
-			},
-			'should be a setAuthorizedNumberResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setAuthorizedNumberResponse');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'testCmdF' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_F), this.callback);
-			},
-			'shoud be a oneTimeLocate' : function(err, message, buffer) {
-
+			    sendData(CMD_F, 0, sliceLengh, this.callback);
+    		},
+			'shoud be a oneTimeLocate' : function(err, message, returnedData) {
 				assert.equal(message.type, 'oneTimeLocate');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		'testCmdC' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_C), this.callback);
+			    sendData(CMD_C, 0, sliceLengh, this.callback);
 			},
-			'should be setApnAndServerResponse' : function(err, message, buffer) {
-
+			'should be setApnAndServerResponse' : function(err, message, returnedData) {
 				assert.equal(message.type, 'setApnAndServerResponse');
-				assert.equal(buffer.length, 0);
 			}
 		},
 		/*'testCmdM' : {
 		 topic : function() {
-		 parseMessage(new Buffer(CMD_M), this.callback);
+		  parseMessage(new Buffer(CMD_M), this.callback);
 		 },
 		 'testCmdMResult' : function(dataConsumed, message, buffer) {
 		 console.log(message);
 		 assert.equal(message.type, 'setApnAndServerResponse');
 		 assert.equal(dataConsumed, DataConsumedEnum.Yes);
-		 assert.equal(buffer.length, 0);
+		 
 		 }
-		 }*/
+		 },*/
 		'testCmdU' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_U1), this.callback);
+			    sendData(CMD_U1, 0, sliceLengh, this.callback);
 			},
-			'should be a setListenModeResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setListenModeResponse');
-				assert.equal(buffer.length, 0);
+			'should be a setListenModeResponse' : function(err, message, returnedData) {
+				assert.equal(message.type, 'setListenModeResponse');	
 			}
 		},
 		'testCmdN' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_N), this.callback);
+			    sendData(CMD_N, 0, sliceLengh, this.callback);
 			},
-			'should be a setLowBatteryAlarmResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setLowBatteryAlarmResponse');
-				assert.equal(buffer.length, 0);
+			'should be a setLowBatteryAlarmResponse' : function(err, message, returnedData) {
+				assert.equal(message.type, 'setLowBatteryAlarmResponse');				
 			}
 		},
 		'testCmdH' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_H), this.callback);
+			    sendData(CMD_H, 0, sliceLengh, this.callback);
 			},
-			'should be a setModifyPasswordResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setModifyPasswordResponse');
-				assert.equal(buffer.length, 0);
+			'should be a setModifyPasswordResponse' : function(err, message, returnedData) {
+				assert.equal(message.type, 'setModifyPasswordResponse');	
 			}
 		},
 		'testCmdJ' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_J), this.callback);
+			    sendData(CMD_J, 0, sliceLengh, this.callback);
 			},
-			'should be a setSpeedingAlarmResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setSpeedingAlarmResponse');
-				assert.equal(buffer.length, 0);
+			'should be a setSpeedingAlarmResponse' : function(err, message, returnedData) {
+				assert.equal(message.type, 'setSpeedingAlarmResponse');		
 			}
 		},
 		'testCmdL' : {
 			topic : function() {
-				parseMessage(new Buffer(CMD_L), this.callback);
+			    sendData(CMD_L, 0, sliceLengh, this.callback);
 			},
-			'should be a setTimeZoneResponse' : function(err, message, buffer) {
-
-				assert.equal(message.type, 'setTimeZoneResponse');
-				assert.equal(buffer.length, 0);
-			}
-		},
-		'test multiple frames' : { topic : function() {
-				parseMessage(new Buffer(MULTIPLE_CMD), this.callback);
-			}, 'after heartbeat': { 
-					topic: function(message, buffer) {
-					assert.equal(message.type, 'heartBeat');
-					assert.notEqual(buffer.length, 0);
-					parseMessage(buffer, this.callback);
-				},
-				'after setAuthorizedNumberResponse' : {
-					topic: function(message, buffer) {
-						assert.equal(message.type, 'setAuthorizedNumberResponse');
-						assert.notEqual(buffer.length, 0);
-						parseMessage(buffer, this.callback);
-					},
-					'after oneTimeLocate': function(err, message, buffer) {
-						assert.equal(message.type, 'oneTimeLocate');
-						assert.equal(buffer.length, 0);
-					}
-				}
-
-			}
-
-		},
-		'test partial frame' : {
-			topic : function() {
-				parseMessage(new Buffer(PARTIAL_MESSAGE), this.callback);
-			},
-			'should return more data required' : function(err, message, buffer) {
-				assert.notEqual(buffer.length, 0);
+			'should be a setTimeZoneResponse' : function(err, message, returnedData) {
+				assert.equal(message.type, 'setTimeZoneResponse');			
 			}
 		}
 	}
