@@ -21,11 +21,6 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
     
     var returnObject = {};
         
-    var sendMessageCallback = function() {
-
- 
-    };
-    
     locationIo.createServer(port, function(eventType, id, message) {
             if (eventType == 'tracker-connected') {
                 connectedTracker.id = id;
@@ -43,7 +38,6 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                     },
                     function(callback) {
                          trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback));
-                         console.log('waitForData callback');
                     },
                     function(callback) {      
                         locationIo.sendMessage(connectedTracker.id, messageName, parameters, callback);
