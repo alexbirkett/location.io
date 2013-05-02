@@ -59,16 +59,16 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
                 
                 async.series([
                     function(callback)  {
-                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
+                        trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
                     },
                     function(callback) {
-                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(2000, callback, undefined, 'sendmessage'));
                     },
                     function(callback) {
-                        trackerSimulator.waitForData(numberOfBytesToWaitFor, callback );
+                        trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata') );
                     },
                     function(callback) {
-                         waitForMessage( callback);
+                         waitForMessage( addTimeout(2000, callback, undefined, 'waitformessage'));
                     }
                    ],
                    function(err, data) {
