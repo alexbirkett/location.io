@@ -34,8 +34,6 @@ process.on('uncaughtException', function(err) {
 });
 
 var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
-    console.log('number of bytes to wait for ' + numberOfBytesToWaitFor);
-    console.log('sliceLength ' + sliceLength);
     var port = nextPort++;
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
@@ -54,35 +52,33 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
         function(callback) {
             async.parallel([
                 function(callback) {
-                    console.log('sending message' + data);
+                    ewait.waitForAll(locationIoEmitter, callback, 10000, 'message');
+                },
+                function(callback) {
                     trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
                 },
                 function(callback) {
-                    console.log('waiting for ' + numberOfBytesToWaitFor);
-                    trackerSimulator.waitForData(numberOfBytesToWaitFor, callback/* addTimeout(10000, callback, undefined, 'waitfordata')*/);
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(10000, callback, undefined, 'waitfordata'));
                 },
-                function(callback) {
-                   ewait.waitForAll(locationIoEmitter, callback, 4000, 'message');
-                }
             ],
             callback);
         },
         ], function(err, data) {
             var message = {};
             if (!err) {
-                var dataReceivedByClient = data[1][1];
+                var dataReceivedByClient = data[1][2];
                 
                 if (Buffer.isBuffer(dataReceivedByClient)) {
                     dataReceivedByClient = dataReceivedByClient.toString();
                 }
-                message = data[1][2][1];     
+                message = data[1][0][1];     
             }
             callback(err, message, dataReceivedByClient);
             trackerSimulator.destroy();
             locationIo.close();
         });
 };
-
+       
 
 var createTests = function(sliceLength) {
     return {
