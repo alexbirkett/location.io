@@ -4,66 +4,79 @@ var async = require('async');
 var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('tracker-simulator');
-
+var ewait = require('ewait');
 
 var nextPort = 3141;
 var addTimeout = require("addTimeout");
 
 var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
 var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
-        
+       
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err.stack);
+});
+ 
 var testDownMessage = function(messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
     var port = nextPort++;
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
-    
-    var connectedTracker = {};
-    
-    var returnObject = {};
         
-    locationIo.createServer(port, function(eventType, id, message) {
-            if (eventType == 'tracker-connected') {
-                connectedTracker.id = id;
-            }
-            if (eventType == 'message') { 
-                returnObject.parsedAck = message;    
-            } else if (eventType == 'server-up') {
-                async.series([
-                    function(callback)  {
-                        trackerSimulator.connect({host: 'localhost', port: port}, callback);
+    locationIo.createServer(port);
+    
+    var locationIoEmitter = [locationIo];
+    
+    async.waterfall([
+        function(callback) {
+            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
+        },
+        function(callback) {
+            async.parallel([
+                function(callback) {
+                    trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, addTimeout(2000, callback, undefined, 'send login message'));
+                },
+                function(callback) {
+                    ewait.waitForAll(locationIoEmitter, callback, 2000, 'tracker-connected');
+                },
+                function(callback) {
+                    trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback, 'wait for login response')); 
+                }
+            ], callback);
+            
+        },
+        function(results, callback) {
+            var loginResponse = results[2];
+            if (loginResponse != EXPECTED_LOGIN_RESPONSE) {
+                callback('unexpected login response');
+            } else {
+                var trackerId = results[1][0];
+                async.parallel([
+                    function(callback) {
+                        locationIo.sendMessage(trackerId, messageName, parameters, callback);
                     },
                     function(callback) {
-                        
-                        trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, callback);
+                        ewait.waitForAll(locationIoEmitter, callback, 2000, 'message');
                     },
                     function(callback) {
-                         trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback));
-                    },
-                    function(callback) {      
-                        locationIo.sendMessage(connectedTracker.id, messageName, parameters, callback);
-                        
-                        trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(1500, function(err, data) {
-                            returnObject.downMessageReceivedByTracker = data;
-                            trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, function() {});
-                        }));
-         
+                        async.series([
+                            function(callback) {
+                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(2000, callback, undefined, 'waitfordata'));
+                            },
+                            function(callback) {
+                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(2000, callback, undefined, 'sendack'))
+                            }
+                        ], callback);   
                     }
-                   ],
-                   function(err, data) {
-                       var actualLoginResponse = data[2];
-                       if (actualLoginResponse != EXPECTED_LOGIN_RESPONSE) {
-                           throw "error logging in";
-                       }
-                       callback(err, returnObject.downMessageReceivedByTracker + '', returnObject.parsedAck);
-                       trackerSimulator.destroy();
-                       locationIo.close(); 
-
-                });
-          }
+                ], callback);  
+            }  
+        }
+        ], function(err, results) {
+           var downMessageReceivedByTracker = results[2][0] + '';
+           var parsedAckRecievedByServer = results[1][1];
+           callback(err, downMessageReceivedByTracker, parsedAckRecievedByServer);
+           trackerSimulator.destroy();
+           locationIo.close(); 
     }); 
 };
-
-
 
 vows.describe('tk103 down-message-tests').addBatch({
      'test configureUpdateInterval': {
