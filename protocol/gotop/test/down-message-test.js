@@ -63,7 +63,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
 
 };
 
-vows.describe('tk103 down-message-tests').addBatch({
+vows.describe('gotop down-message-tests').addBatch({
     'test setAuthorizedNumber' : {
         'test with valid params' : {
             topic : function() {
