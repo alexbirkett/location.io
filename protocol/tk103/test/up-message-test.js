@@ -5,6 +5,11 @@ var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('tracker-simulator');
 var addTimeout = require("addTimeout");
+var ewait = require('ewait');
+
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err.stack);
+});
 
 var nextPort = 3141;
 
@@ -12,47 +17,46 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
     var port = nextPort++;
 	var locationIo = new LocationIo();
 	var trackerSimulator = new TrackerSimulator();
-	var returnObject = {};
 	
-	var waitForMessage = function(callback) {
-	    if (returnObject.message) {
-	        process.nextTick(callback);
-	    } else {
-	        returnObject.callback = callback;
-	    }
-	};
-	locationIo.createServer(port, function(eventType, id, message) {
-			if (eventType == 'message') {
-				returnObject.message = message;
-				if (returnObject.callback) {
-				    returnObject.callback();
-				}
-					
-			} else if (eventType == 'error') {
-			   sendData(data, callback, numberOfBytesToWaitFor, sliceLength);
-			} else if (eventType == 'server-up') {
-				async.series([
-			   		function(callback)	{
-						trackerSimulator.connect({host: 'localhost', port: port}, callback);
-		   			},
-		    		function(callback) {
-			    		trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
-		    		},
-		    		function(callback) {
-		    		    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata'));
-		    		},
-		    		function(callback) {
-		    		    waitForMessage(callback);
-		    		}
-		           ],
-		           function(err, data) {
-				       var dataReceivedByClient = data[2];
-				       callback(err, returnObject.message, dataReceivedByClient);
-				       trackerSimulator.destroy();
-                       locationIo.close(); 
-		      	});
-		  }
-	});	
+	locationIo.createServer(port);
+	
+	var locationIoEmitter = [locationIo];
+
+    async.series([
+        function(callback) {
+            trackerSimulator.connect({
+                host : 'localhost',
+                port : port
+            }, callback);
+        },
+        function(callback) {
+            async.parallel([
+                function(callback) {
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                },
+                function(callback) {
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(4000, callback, undefined, 'waitfordata'));
+                },
+                function(callback) {
+                    ewait.waitForAll(locationIoEmitter, callback, 4000, 'message');
+                }
+            ],
+            callback);
+        },
+        ], function(err, data) {
+            var message = {};
+            if (!err) {
+                var dataReceivedByClient = data[1][1];
+                
+                if (Buffer.isBuffer(dataReceivedByClient)) {
+                    dataReceivedByClient = dataReceivedByClient.toString();
+                }
+                message = data[1][2][1];     
+            }
+            callback(err, message, dataReceivedByClient);
+            trackerSimulator.destroy();
+            locationIo.close();
+        });
 };
           
 var createTests = function(sliceLength) {
