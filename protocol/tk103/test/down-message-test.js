@@ -27,18 +27,18 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
     
     async.waterfall([
         function(callback) {
-            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
+            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
         },
         function(callback) {
             async.parallel([
                 function(callback) {
-                    trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, addTimeout(2000, callback, undefined, 'send login message'));
+                    trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, addTimeout(20000, callback, undefined, 'send login message'));
                 },
                 function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 2000, 'tracker-connected');
+                    ewait.waitForAll(locationIoEmitter, callback, 20000, 'tracker-connected');
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(1500, callback, 'wait for login response')); 
+                    trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(20000, callback, 'wait for login response')); 
                 }
             ], callback);
             
@@ -54,15 +54,15 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                         locationIo.sendMessage(trackerId, messageName, parameters, callback);
                     },
                     function(callback) {
-                        ewait.waitForAll(locationIoEmitter, callback, 2000, 'message');
+                        ewait.waitForAll(locationIoEmitter, callback, 20000, 'message');
                     },
                     function(callback) {
                         async.series([
                             function(callback) {
-                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(2000, callback, undefined, 'waitfordata'));
+                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(20000, callback, undefined, 'waitfordata'));
                             },
                             function(callback) {
-                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(2000, callback, undefined, 'sendack'))
+                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(20000, callback, undefined, 'sendack'))
                             }
                         ], callback);   
                     }

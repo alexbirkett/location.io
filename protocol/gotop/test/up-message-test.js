@@ -52,13 +52,13 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
         function(callback) {
             async.parallel([
                 function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 10000, 'message');
+                    ewait.waitForAll(locationIoEmitter, callback, 20000, 'message');
                 },
                 function(callback) {
-                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(10000, callback, undefined, 'waitfordata'));
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(20000, callback, undefined, 'waitfordata'));
                 },
             ],
             callback);
@@ -273,7 +273,7 @@ var createTests = function(sliceLength) {
 var suite = vows.describe('gotop-up-message-tests');
 
 var batch = {};
-for (var i = 1; i < 20; i++) {
+for (var i = 1; i < 150; i++) {
     batch['test with slice length ' + i] = createTests(i + 1);
 }
 suite.addBatch(batch);

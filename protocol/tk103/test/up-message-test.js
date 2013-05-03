@@ -32,13 +32,13 @@ var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
         function(callback) {
             async.parallel([
                 function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 10000, 'message');
+                    ewait.waitForAll(locationIoEmitter, callback, 20000, 'message');
                 },
                 function(callback) {
-                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(10000, callback, undefined, 'waitfordata'));
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(20000, callback, undefined, 'waitfordata'));
                 },
             ],
             callback);
@@ -189,7 +189,7 @@ test.topic = function() {
     }
     
 var tests = {};
-for (var i = 0; i < 150; i ++) {
+for (var i = 1; i < 150; i ++) {
     tests['test with slice length ' + i] = createTests(i + 1);
 }
 
