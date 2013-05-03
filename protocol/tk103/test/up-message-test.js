@@ -35,10 +35,10 @@ var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
                     trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(4000, callback, undefined, 'waitfordata'));
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(10000, callback, undefined, 'waitfordata'));
                 },
                 function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 4000, 'message');
+                    ewait.waitForAll(locationIoEmitter, callback, 10000, 'message');
                 }
             ],
             callback);
