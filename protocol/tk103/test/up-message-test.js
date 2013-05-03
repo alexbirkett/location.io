@@ -13,7 +13,7 @@ process.on('uncaughtException', function(err) {
 
 var nextPort = 3141;
 
-var sendData = function(data, callback, numberOfBytesToWaitFor, sliceLength) {
+var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
     var port = nextPort++;
 	var locationIo = new LocationIo();
 	var trackerSimulator = new TrackerSimulator();
@@ -65,7 +65,7 @@ var createTests = function(sliceLength) {
        'handles login message (from dog tracker)': {
             topic: function() {
             	var DOG_TRACKER_LOGIN = "(013500001112BP05000013500001112120903A5956.1894N01046.9892E006.0160134061.9600000000L00000000)";
-            	sendData(DOG_TRACKER_LOGIN, this.callback, 18, sliceLength);
+            	sendData(DOG_TRACKER_LOGIN, 18, sliceLength, this.callback);
     			
             },
             'should not fail with error': function (err, message, returnedData) {
@@ -81,7 +81,7 @@ var createTests = function(sliceLength) {
         'handles login message': {
             topic: function() {
                 var MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
-                sendData(MESSAGE, this.callback, 18, sliceLength);    
+                sendData(MESSAGE, 18, sliceLength, this.callback);    
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
@@ -99,7 +99,7 @@ var createTests = function(sliceLength) {
         'handles handshake signal message': {
             topic: function() {
                 var MESSAGE = "(013612345678BP00000013612345678HSO)"; 
-                sendData(MESSAGE, this.callback, 21, sliceLength);       
+                sendData(MESSAGE, 21, sliceLength, this.callback);       
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
@@ -118,7 +118,7 @@ var createTests = function(sliceLength) {
         'handles alarm message': {
             topic: function() {
                var MESSAGE = "(013612345678BO012061830A2934.0133N10627.2544E040.0080331309.6200000000L000770AD)";
-               sendData(MESSAGE, this.callback, 19, sliceLength);
+               sendData(MESSAGE, 19, sliceLength, this.callback);
                 
             },
             'should not fail with error': function (err, message, returnedData) {
@@ -141,7 +141,7 @@ var createTests = function(sliceLength) {
         'handles locationUpdate': {
             topic: function() {
                var MESSAGE = "(013612345678BR00080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-               sendData(MESSAGE, this.callback, 0, sliceLength);
+               sendData(MESSAGE, 0, sliceLength, this.callback);
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
@@ -159,7 +159,7 @@ var createTests = function(sliceLength) {
         'handles updatesEnding': {
             topic: function() {
                var MESSAGE = "(013612345678BR02080612A2232.9828N11404.9297E000.0022828000.0000000000L000230AA)";
-               sendData(MESSAGE, this.callback, 0, sliceLength);        
+               sendData(MESSAGE, 0, sliceLength, this.callback);        
             },
             'should not fail with error': function (err, message, returnedData) {
                 assert.isNull(err);
