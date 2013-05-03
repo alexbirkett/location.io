@@ -65,7 +65,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
 
 
 
-vows.describe('connection.parse').addBatch({
+vows.describe('tk103 down-message-tests').addBatch({
      'test configureUpdateInterval': {
             topic: function() {
                 var params = {'enabled':true,'interval': '20s', 'duration': '36m' }
