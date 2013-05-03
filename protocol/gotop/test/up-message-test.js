@@ -1,4 +1,3 @@
-var parseMessage = require('../parser');
 var assert = require('assert');
 var vows = require('vows');
 var async = require('async');
@@ -6,6 +5,7 @@ var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('tracker-simulator');
 var addTimeout = require("addTimeout");
+var ewait = require('ewait');
 
 var CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 var CMD_X = "#861785001515349,CMD-X#";
@@ -26,6 +26,7 @@ var CMD_L = '#012896001890042,CMD-L,A,DATE:121107,TIME:221314,LAT:59.9323000N,LO
 var MULTIPLE_CMD = CMD_X + CMD_A1 + CMD_F;
 var PARTIAL_MESSAGE = '#012896001890042,CMD-L,A,DATE:121107,TIME:221314,LAT';
 
+
 var nextPort = 6141;
 
 process.on('uncaughtException', function(err) {
@@ -33,61 +34,62 @@ process.on('uncaughtException', function(err) {
 });
 
 var sendData = function(data, numberOfBytesToWaitFor, sliceLength, callback) {
+    console.log('number of bytes to wait for ' + numberOfBytesToWaitFor);
+    console.log('sliceLength ' + sliceLength);
     var port = nextPort++;
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
-    var returnObject = {};
     
-    var waitForMessage = function(callback) {
-        if (returnObject.message) {
-            process.nextTick(callback);
-        } else {
-            returnObject.callback = callback;
-        }
-    };
+    locationIo.createServer(port);
+    
+    var locationIoEmitter = [locationIo];
 
-    locationIo.createServer(port, function(eventType, id, message) {
-            if (eventType == 'message') {
-                returnObject.message = message;
-                if (returnObject.callback) {
-                    returnObject.callback();
+    async.series([
+        function(callback) {
+            trackerSimulator.connect({
+                host : 'localhost',
+                port : port
+            }, callback);
+        },
+        function(callback) {
+            async.parallel([
+                function(callback) {
+                    console.log('sending message' + data);
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, callback);
+                },
+                function(callback) {
+                    console.log('waiting for ' + numberOfBytesToWaitFor);
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, callback/* addTimeout(10000, callback, undefined, 'waitfordata')*/);
+                },
+                function(callback) {
+                   ewait.waitForAll(locationIoEmitter, callback, 4000, 'message');
                 }
-                    
-            } else if (eventType == 'error') {
-               sendData(data, callback, numberOfBytesToWaitFor, sliceLength);
-            } else if (eventType == 'server-up') {
+            ],
+            callback);
+        },
+        ], function(err, data) {
+            var message = {};
+            if (!err) {
+                var dataReceivedByClient = data[1][1];
                 
-                async.series([
-                    function(callback)  {
-                        trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(2000, callback, undefined, 'connect'));
-                    },
-                    function(callback) {
-                        trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(2000, callback, undefined, 'sendmessage'));
-                    },
-                    function(callback) {
-                        trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(2000, callback, undefined, 'waitfordata') );
-                    },
-                    function(callback) {
-                         waitForMessage( addTimeout(2000, callback, undefined, 'waitformessage'));
-                    }
-                   ],
-                   function(err, data) {
-                       var dataReceivedByClient = data[2];
-                       callback(err, returnObject.message, dataReceivedByClient);
-                       trackerSimulator.destroy();
-                       locationIo.close(); 
-                });
-          }
-    }); 
+                if (Buffer.isBuffer(dataReceivedByClient)) {
+                    dataReceivedByClient = dataReceivedByClient.toString();
+                }
+                message = data[1][2][1];     
+            }
+            callback(err, message, dataReceivedByClient);
+            trackerSimulator.destroy();
+            locationIo.close();
+        });
 };
-var sliceLengh = 10;
+
 
 var createTests = function(sliceLength) {
     return {
 	'parserTests' : {
 		'cmdT' : {
 			topic : function(banana) {
-				sendData(CMD_T, 0, sliceLengh, this.callback);
+				sendData(CMD_T, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
 			     assert.isNull(err);
@@ -120,7 +122,7 @@ var createTests = function(sliceLength) {
 		},
 		'cmdX' : {
 			topic : function() {
-			    sendData(CMD_X, 0, sliceLengh, this.callback);
+			    sendData(CMD_X, 0, sliceLength, this.callback);
 			},
             'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -137,7 +139,7 @@ var createTests = function(sliceLength) {
 		},
 		'alarmA' : {
 			topic : function() {
-			    sendData(ALM_A, 0, sliceLengh, this.callback);
+			    sendData(ALM_A, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -148,7 +150,7 @@ var createTests = function(sliceLength) {
 		},
 		'cmdTGps101' : {
 			topic : function() {
-			    sendData(CMD_T_GPS101, 0, sliceLengh, this.callback);
+			    sendData(CMD_T_GPS101, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -159,7 +161,7 @@ var createTests = function(sliceLength) {
 		},
 		'testError' : {
 			topic : function() {
-			    sendData(ERROR, 0, sliceLengh, this.callback);
+			    sendData(ERROR, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -170,7 +172,7 @@ var createTests = function(sliceLength) {
 		},
 		'testError2' : {
 			topic : function() {
-			    sendData(ERROR2, 0, sliceLengh, this.callback);
+			    sendData(ERROR2, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -181,7 +183,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdA1' : {
 			topic : function() {
-			    sendData(CMD_A1, 0, sliceLengh, this.callback);
+			    sendData(CMD_A1, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -192,7 +194,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdF' : {
 			topic : function() {
-			    sendData(CMD_F, 0, sliceLengh, this.callback);
+			    sendData(CMD_F, 0, sliceLength, this.callback);
     		},
     		'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -203,7 +205,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdC' : {
 			topic : function() {
-			    sendData(CMD_C, 0, sliceLengh, this.callback);
+			    sendData(CMD_C, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -212,20 +214,9 @@ var createTests = function(sliceLength) {
 				assert.equal(message.type, 'setApnAndServerResponse');
 			}
 		},
-		/*'testCmdM' : {
-		 topic : function() {
-		  parseMessage(new Buffer(CMD_M), this.callback);
-		 },
-		 'testCmdMResult' : function(dataConsumed, message, buffer) {
-		 console.log(message);
-		 assert.equal(message.type, 'setApnAndServerResponse');
-		 assert.equal(dataConsumed, DataConsumedEnum.Yes);
-		 
-		 }
-		 },*/
 		'testCmdU' : {
 			topic : function() {
-			    sendData(CMD_U1, 0, sliceLengh, this.callback);
+			    sendData(CMD_U1, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -236,7 +227,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdN' : {
 			topic : function() {
-			    sendData(CMD_N, 0, sliceLengh, this.callback);
+			    sendData(CMD_N, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -247,7 +238,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdH' : {
 			topic : function() {
-			    sendData(CMD_H, 0, sliceLengh, this.callback);
+			    sendData(CMD_H, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -258,7 +249,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdJ' : {
 			topic : function() {
-			    sendData(CMD_J, 0, sliceLengh, this.callback);
+			    sendData(CMD_J, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -269,7 +260,7 @@ var createTests = function(sliceLength) {
 		},
 		'testCmdL' : {
 			topic : function() {
-			    sendData(CMD_L, 0, sliceLengh, this.callback);
+			    sendData(CMD_L, 0, sliceLength, this.callback);
 			},
 			'should not reutrn err':  function(err, message, returnedData) {
                  assert.isNull(err);
@@ -286,7 +277,7 @@ var createTests = function(sliceLength) {
 var suite = vows.describe('gotop-up-message-tests');
 
 var batch = {};
-for (var i = 0; i < 10; i++) {
+for (var i = 1; i < 20; i++) {
     batch['test with slice length ' + i] = createTests(i + 1);
 }
 suite.addBatch(batch);
