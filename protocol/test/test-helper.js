@@ -61,8 +61,7 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
         }
         ], function(err, results) {
            if (err) {
-              console.log('error is ' + err);
-              callback(err);
+               callback(err);
            } else {
               var downMessageReceivedByTracker = results[2][0] + '';
               var parsedAckRecievedByServer = results[1][1]; 
@@ -72,4 +71,50 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
            trackerSimulator.destroy();
            locationIo.close(); 
     }); 
+};
+
+
+exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, callback) {
+    var locationIo = new LocationIo();
+    var trackerSimulator = new TrackerSimulator();
+    
+    locationIo.createServer(port);
+
+    async.series([
+        function(callback) {
+            trackerSimulator.connect({
+                host : 'localhost',
+                port : port
+            }, callback);
+        },
+        function(callback) {
+            console.log('connected');
+            async.parallel([
+                function(callback) {
+                    locationIo.once('message',addTimeout(5000, callback.bind(locationIo, null), undefined, 'message'));
+                },
+                function(callback) {
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));
+                },
+                function(callback) {
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(20000, callback, undefined, 'waitfordata'));
+                },
+            ],
+            callback);
+        },
+        ], function(err, data) {
+            var message = {};
+            
+            if (!err) {
+                var dataReceivedByClient = data[1][2];
+                
+                if (Buffer.isBuffer(dataReceivedByClient)) {
+                    dataReceivedByClient = dataReceivedByClient.toString();
+                }
+                message = data[1][0][1];   
+            }
+            callback(err, message, dataReceivedByClient);
+            trackerSimulator.destroy();
+            locationIo.close();
+        });
 };
