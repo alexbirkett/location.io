@@ -4,7 +4,6 @@ var async = require('async');
 var LocationIo = require('../../../index.js');
 var forEach = require('async-foreach').forEach;
 var TrackerSimulator = require('tracker-simulator');
-var ewait = require('ewait');
 
 var nextPort = 3141;
 var addTimeout = require("addTimeout");
@@ -23,8 +22,6 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
         
     locationIo.createServer(port);
     
-    var locationIoEmitter = [locationIo];
-    
     async.waterfall([
         function(callback) {
             trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
@@ -35,7 +32,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                     trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, addTimeout(20000, callback, undefined, 'send login message'));
                 },
                 function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 20000, 'tracker-connected');
+                    locationIo.once('tracker-connected', addTimeout(20000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
                 },
                 function(callback) {
                     trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(20000, callback, 'wait for login response')); 
@@ -54,7 +51,7 @@ var testDownMessage = function(messageName, parameters, expectedDownMessageLengt
                         locationIo.sendMessage(trackerId, messageName, parameters, callback);
                     },
                     function(callback) {
-                        ewait.waitForAll(locationIoEmitter, callback, 20000, 'message');
+                        locationIo.once('message',addTimeout(20000, callback.bind(locationIo, null), undefined, 'message'));
                     },
                     function(callback) {
                         async.series([
