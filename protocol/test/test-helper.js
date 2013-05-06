@@ -8,10 +8,11 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
 
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
-        
-    locationIo.createServer(port);
-    
+     
     async.waterfall([
+        function(callback) {
+            locationIo.createServer(port, callback);
+        },
         function(callback) {
             trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
         },
@@ -77,10 +78,11 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
 exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, callback) {
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
-    
-    locationIo.createServer(port);
 
     async.series([
+        function(callback) {
+            locationIo.createServer(port, callback);
+        },
         function(callback) {
             trackerSimulator.connect({
                 host : 'localhost',
@@ -106,12 +108,12 @@ exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength
             var message = {};
             
             if (!err) {
-                var dataReceivedByClient = data[1][2];
+                var dataReceivedByClient = data[2][2];
                 
                 if (Buffer.isBuffer(dataReceivedByClient)) {
                     dataReceivedByClient = dataReceivedByClient.toString();
                 }
-                message = data[1][0][1];   
+                message = data[2][0][1];   
             }
             callback(err, message, dataReceivedByClient);
             trackerSimulator.destroy();
