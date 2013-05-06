@@ -1,79 +1,20 @@
 var assert = require('assert');
 var vows = require('vows');
-var async = require('async');
-var LocationIo = require('../../../index.js');
-var forEach = require('async-foreach').forEach;
-var TrackerSimulator = require('tracker-simulator');
-
+var testHelper = require('../../test/test-helper.js');
 var nextPort = 3141;
-var addTimeout = require("addTimeout");
-
-var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
-var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
-       
+  
 process.on('uncaughtException', function(err) {
   console.log('Caught exception: ' + err.stack);
 });
- 
-var testDownMessage = function(messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
-    var port = nextPort++;
-    var locationIo = new LocationIo();
-    var trackerSimulator = new TrackerSimulator();
-        
-    locationIo.createServer(port);
-    
-    async.waterfall([
-        function(callback) {
-            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
-        },
-        function(callback) {
-            async.parallel([
-                function(callback) {
-                    trackerSimulator.sendMessage(LOGIN_MESSAGE, 0, 50, 150, addTimeout(20000, callback, undefined, 'send login message'));
-                },
-                function(callback) {
-                    locationIo.once('tracker-connected', addTimeout(20000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
-                },
-                function(callback) {
-                    trackerSimulator.waitForData(EXPECTED_LOGIN_RESPONSE.length, addTimeout(20000, callback, 'wait for login response')); 
-                }
-            ], callback);
-            
-        },
-        function(results, callback) {
-            var loginResponse = results[2];
-            if (loginResponse != EXPECTED_LOGIN_RESPONSE) {
-                callback('unexpected login response');
-            } else {
-                var trackerId = results[1][0];
-                async.parallel([
-                    function(callback) {
-                        locationIo.sendMessage(trackerId, messageName, parameters, callback);
-                    },
-                    function(callback) {
-                        locationIo.once('message',addTimeout(20000, callback.bind(locationIo, null), undefined, 'message'));
-                    },
-                    function(callback) {
-                        async.series([
-                            function(callback) {
-                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(20000, callback, undefined, 'waitfordata'));
-                            },
-                            function(callback) {
-                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(20000, callback, undefined, 'sendack'))
-                            }
-                        ], callback);   
-                    }
-                ], callback);  
-            }  
-        }
-        ], function(err, results) {
-           var downMessageReceivedByTracker = results[2][0] + '';
-           var parsedAckRecievedByServer = results[1][1];
-           callback(err, downMessageReceivedByTracker, parsedAckRecievedByServer);
-           trackerSimulator.destroy();
-           locationIo.close(); 
-    }); 
-};
+   
+var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
+var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
+
+var testDownMessage = function() {
+   var args = [LOGIN_MESSAGE, EXPECTED_LOGIN_RESPONSE, nextPort++];
+   args = args.concat(Array.prototype.slice.call(arguments, 0));
+   testHelper.testDownMessage.apply(this, args);
+}
 
 vows.describe('tk103 down-message-tests').addBatch({
      'test configureUpdateInterval': {
