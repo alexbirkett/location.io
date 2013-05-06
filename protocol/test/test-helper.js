@@ -96,6 +96,9 @@ exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength
                     locationIo.once('message',addTimeout(5000, callback.bind(locationIo, null), undefined, 'message'));
                 },
                 function(callback) {
+                    locationIo.once('tracker-connected',addTimeout(5000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
+                },
+                function(callback) {
                     trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));
                 },
                 function(callback) {
@@ -105,17 +108,19 @@ exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength
             callback);
         },
         ], function(err, data) {
-            var message = {};
-            
-            if (!err) {
-                var dataReceivedByClient = data[2][2];
+            if (err) {
+                callback(err);
+            } else {
+                var dataReceivedByClient = data[2][3];
                 
                 if (Buffer.isBuffer(dataReceivedByClient)) {
                     dataReceivedByClient = dataReceivedByClient.toString();
                 }
-                message = data[2][0][1];   
+                var message = data[2][0][1]; 
+                var protocol = data[2][1][1];
+                callback(err, message, dataReceivedByClient, protocol);
             }
-            callback(err, message, dataReceivedByClient);
+
             trackerSimulator.destroy();
             locationIo.close();
         });
