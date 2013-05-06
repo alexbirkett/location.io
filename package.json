@@ -17,6 +17,6 @@
         "ewait": "git://github.com/alexbirkett/node-wait.git#master"
     },
     "scripts": {
-        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js"
+        "test": "vows --spec test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js"
     }
 }
