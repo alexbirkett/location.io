@@ -1,11 +1,6 @@
 var assert = require('assert');
 var vows = require('vows');
-var async = require('async');
-var LocationIo = require('../../../index.js');
-var forEach = require('async-foreach').forEach;
-var TrackerSimulator = require('tracker-simulator');
-var ewait = require('ewait');
-var addTimeout = require("addTimeout");
+var testHelper = require('../../test/test-helper.js');
 
 var nextPort = 3141;
 
@@ -15,53 +10,11 @@ process.on('uncaughtException', function(err) {
 
 var CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 
-
-var testDownMessage = function(messageName, parameters, expectedDownMessageLength, callback) {
-    var port = nextPort++;
-    var locationIo = new LocationIo();
-   
-    var trackerSimulator = new TrackerSimulator();
-         
-    locationIo.createServer(port);
-    
-    var locationIoEmitter = [locationIo];
-    
-    async.waterfall([
-        function(callback) {
-            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
-        },
-        function(callback) {
-            
-            async.parallel([
-                function(callback) {
-                    trackerSimulator.sendMessage([CMD_T], 1000, 1, 100, addTimeout(20000, callback, undefined, 'sendmessage'));
-                },
-                function(callback) {
-                    ewait.waitForAll(locationIoEmitter, callback, 20000, 'tracker-connected');
-                }
-            ], callback);
-            
-        },
-        function(results, callback) {
-            
-            var trackerId = results[1][0];
-         
-            async.parallel([
-                function(callback) {
-                    locationIo.sendMessage(trackerId, messageName, parameters, addTimeout(20000, callback, undefined, 'sendmessage2'));
-                },
-                function(callback) {
-                    trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(20000, callback, undefined, 'waitfordata'));
-                }
-            ], callback);    
-        }
-        ], function(err, result) {
-           callback(err, result[1] + "");
-           trackerSimulator.destroy();
-           locationIo.close(); 
-        }); 
-
-};
+var testDownMessage = function() {
+   var args = [CMD_T, undefined, nextPort++];
+   args = args.concat(Array.prototype.slice.call(arguments, 0));
+   testHelper.testDownMessage.apply(this, args);
+}
 
 vows.describe('gotop down-message-tests').addBatch({
     'test setAuthorizedNumber' : {
@@ -72,7 +25,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     index : 1
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -88,7 +41,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     index : 0
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -101,7 +54,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     index : 6
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -114,7 +67,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     index : 6
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -126,7 +79,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     authorizedNumber : "+1555555",
                     password : "123456"
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -138,7 +91,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     authorizedNumber : "+1555555",
                     index : 1
                 };
-                testDownMessage("setAuthorizedNumber", params, 19, this.callback);
+                testDownMessage("setAuthorizedNumber", params, 19, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -152,7 +105,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     index : 2
                 };
-                testDownMessage("deleteAuthorizedNumber", params, 12, this.callback);
+                testDownMessage("deleteAuthorizedNumber", params, 12, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -168,7 +121,7 @@ vows.describe('gotop down-message-tests').addBatch({
                 var params = {
                     password : "123456",
                 };
-                testDownMessage("locateOneTime", params, 9, this.callback);
+                testDownMessage("locateOneTime", params, 9, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -186,7 +139,7 @@ vows.describe('gotop down-message-tests').addBatch({
                         enabled: true,
                         interval: "5s"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -202,7 +155,7 @@ vows.describe('gotop down-message-tests').addBatch({
                         enabled: true,
                         interval: "10S"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -218,7 +171,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: true,
                     interval: "200m"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -234,7 +187,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: true,
                     interval: "30M"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -250,7 +203,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: false,
                     interval: "1h"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -266,7 +219,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: false,
                     interval: "45H"
                 };
-                testDownMessage("setContinuousTracking", params, 15, this.callback);
+                testDownMessage("setContinuousTracking", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -284,7 +237,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     speed: 80,
                     enabled: true
                 };
-                testDownMessage("setSpeedingAlarm", params, 14, this.callback);
+                testDownMessage("setSpeedingAlarm", params, 14, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -300,7 +253,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     speed: 80,
                     enabled: false
                 };
-                testDownMessage("setSpeedingAlarm", params, 14, this.callback);
+                testDownMessage("setSpeedingAlarm", params, 14, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -323,7 +276,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     minLatitude: 50.403097,
                     maxLongitude: 11.019925
                 };
-                testDownMessage("setGeoFence", params, 53, this.callback);
+                testDownMessage("setGeoFence", params, 53, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -340,7 +293,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     timeZone: "+08"
                 };
-                testDownMessage("setTimeZone", params, 12, this.callback);
+                testDownMessage("setTimeZone", params, 12, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -355,7 +308,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     timeZone: "-07"
                 };
-                testDownMessage("setTimeZone", params, 12, this.callback);
+                testDownMessage("setTimeZone", params, 12, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -370,7 +323,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     timeZone: "07"
                 };
-                testDownMessage("setTimeZone", params, 12, this.callback);
+                testDownMessage("setTimeZone", params, 12, undefined, this.callback);
             },
             'should fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNotNull(err);
@@ -385,7 +338,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: true,
                     percentage:40
                 };
-                testDownMessage("setLowBatteryAlarm", params, 13, this.callback);
+                testDownMessage("setLowBatteryAlarm", params, 13, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -403,7 +356,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     enabled: true,
                     percentage:40
                 };
-                testDownMessage("setLowBatteryAlarm", params, 13, this.callback);
+                testDownMessage("setLowBatteryAlarm", params, 13, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -420,7 +373,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     newPassword: "456789"
                 };
-                testDownMessage("setPassword", params, 15, this.callback);
+                testDownMessage("setPassword", params, 15, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -437,7 +390,7 @@ vows.describe('gotop down-message-tests').addBatch({
                  password : "123456",
                  enabled: true
                 };
-                testDownMessage("setAcc", params, 10, this.callback);
+                testDownMessage("setAcc", params, 10, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -452,7 +405,7 @@ vows.describe('gotop down-message-tests').addBatch({
                  password : "123456",
                  enabled: false
                 };
-                testDownMessage("setAcc", params, 10, this.callback);
+                testDownMessage("setAcc", params, 10, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -469,7 +422,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     enabled: true
                 };
-                testDownMessage("setListenMode", params, 10, this.callback);
+                testDownMessage("setListenMode", params, 10, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -484,7 +437,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     password : "123456",
                     enabled: false
                 };
-                testDownMessage("setListenMode", params, 10, this.callback);
+                testDownMessage("setListenMode", params, 10, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -503,7 +456,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     port:7289,
                     apn:"CMNET"
                 };
-                testDownMessage("setApnAndServer", params, 34, this.callback);
+                testDownMessage("setApnAndServer", params, 34, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -521,7 +474,7 @@ vows.describe('gotop down-message-tests').addBatch({
                     apnUserName: "internet",
                     apnPassword: "internet123"
                 };
-                testDownMessage("setApnUserNameAndPassword", params, 29, this.callback);
+                testDownMessage("setApnUserNameAndPassword", params, 29, undefined, this.callback);
             },
             'should not fail with error' : function(err, downMessageReceivedByTracker) {
                 assert.isNull(err);
@@ -530,5 +483,5 @@ vows.describe('gotop down-message-tests').addBatch({
                 assert.equal(downMessageReceivedByTracker, ":123456Ointernet,internet123#");
             }
         }
-    },
+    }
 }).export(module);

@@ -24,7 +24,11 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
                     locationIo.once('tracker-connected', addTimeout(20000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(expectedLoginResponse.length, addTimeout(20000, callback, 'wait for login response')); 
+                    if (expectedLoginResponse) {
+                        trackerSimulator.waitForData(expectedLoginResponse.length, addTimeout(20000, callback, 'wait for login response'));                     
+                    } else {
+                        process.nextTick(callback);
+                    }
                 }
             ], callback);
             
@@ -40,7 +44,7 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
                         locationIo.sendMessage(trackerId, messageName, parameters, callback);
                     },
                     function(callback) {
-                        locationIo.once('message',addTimeout(20000, callback.bind(locationIo, null), undefined, 'message'));
+                        locationIo.once('message',addTimeout(5000, callback.bind(locationIo, null), undefined, 'message'));
                     },
                     function(callback) {
                         async.series([
@@ -56,9 +60,15 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
             }  
         }
         ], function(err, results) {
-           var downMessageReceivedByTracker = results[2][0] + '';
-           var parsedAckRecievedByServer = results[1][1];
-           callback(err, downMessageReceivedByTracker, parsedAckRecievedByServer);
+           if (err) {
+              console.log('error is ' + err);
+              callback(err);
+           } else {
+              var downMessageReceivedByTracker = results[2][0] + '';
+              var parsedAckRecievedByServer = results[1][1]; 
+              callback(err, downMessageReceivedByTracker, parsedAckRecievedByServer);
+           }
+
            trackerSimulator.destroy();
            locationIo.close(); 
     }); 
