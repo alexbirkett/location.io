@@ -13,15 +13,13 @@ util.inherits(LocationIo, events.EventEmitter);
 
 LocationIo.prototype.protocolModules = require('./modules');
 
-LocationIo.prototype.createServer = function(port, emitFunction) {
+LocationIo.prototype.createServer = function(port, callback) {
 
 	var self = this;
-	if (!emitFunction) {
-		emitFunction = function() {
-			//console.log(arguments);
-			self.emit.apply(self, arguments);
-		};
-	}
+	var	emitFunction = function() {
+	   self.emit.apply(self, arguments);
+    };
+
 
 	
 	var server = net.createServer();
@@ -51,8 +49,12 @@ LocationIo.prototype.createServer = function(port, emitFunction) {
 	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
-	server.listen(port, undefined, undefined, function() {
-		emitFunction('server-up', "server up");
+	server.listen(port, undefined, undefined, function(err) {
+		emitFunction('server-up', err);
+		if (callback) {
+		   callback(err);  
+		}
+
 	});
 	
 	server.on('error', function (e) {
