@@ -49,18 +49,23 @@ LocationIo.prototype.createServer = function(port, callback) {
 	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
-	server.listen(port, function(err) {
-		emitFunction('server-up', err);
-		if (callback) {
-		   callback(err);  
-		}
+    server.listen(port, function(err) {
+        emitFunction('server-up', err);
+        if (callback) {
+            callback(err);  
+        }
+        callback = undefined;
+    }); 
 
-	});
-	
-	server.on('error', function (e) {
-	   console.log('error ' + e);
-	   emitFunction('error', e);
-	});
+    server.on('error', function(err) {
+        if (callback) {
+            callback(err);
+        } else {
+            emitFunction('error', err);
+        }
+        callback = undefined;
+    }); 
+
 	    
 	this.server = server;
 };

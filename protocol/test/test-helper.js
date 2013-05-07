@@ -133,7 +133,7 @@ exports.testUpMessage = function(getPortFunction, data, numberOfBytesToWaitFor, 
     };
     
     var handleAddrInUseCallback = function(err) {
-       if (err && err.indexOf('EADDRINUSE') > 0) {
+       if (err && err.code == 'EADDRINUSE') {
            callTestUpMessage();
        } else {
            callback.apply(this, arguments);
@@ -150,7 +150,7 @@ exports.testDownMessage = function(getPortFunction, loginMessage, expectedLoginR
     };
     
     var handleAddrInUseCallback = function(err) {
-       if (err && err.indexOf('EADDRINUSE') > 0) {
+       if (err && err.code == 'EADDRINUSE') {
            callTestDownMessage();
        } else {
            callback.apply(this, arguments);
