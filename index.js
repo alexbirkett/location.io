@@ -70,7 +70,7 @@ LocationIo.prototype.sendMessage = function(trackerId, messageName, commandParam
     console.log('trackerId ' + trackerId);
     var socket = this.findConnectionById(trackerId);
     if (socket === undefined) {
-        process.nextTick(function() {
+        setImmediate(function() {
             callback('unknown tracker');
         });
     } else {

@@ -123,7 +123,7 @@ var findFrameAndParseMessage = function(buffer, callback) {
 		error = e;
 	}
 
-	process.nextTick(function() {
+	setImmediate(function() {
 		callback(error, message, buffer);
 	});
 

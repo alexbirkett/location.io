@@ -28,7 +28,7 @@ var testDownMessage = function(port, loginMessage, expectedLoginResponse, messag
                     if (expectedLoginResponse) {
                         trackerSimulator.waitForData(expectedLoginResponse.length, addTimeout(20000, callback, 'wait for login response'));                     
                     } else {
-                        process.nextTick(callback);
+                        setImmediate(callback);
                     }
                 }
             ], callback);

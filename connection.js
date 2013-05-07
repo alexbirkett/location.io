@@ -117,7 +117,7 @@ var parseWrapper = function(parsefunction, data, callback) {
 			if (calledBackSynchronously) {
 				callback.apply(this, arguments);
 			} else {
-				process.nextTick(function() {
+				setImmediate(function() {
 					callback.apply(this, outerArguments);
 				});
 			}
@@ -210,7 +210,7 @@ module.exports.sendMessage = function(self, socket, messageName, commandParamete
 		
 	} catch(e) {
 		console.log("build message failed " + e);
-		process.nextTick(function() {
+		setImmediate(function() {
 			callback(e + "");
 		})
 	}
