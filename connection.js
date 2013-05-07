@@ -37,8 +37,8 @@ module.exports.attachSocket = function(self, socket, protocolModules, callback) 
 		callback('tracker-disconnected', self.id);
 	});
 
-	socket.on('error', function() {
-		console.log('socket error occured');
+	socket.on('error', function(err) {
+		console.log('socket error occured ' + err);
 	});
 };
 
@@ -200,10 +200,10 @@ module.exports.sendMessage = function(self, socket, messageName, commandParamete
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
 	        //@TODO no guarantee that protocols that don't require up messages to be ACKed also don't require down messages to be acked.
-		    if (module.buildAck) {
-	            self.upMessagesCallbacks[messageName] = callback;	        
+		    if (err || module.buildAck == undefined) {
+	            callback(err);        
 		    } else {
-		        callback();
+		        self.upMessagesCallbacks[messageName] = callback;
 		    }
 		});
 		
