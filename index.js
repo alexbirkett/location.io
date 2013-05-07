@@ -22,7 +22,7 @@ LocationIo.prototype.createServer = function(port, callback) {
 
     var server = net.createServer();
 
-    this.connections = {};
+    this.sockets = {};
 
     var createProtocolModuleArray = function() {
 
@@ -39,12 +39,13 @@ LocationIo.prototype.createServer = function(port, callback) {
     server.on('connection', function(socket) {
         //console.log('socket connected');
         connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
-        self.connections[socket.remoteAddress + ":" + socket.remotePort] = socket;
-    });
-
-    server.on('close', function(socket) {
-        //console.log('socket closed');
-        //	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
+        var socketKey = socket.remoteAddress + ":" + socket.remotePort;
+        self.sockets[socketKey] = socket;
+        
+        socket.on('close', function() {
+            console.log('socket closed ' + socketKey);
+            self.sockets[socketKey] = undefined;
+        });
     });
 
     server.listen(port, function(err) {
@@ -82,13 +83,13 @@ LocationIo.prototype.sendMessage = function(trackerId, messageName, commandParam
 LocationIo.prototype.findConnectionById = function(id) {
     console.log('finding tracker id ' + id);
 
-    for (var socket in this.connections) {
+    for (var socketName in this.sockets) {
 
-        var connection = this.connections[socket];
-        console.log('testing connection ' + connection.id);
+        var socket = this.sockets[socketName];
+        console.log('testing connection ' + socket.id);
 
-        if (connection.id == id) {
-            return connection;
+        if (socket.id == id) {
+            return socket;
         }
     }
 };
