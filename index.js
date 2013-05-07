@@ -37,13 +37,11 @@ LocationIo.prototype.createServer = function(port, callback) {
     };
 
     server.on('connection', function(socket) {
-        //console.log('socket connected');
         connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
         var socketKey = socket.remoteAddress + ":" + socket.remotePort;
         self.sockets[socketKey] = socket;
         
         socket.on('close', function() {
-            console.log('socket closed ' + socketKey);
             self.sockets[socketKey] = undefined;
         });
     });
@@ -88,7 +86,7 @@ LocationIo.prototype.findConnectionById = function(id) {
         var socket = this.sockets[socketName];
         console.log('testing connection ' + socket.id);
 
-        if (socket.id == id) {
+        if (socsket.id == id) {
             return socket;
         }
     }
