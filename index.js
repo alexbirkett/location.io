@@ -6,7 +6,7 @@ var util = require('util');
 var connection = require('./connection');
 
 var LocationIo = function() {
-	events.EventEmitter.call(this);
+    events.EventEmitter.call(this);
 };
 
 util.inherits(LocationIo, events.EventEmitter);
@@ -15,47 +15,45 @@ LocationIo.prototype.protocolModules = require('./modules');
 
 LocationIo.prototype.createServer = function(port, callback) {
 
-	var self = this;
-	var	emitFunction = function() {
-	   self.emit.apply(self, arguments);
+    var self = this;
+    var emitFunction = function() {
+        self.emit.apply(self, arguments);
     };
 
+    var server = net.createServer();
 
-	
-	var server = net.createServer();
-	
-	this.connections = {};
+    this.connections = {};
 
-	var createProtocolModuleArray = function() {
-		
-		var moduleArray = [];
-		for (var moduleName in this.protocolModules) {
-			var module = this.protocolModules[moduleName];
-			module.name = moduleName;
-			moduleArray.push(module);
-		}
-		
-		return moduleArray;
-	};
-	
-	server.on('connection', function(socket) {
-		//console.log('socket connected');
-		connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
-		self.connections[socket.remoteAddress+":"+socket.remotePort] = socket;
-	});
+    var createProtocolModuleArray = function() {
 
-	server.on('close', function(socket) {
-		//console.log('socket closed');
-	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
-	});
+        var moduleArray = [];
+        for (var moduleName in this.protocolModules) {
+            var module = this.protocolModules[moduleName];
+            module.name = moduleName;
+            moduleArray.push(module);
+        }
+
+        return moduleArray;
+    };
+
+    server.on('connection', function(socket) {
+        //console.log('socket connected');
+        connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
+        self.connections[socket.remoteAddress + ":" + socket.remotePort] = socket;
+    });
+
+    server.on('close', function(socket) {
+        //console.log('socket closed');
+        //	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
+    });
 
     server.listen(port, function(err) {
         emitFunction('server-up', err);
         if (callback) {
-            callback(err);  
+            callback(err);
         }
         callback = undefined;
-    }); 
+    });
 
     server.on('error', function(err) {
         if (callback) {
@@ -64,51 +62,48 @@ LocationIo.prototype.createServer = function(port, callback) {
             emitFunction('error', err);
         }
         callback = undefined;
-    }); 
+    });
 
-	    
-	this.server = server;
+    this.server = server;
 };
 
 LocationIo.prototype.sendMessage = function(trackerId, messageName, commandParameters, callback) {
-	console.log('trackerId ' + trackerId)
-	var socket = this.findConnectionById(trackerId);
-	if (socket == undefined) {
-		process.nextTick(function() {
-			callback('unknown tracker');
-		});
-	} else {
-		connection.sendMessage(socket, socket, messageName, commandParameters, callback);
-	}
+    console.log('trackerId ' + trackerId);
+    var socket = this.findConnectionById(trackerId);
+    if (socket === undefined) {
+        process.nextTick(function() {
+            callback('unknown tracker');
+        });
+    } else {
+        connection.sendMessage(socket, socket, messageName, commandParameters, callback);
+    }
 };
 
 LocationIo.prototype.findConnectionById = function(id) {
-	console.log('finding tracker id ' + id);
-	
-	for (var socket in this.connections) {
-		
-		var connection = this.connections[socket];
-		console.log('testing connection ' + connection.id);
-			
-		if (connection.id == id) {
-			return connection;
-		}
-	}
+    console.log('finding tracker id ' + id);
+
+    for (var socket in this.connections) {
+
+        var connection = this.connections[socket];
+        console.log('testing connection ' + connection.id);
+
+        if (connection.id == id) {
+            return connection;
+        }
+    }
 };
 
 LocationIo.prototype.getApi = function(protocolName) {
-	console.log('protocol name ' + protocolName);
-	console.log(protocolName);
-	console.log(this.protocolModules);
-	return this.protocolModules[protocolName].api;
+    console.log('protocol name ' + protocolName);
+    console.log(protocolName);
+    console.log(this.protocolModules);
+    return this.protocolModules[protocolName].api;
 };
 
 LocationIo.prototype.close = function(callback) {
-	//console.log('closing server');
-	this.server.close(callback);
+    //console.log('closing server');
+    this.server.close(callback);
 };
 
-	
 module.exports = LocationIo;
-
 
