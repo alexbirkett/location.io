@@ -28,12 +28,15 @@ process.on('uncaughtException', function(err) {
   console.log('Caught exception: ' + err.stack);
 });
 
+var getNextPort = function() {
+    return nextPort++;
+}
+
 var sendData = function() {
-   var args = [nextPort++];
+   var args = [getNextPort];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
    testHelper.testUpMessage.apply(this, args);
 }
-       
 
 var createTests = function(sliceLength) {
     return {

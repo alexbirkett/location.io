@@ -75,7 +75,7 @@ exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, me
 };
 
 
-exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, callback) {
+var testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, callback) {
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
 
@@ -125,3 +125,20 @@ exports.testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength
             locationIo.close();
         });
 };
+
+exports.testUpMessage = function(getPortFunction, data, numberOfBytesToWaitFor, sliceLength, callback) {
+    var callTestUpMessage = function() {
+        var port = getPortFunction();
+        testUpMessage(port, data, numberOfBytesToWaitFor, sliceLength, handleAddrInUseCallback);
+    };
+    
+    var handleAddrInUseCallback = function(err) {
+       if (err && err.indexOf('EADDRINUSE') > 0) {
+           callTestUpMessage();
+       } else {
+           callback.apply(this, arguments);
+       }
+    };   
+    
+    callTestUpMessage();
+}

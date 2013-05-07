@@ -14,9 +14,16 @@ process.on('uncaughtException', function(err) {
 
 var nextPort = 2988;
 
+var getNextPort = function() {
+   return nextPort++; 
+};
+
 var testUpMessage = function() {
-   var args = [nextPort++];
+   var args = [getNextPort];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
+   
+   var callback = args[args.length - 1];
+   
    testHelper.testUpMessage.apply(this, args);
 }
 

@@ -6,10 +6,14 @@ process.on('uncaughtException', function(err) {
   console.log('Caught exception: ' + err.stack);
 });
 
-var nextPort = 3141;
+var nextPort = 2999;
+
+var getNextPort = function() {
+    return nextPort++;
+}
 
 var sendData = function() {
-   var args = [nextPort++];
+   var args = [getNextPort];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
    testHelper.testUpMessage.apply(this, args);
 }
