@@ -90,13 +90,12 @@ var testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, ca
             }, callback);
         },
         function(callback) {
-            console.log('connected');
             async.parallel([
                 function(callback) {
-                    locationIo.once('message',addTimeout(5000, callback.bind(locationIo, null), undefined, 'message'));
+                    locationIo.once('message',addTimeout(20000, callback, undefined, 'message').bind(locationIo, null));
                 },
                 function(callback) {
-                    locationIo.once('tracker-connected',addTimeout(5000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
+                    locationIo.once('tracker-connected',addTimeout(20000, callback, undefined, 'tracker-connected').bind(locationIo, null));
                 },
                 function(callback) {
                     trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));

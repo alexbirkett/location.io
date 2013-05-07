@@ -231,8 +231,8 @@ var createTests = function(sliceLength) {
 var suite = vows.describe('gotop-up-message-tests');
 
 var batch = {};
-for (var i = 1; i < 20; i++) {
-    batch['test with slice length ' + i] = createTests(i + 1);
+for (var i = 1; i < 150; i++) {
+    batch['test with slice length ' + i] = createTests(i);
 }
 suite.addBatch(batch);
   
