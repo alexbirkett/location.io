@@ -4,7 +4,7 @@ var async = require('async');
 var TrackerSimulator = require('tracker-simulator');
 var addTimeout = require("addTimeout");
 
-exports.testDownMessage = function(loginMessage, expectedLoginResponse, port, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
+exports.testDownMessage = function(port, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
 
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();

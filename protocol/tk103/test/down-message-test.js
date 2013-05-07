@@ -11,7 +11,7 @@ var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355
 var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
 
 var testDownMessage = function() {
-   var args = [LOGIN_MESSAGE, EXPECTED_LOGIN_RESPONSE, nextPort++];
+   var args = [nextPort++, LOGIN_MESSAGE, EXPECTED_LOGIN_RESPONSE];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
    testHelper.testDownMessage.apply(this, args);
 }
