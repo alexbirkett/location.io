@@ -86,7 +86,7 @@ LocationIo.prototype.findConnectionById = function(id) {
         var socket = this.sockets[socketName];
         console.log('testing connection ' + socket.id);
 
-        if (socsket.id == id) {
+        if (socket.id == id) {
             return socket;
         }
     }
