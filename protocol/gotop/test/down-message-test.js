@@ -10,8 +10,12 @@ process.on('uncaughtException', function(err) {
 
 var CMD_T = "#861785001515349,CMD-T,V,DATE:120903,TIME:160649,LAT:59.9326566N,LOT:010.7875033E,Speed:005.5,X-X-X-X-49-5,000,24202-0ED9-D93B#";
 
+var getNextPort = function() {
+    return nextPort++;
+}
+
 var testDownMessage = function() {
-   var args = [nextPort++, CMD_T, undefined];
+   var args = [getNextPort, CMD_T, undefined];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
    testHelper.testDownMessage.apply(this, args);
 }

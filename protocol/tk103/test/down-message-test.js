@@ -10,8 +10,12 @@ process.on('uncaughtException', function(err) {
 var LOGIN_MESSAGE = "(013612345678BP05000013612345678080524A2232.9806N11404.9355E000.1101241323.8700000000L000450AC)"; 
 var EXPECTED_LOGIN_RESPONSE = "(013612345678AP05)";
 
+var getNextPort = function() {
+    return nextPort++;
+}
+
 var testDownMessage = function() {
-   var args = [nextPort++, LOGIN_MESSAGE, EXPECTED_LOGIN_RESPONSE];
+   var args = [getNextPort, LOGIN_MESSAGE, EXPECTED_LOGIN_RESPONSE];
    args = args.concat(Array.prototype.slice.call(arguments, 0));
    testHelper.testDownMessage.apply(this, args);
 }

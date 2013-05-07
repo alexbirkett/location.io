@@ -4,7 +4,7 @@ var async = require('async');
 var TrackerSimulator = require('tracker-simulator');
 var addTimeout = require("addTimeout");
 
-exports.testDownMessage = function(port, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
+var testDownMessage = function(port, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
 
     var locationIo = new LocationIo();
     var trackerSimulator = new TrackerSimulator();
@@ -142,3 +142,22 @@ exports.testUpMessage = function(getPortFunction, data, numberOfBytesToWaitFor, 
     
     callTestUpMessage();
 }
+
+exports.testDownMessage = function(getPortFunction, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
+    var callTestDownMessage = function() {
+        var port = getPortFunction();
+        testDownMessage(port, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, handleAddrInUseCallback);
+    };
+    
+    var handleAddrInUseCallback = function(err) {
+       if (err && err.indexOf('EADDRINUSE') > 0) {
+           callTestDownMessage();
+       } else {
+           callback.apply(this, arguments);
+       }
+    };   
+    
+    callTestDownMessage();
+}
+
+
