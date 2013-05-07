@@ -148,8 +148,8 @@ test.topic = function() {
     }
     
 var tests = {};
-for (var i = 1; i < 20; i ++) {
-    tests['test with slice length ' + i] = createTests(i + 1);
+for (var i = 2; i < 150; i ++) {
+    tests['test with slice length ' + i] = createTests(i);
 }
 
 suite.addBatch(tests);
