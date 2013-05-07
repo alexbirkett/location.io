@@ -49,7 +49,7 @@ LocationIo.prototype.createServer = function(port, callback) {
 	//	self.connections[socket.remoteAddress+":"+socket.remotePor] = undefined;
 	});
 
-	server.listen(port, undefined, undefined, function(err) {
+	server.listen(port, function(err) {
 		emitFunction('server-up', err);
 		if (callback) {
 		   callback(err);  
