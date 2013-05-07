@@ -22,7 +22,7 @@ var testDownMessage = function(port, loginMessage, expectedLoginResponse, messag
                     trackerSimulator.sendMessage(loginMessage, 0, 50, 150, addTimeout(20000, callback, undefined, 'send login message'));
                 },
                 function(callback) {
-                    locationIo.once('tracker-connected', addTimeout(20000, callback.bind(locationIo, null), undefined, 'tracker-connected'));
+                    locationIo.once('tracker-connected', addTimeout(20000, callback, undefined, 'tracker-connected').bind(locationIo, null));
                 },
                 function(callback) {
                     if (expectedLoginResponse) {
@@ -45,6 +45,7 @@ var testDownMessage = function(port, loginMessage, expectedLoginResponse, messag
                         locationIo.sendMessage(trackerId, messageName, parameters, callback);
                     },
                     function(callback) {
+                        // timeout should not cause an error - only some trackers send down message ACKs
                         locationIo.once('message',addTimeout(5000, callback.bind(locationIo, null), undefined, 'message'));
                     },
                     function(callback) {
