@@ -138,7 +138,7 @@ var createTests = function(sliceLength) {
                var MESSAGE = ":(000000000000AV001)";
                sendData(MESSAGE, 0, sliceLength, this.callback);        
             },
-            'should fail with error': function (err) {
+            'should fail with error': function (err, message) {
                 assert.isNotNull(err);
             }
         }
