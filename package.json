@@ -13,8 +13,7 @@
     },
     "devDependencies": {
         "vows": ">= 0.7.0",
-        "tracker-simulator": "git://github.com/alexbirkett/tracker-simulator.git#master",
-        "ewait": "git://github.com/alexbirkett/node-wait.git#master"
+        "tracker-simulator": "git://github.com/alexbirkett/tracker-simulator.git#master"
     },
     "scripts": {
         "test": "vows --spec test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js"
