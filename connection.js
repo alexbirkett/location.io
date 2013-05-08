@@ -87,8 +87,9 @@ var handleData = function(self, parseFunction, handleMessageFunction, callback) 
 	
 	var kickOffParse = function() {
 		self.handlingData = true;
-		parseFunction(self.dataBuffer, self.protocolModules, handleParseComplete);
+		var dataToParse = self.dataBuffer;
 		self.dataBuffer = undefined;
+		parseFunction(dataToParse, self.protocolModules, handleParseComplete);
 	};
 	
 	
