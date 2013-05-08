@@ -29,10 +29,18 @@ var createTests = function(sliceLength) {
             'should fail with error': function (err, message) {
                 assert.isNotNull(err);
             }
-        }
-         
+        },
+         'handles good data followed by garbage sent by TK102-2': {
+            topic: function() {
+               var MESSAGE = "(013632782450BR00130508A6048.6041N01102.0078E000.0064654276.0900000000L009491B8):(000000000000AV001)";
+               sendData(MESSAGE, 0, sliceLength, this.callback);        
+            },
+            'should not fail with error': function (err, message) {
+                assert.isNull(err);
+            }
+        }   
     };
-
+   
 }
 
 var suite = vows.describe('up-message-tests');
