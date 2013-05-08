@@ -49,12 +49,18 @@ var getTestSimpleParserContext = function(sync) {
 			parse(buffer, null, this.callback);
 			
 		},
-		'should return hello': function(err, message, dataToPassBack, protocolModules) {
+		'should not return error': function(err, message, dataToPassBack, protocolModules) {
 			assert.isNull(err);
-			assert.equal(message, "hello");
-			assert.equal(dataToPassBack.length, 0);
-			assert.isNull(protocolModules);
- 		}
+ 		},
+        'should return message hello': function(err, message, dataToPassBack, protocolModules) {
+            assert.equal(message, "hello");
+        },
+        'should not pass back any data': function(err, message, dataToPassBack, protocolModules) {
+            assert.equal(dataToPassBack.length, 0);
+        },
+        'should not pass back protocolModules': function(err, message, dataToPassBack, protocolModules) {
+            assert.isNull(protocolModules);
+        }
 	};
 };
 
