@@ -132,18 +132,7 @@ var createTests = function(sliceLength) {
             'should not ACK from server to client': function (err, message, returnedData) {
               assert.isUndefined(returnedData);
             }
-        },
-        'handles garbage sent by TK102-2': {
-            topic: function() {
-               var MESSAGE = ":(000000000000AV001)";
-               sendData(MESSAGE, 0, sliceLength, this.callback);        
-            },
-            'should fail with error': function (err, message) {
-                assert.isNotNull(err);
-            }
         }
-        
-        
     };
 
 }
