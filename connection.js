@@ -1,5 +1,6 @@
 var forEach = require('async-foreach').forEach;
 require('smarter-buffer');
+var util = require('./protocol/util');
 
 module.exports.attachSocket = function(self, socket, protocolModules, callback) {
 	self.protocolModules = protocolModules;
@@ -197,6 +198,7 @@ module.exports.sendMessage = function(self, socket, messageName, commandParamete
 	console.log(commandParameters);
 	var module = self.protocolModules[0];
 	try {
+	    util.assertValidCommand(messageName, commandParameters, module.api);
 		var message = module.buildMessage(messageName, commandParameters);
 		console.log('sending to tracker: ' + message)
 		socket.write(message, function(err) {
