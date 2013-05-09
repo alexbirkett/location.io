@@ -1,9 +1,11 @@
 var parseGpsMessage = require('./gps-message-parser');
 var util = require('../util');
+
+var lookupMessage = require('./message-types');
+
 var executeParseFunctionAndCatchException = util.executeParseFunctionAndCatchException;
 
 var POUND_CHARACTER_CODE = "#".charCodeAt(0);
-
 var messageLength = function(buffer) {
 	
 	var result = -1;
@@ -45,7 +47,8 @@ var parseMessage = function(buffer) {
     message.userName = readNextValue(); 
     message.condition = readNextValue();
     message.password = readNextValue();
-    message.type = readNextValue();
+    message.rawType  = readNextValue();
+    message.type = lookupMessage(message.rawType);
     message.number = readNextValue();
     message.validity = readNextValue();
     var location = readNextValue();
@@ -68,7 +71,6 @@ var findFrameAndParseMessage = function(buffer, callback) {
             message = parseMessage(buffer);
             bufferToReturn = buffer.slice(length);
         }
-        console.log(message);
     } catch (e) {
         console.log(e);
         error = e;

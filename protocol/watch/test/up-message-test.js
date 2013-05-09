@@ -31,7 +31,7 @@ var createTests = function(sliceLength) {
                 assert.isNull(err);
             },
             'should be a login message': function (err, message, returnedData) {
-    			//assert.equal(message.type, 'loginMessage');
+    			assert.equal(message.type, 'loginMessage');
             }
         },
         'handles aut update with no user name': {
@@ -43,7 +43,7 @@ var createTests = function(sliceLength) {
                assert.isNull(err);
             },
             'should be a login message': function (err, message, returnedData) {
-               // assert.equal(message.type, 'loginMessage');
+               assert.equal(message.type, 'loginMessage');
             }
         },
         'handles aut update with no GPS': {
@@ -55,7 +55,7 @@ var createTests = function(sliceLength) {
                 assert.isNull(err);
             },
             'should be a login message': function (err, message, returnedData) {
-               // assert.equal(message.type, 'loginMessage');
+               assert.equal(message.type, 'loginMessage');
             }
         },
         'handles SOS message': {
@@ -67,7 +67,7 @@ var createTests = function(sliceLength) {
                 assert.isNull(err);
             },
             'should be a login message': function (err, message, returnedData) {
-               // assert.equal(message.type, 'loginMessage');
+               assert.equal(message.type, 'sosMessage');
             }
         },
         
