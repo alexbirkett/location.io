@@ -2,6 +2,8 @@
 var parseGpsMessage = require('./gps-message-parser');
 var executeParseFunctionAndCatchException = require('../util').executeParseFunctionAndCatchException;
 
+var POUND_CHARACTER_CODE = "#".charCodeAt(0);
+
 var lookupCommandResponseType = function(rawMessageType) {
 	var messageType;
 	
@@ -92,14 +94,12 @@ var framePattern = /([^,]+),([^,]+),?(.*)$/;
 
 parseMessage = function(message) {
 	var matchArray = framePattern.exec(message);
-	var frame = new Object();
-	if (matchArray != null) {
-		frame.trackerId = matchArray[1];
-		frame.type = executeParseFunctionAndCatchException(parseMessageType,matchArray[2], message);
-		if ( matchArray[3] != "") {
-			frame.location = executeParseFunctionAndCatchException(parseGpsMessage, matchArray[3], message);	
-		}	
-	}
+	var frame = {};
+	frame.trackerId = matchArray[1];
+	frame.type = parseMessageType(matchArray[2], message);
+	if ( matchArray[3] != "") {
+		frame.location = parseGpsMessage(matchArray[3], message);	
+	}	
 	return frame;
 };
 
@@ -109,10 +109,11 @@ var findFrameAndParseMessage = function(buffer, callback) {
 	var message;
 
 	try {
-		if (buffer.length < 0 || buffer.readUInt8(0) == 35) {
+		if (buffer.length < 0 || buffer[0] == POUND_CHARACTER_CODE) {
 			for (var i = 1; i < buffer.length; i++) {
-				if (buffer.readUInt8(i) == 35) {
-					message = parseMessage(buffer.slice(messageStartIndex + 1, i));
+				if (buffer[i] == POUND_CHARACTER_CODE) {
+				    var frameContents = buffer.slice(messageStartIndex + 1, i);
+				  	message = parseMessage(frameContents);
 					buffer = buffer.slice(i + 1);
 					break;
 				}
