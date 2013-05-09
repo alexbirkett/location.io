@@ -85,6 +85,15 @@ vows.describe('utils').addBatch({
             'should at index 5' : function(index) {
                 assert.equal(index, 5);
             }
+        },
+        'search for string that does not exist' : {
+            topic : function() {
+                //buffer, searchOctet, fromIndex, skipHits
+                return util.bufferIndexOf(new Buffer("01010100"), "3".charCodeAt(0), 0, 2);
+            },
+            'should return -1' : function(index) {
+                assert.equal(index, -1);
+            }
         }
     }
 }).export(module);
