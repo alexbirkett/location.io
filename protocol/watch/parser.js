@@ -52,6 +52,7 @@ var parseMessage = function(buffer) {
     message.location = parseGpsMessage(location);
     message.networkOne = readNextValue()
     message.networkTwo = readNextValue();
+    message.trackerId = message.imei+message.userName;
     
     return message;
 }
