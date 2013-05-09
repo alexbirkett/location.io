@@ -88,12 +88,8 @@ var acks = {
         return "(" + messageValue.trackerId + "AS01" + alarmType + ")";
     }
 };
-/*exports.configureUpdateInterval = function(messageValue) {
-
- }*/
 
 module.exports.buildMessage = function(messageName, parameters) {   
-    util.assertValidCommand(messageName, parameters, api);
     var builder = messages[messageName];
     
     if (builder == undefined) {
