@@ -1,16 +1,16 @@
 
 var gpsMessagePattern = new RegExp(
-        "(\\d{3})(\\d{2}.\\d{4})" +  // Longitude (DDDMM.MMMM)
+        "(\\d{3})*(\\d{2}.\\d{4})*" +  // Longitude (DDDMM.MMMM)
         "," +
-        "([EW])" +
+        "([EW])*" +
         "," +
-        "(\\d{2})(\\d{2}.\\d{4})" +  // Latitude (DDMM.MMMM)
+        "(\\d{2})*(\\d{2}.\\d{4})*" +  // Latitude (DDMM.MMMM)
         "," +
-        "([NS])" +
+        "([NS])*" +
         "," +
-        "(\\d{3}.\\d{2})" +  // Speed
+        "(\\d{3}.\\d{2})*" +  // Speed
         "," +
-        "(\\d{3})" // Altitude
+        "(\\d{3})*" // Altitude
     );
 
 function parseLatitude(degrees, minutes, hemisphere) {
@@ -19,14 +19,12 @@ function parseLatitude(degrees, minutes, hemisphere) {
 	if (hemisphere == 'S') {
 		latitude = -latitude;
 	} else if (hemisphere != 'N') {
-		throw "invalid hemisphere";
+		throw new Error("invalid hemisphere");
 	}
 	return latitude;
 }
 
-function parseLongitude(degrees, minutes, hemisphere) {
-	//console.log('longitude degrees ' + degrees + ' minutes ' + minutes + ' hemisphere ' + hemisphere);
-	
+function parseLongitude(degrees, minutes, hemisphere) {	
 	longitude = parseInt(degrees, 10)  + (minutes / 60);
 	if (hemisphere == 'W') {
 		longitude = -longitude;
@@ -39,11 +37,21 @@ function parseLongitude(degrees, minutes, hemisphere) {
 var parseMessage = function(data) {
 	var message = {};
 	var messageArray = gpsMessagePattern.exec(data);
-	message.latitude = parseLatitude(messageArray[4], messageArray[5], messageArray[6]);
-	message.longitude = parseLongitude(messageArray[1], messageArray[2], messageArray[3]);
+	if (messageArray[4] && messageArray[5] && messageArray[6]) {
+	   message.latitude = parseLatitude(messageArray[4], messageArray[5], messageArray[6]);
+	}
+	if (messageArray[1] && messageArray[2] &&  messageArray[3]) {
+	   message.longitude = parseLongitude(messageArray[1], messageArray[2], messageArray[3]);
+	}
+	
+	if (messageArray[7]) {
+	   message.speed = parseFloat(messageArray[7]);  
+	}
 
-	message.speed = parseFloat(messageArray[7]);
-	message.altitude = parseInt(messageArray[8]);
+    if (messageArray[8]) {
+        message.altitude = parseInt(messageArray[8]);
+    }
+
 	return message;
 };
 

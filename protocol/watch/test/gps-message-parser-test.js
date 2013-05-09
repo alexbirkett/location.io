@@ -23,6 +23,14 @@ vows.describe('watch-message-parser-test').addBatch({
         'altitude should be 236': function (parsedMessage) {
            assert.equal(parsedMessage.altitude,  236);
         }
+    },
+    'handles empty message': {
+        topic: function() {
+           return parseMessage(",,,,,");
+        },
+        'should not throw exception': function (result) {
+            assert.isFalse(result instanceof Error);
+        }
     }
   
 }).export(module); // Export the Suite
