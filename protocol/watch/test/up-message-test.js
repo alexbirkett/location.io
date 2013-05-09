@@ -76,7 +76,7 @@ var createTests = function(sliceLength) {
 
 }
 
-var suite = vows.describe('up-message-tests');
+var suite = vows.describe('watch up-message-tests');
 
 var test = {};
 test.topic = function() {
