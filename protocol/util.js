@@ -167,3 +167,18 @@ exports.getTimeIntervalAsFourHexDigits = function(interval) {
     return prependZeros(interval.toString(16), 4).toUpperCase();
 };
 
+exports.bufferIndexOf = function(buffer, searchOctet, fromIndex, skipHits) {
+    var count = 0;
+    var i = fromIndex || 0;
+    var hitsRemaining = skipHits || 0;
+    var bufferIndex = -1;
+    for(; i < buffer.length; i++) {
+        if (buffer[i] === searchOctet) {
+            if (hitsRemaining-- == 0) {
+                bufferIndex = i;
+            }
+        }
+   }
+   return bufferIndex;
+};
+

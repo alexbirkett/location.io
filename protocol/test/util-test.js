@@ -3,6 +3,10 @@ var util = require('../util');
 var assert = require('assert');
 var vows = require('vows');
 
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception: ' + err.stack);
+});
+
 vows.describe('utils').addBatch({
 	'parseTimeInterval' : {
 		'handles 1s' : {
@@ -54,7 +58,35 @@ vows.describe('utils').addBatch({
 			}
 		}
 	},
-	
+	'bufferIndexOf' : {
+        'search for first occurrence of 1' : {
+            topic : function() {
+                //buffer, searchOctet, fromIndex, skipHits
+                return util.bufferIndexOf(new Buffer("00000100"), "1".charCodeAt(0));
+            },
+            'should at index 5' : function(index) {
+                assert.equal(index, 5);
+            }
+        },
+        'search for first occurrence of 1 stating at index 2' : {
+            topic : function() {
+                //buffer, searchOctet, fromIndex, skipHits
+                return util.bufferIndexOf(new Buffer("01000100"), "1".charCodeAt(0), 2);
+            },
+            'should at index 5' : function(index) {
+                assert.equal(index, 5);
+            }
+        },
+        'skip two occurrences of 1 stating at index 0' : {
+            topic : function() {
+                //buffer, searchOctet, fromIndex, skipHits
+                return util.bufferIndexOf(new Buffer("01010100"), "1".charCodeAt(0), 0, 2);
+            },
+            'should at index 5' : function(index) {
+                assert.equal(index, 5);
+            }
+        }
+    }
 }).export(module);
 // Export the Suite
 
