@@ -17,7 +17,7 @@
         "tracker-simulator": "git://github.com/alexbirkett/tracker-simulator.git#master"
     },
     "scripts": {
-        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js, protocol/watch/test/*test.js",
+        "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js protocol/watch/test/*test.js",
         "pretest": "node_modules/.bin/jshint index.js"
     }
 }
