@@ -109,7 +109,7 @@ var findFrameAndParseMessage = function(buffer, callback) {
 	var message;
 
 	try {
-		if (buffer.length < 0 || buffer[0] == POUND_CHARACTER_CODE) {
+		if (buffer.length > 0 && buffer[0] == POUND_CHARACTER_CODE) {
 			for (var i = 1; i < buffer.length; i++) {
 				if (buffer[i] == POUND_CHARACTER_CODE) {
 				    var frameContents = buffer.slice(messageStartIndex + 1, i);
