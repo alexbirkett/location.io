@@ -4,6 +4,8 @@ var async = require('async');
 var TrackerSimulator = require('tracker-simulator');
 var addTimeout = require("addTimeout");
 
+var TIMEOUT = 20000;
+
 var testDownMessage = function(port, loginMessage, expectedLoginResponse, messageName, parameters, expectedDownMessageLength, downMessageAck, callback) {
 
     var locationIo = new LocationIo();
@@ -14,19 +16,19 @@ var testDownMessage = function(port, loginMessage, expectedLoginResponse, messag
             locationIo.createServer(port, callback);
         },
         function(callback) {
-            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(20000, callback, undefined, 'connect'));
+            trackerSimulator.connect({host: 'localhost', port: port}, addTimeout(TIMEOUT, callback, undefined, 'connect'));
         },
         function(callback) {
             async.parallel([
                 function(callback) {
-                    trackerSimulator.sendMessage(loginMessage, 0, 50, 150, addTimeout(20000, callback, undefined, 'send login message'));
+                    trackerSimulator.sendMessage(loginMessage, 0, 50, 150, addTimeout(TIMEOUT, callback, undefined, 'send login message'));
                 },
                 function(callback) {
-                    locationIo.once('tracker-connected', addTimeout(20000, callback, undefined, 'tracker-connected').bind(locationIo, null));
+                    locationIo.once('tracker-connected', addTimeout(TIMEOUT, callback, undefined, 'tracker-connected').bind(locationIo, null));
                 },
                 function(callback) {
                     if (expectedLoginResponse) {
-                        trackerSimulator.waitForData(expectedLoginResponse.length, addTimeout(20000, callback, 'wait for login response'));                     
+                        trackerSimulator.waitForData(expectedLoginResponse.length, addTimeout(TIMEOUT, callback, 'wait for login response'));
                     } else {
                         setImmediate(callback);
                     }
@@ -51,10 +53,10 @@ var testDownMessage = function(port, loginMessage, expectedLoginResponse, messag
                     function(callback) {
                         async.series([
                             function(callback) {
-                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(20000, callback, undefined, 'waitfordata'));
+                                trackerSimulator.waitForData(expectedDownMessageLength, addTimeout(TIMEOUT, callback, undefined, 'waitfordata'));
                             },
                             function(callback) {
-                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(20000, callback, undefined, 'sendack'))
+                                trackerSimulator.sendMessage(downMessageAck, 0, 50, 150, addTimeout(TIMEOUT, callback, undefined, 'sendack'))
                             }
                         ], callback);   
                     }
@@ -93,20 +95,20 @@ var testUpMessage = function(port, data, numberOfBytesToWaitFor, sliceLength, ca
         function(callback) {
             async.parallel([
                 function(callback) {
-                    locationIo.once('message',addTimeout(20000, callback, undefined, 'message').bind(locationIo, null));
+                    locationIo.once('message',addTimeout(TIMEOUT, callback, undefined, 'message').bind(locationIo, null));
                 },
                 function(callback) {
-                    locationIo.once('tracker-connected',addTimeout(20000, callback, undefined, 'tracker-connected').bind(locationIo, null));
+                    locationIo.once('tracker-connected',addTimeout(TIMEOUT, callback, undefined, 'tracker-connected').bind(locationIo, null));
                 },
                 function(callback) {
-                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(20000, callback, undefined, 'sendmessage'));
+                    trackerSimulator.sendMessage(data, 0, 50, sliceLength, addTimeout(TIMEOUT, callback, undefined, 'sendmessage'));
                 },
                 function(callback) {
-                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(20000, callback, undefined, 'waitfordata'));
-                },
+                    trackerSimulator.waitForData(numberOfBytesToWaitFor, addTimeout(TIMEOUT, callback, undefined, 'waitfordata'));
+                }
             ],
             callback);
-        },
+        }
         ], function(err, data) {
             if (err) {
                 callback(err);
