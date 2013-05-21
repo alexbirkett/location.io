@@ -1,10 +1,8 @@
-
 var messageTypes = {
-    
     'AUT': 'loginMessage',
-    'SOS': 'sosMessage',
+    'SOS': 'sosMessage'
 };
 
-module.exports = function(messageCode) {
+module.exports = function (messageCode) {
     return messageTypes[messageCode];
-}
+};
