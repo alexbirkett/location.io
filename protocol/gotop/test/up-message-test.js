@@ -24,207 +24,207 @@ var PARTIAL_MESSAGE = '#012896001890042,CMD-L,A,DATE:121107,TIME:221314,LAT';
 
 var nextPort = 6141;
 
-process.on('uncaughtException', function(err) {
-  console.log('Caught exception: ' + err.stack);
+process.on('uncaughtException', function (err) {
+    console.log('Caught exception: ' + err.stack);
 });
 
-var getNextPort = function() {
+var getNextPort = function () {
     return nextPort++;
-}
+};
 
-var sendData = function() {
-   var args = [getNextPort];
-   args = args.concat(Array.prototype.slice.call(arguments, 0));
-   testHelper.testUpMessage.apply(this, args);
-}
+var sendData = function () {
+    var args = [getNextPort];
+    args = args.concat(Array.prototype.slice.call(arguments, 0));
+    testHelper.testUpMessage.apply(this, args);
+};
 
-var createTests = function(sliceLength) {
+var createTests = function (sliceLength) {
     return {
-	'parserTests' : {
-		'cmdT' : {
-			topic : function(banana) {
-				sendData(CMD_T, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-			     assert.isNull(err);
-			},
-			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
-				var expectedMessage = {
-					trackerId : '861785001515349',
-					type : 'setContinuousTrackingResponse',
-					location : {
-						available : false,
-						timestamp : new Date('2012-09-03T16:06:49.000Z'),
-						latitude : 59.9326566,
-						longitude : 10.7875033,
-						speed : 5.5,
-						status : {
-							batteryLife : 49,
-							gsmSignal : 5
-						},
-						network : {
-							countryCode : 242,
-							networkCode : 2,
-							locationAreaCode : 3801,
-							cellId : 55611
-						}
-					}
-				};
+        'parserTests': {
+            'cmdT': {
+                topic: function () {
+                    sendData(CMD_T, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setContinuousTrackingResponse': function (err, message, returnedData) {
+                    var expectedMessage = {
+                        trackerId: '861785001515349',
+                        type: 'setContinuousTrackingResponse',
+                        location: {
+                            available: false,
+                            timestamp: new Date('2012-09-03T16:06:49.000Z'),
+                            latitude: 59.9326566,
+                            longitude: 10.7875033,
+                            speed: 5.5,
+                            status: {
+                                batteryLife: 49,
+                                gsmSignal: 5
+                            },
+                            network: {
+                                countryCode: 242,
+                                networkCode: 2,
+                                locationAreaCode: 3801,
+                                cellId: 55611
+                            }
+                        }
+                    };
 
-				assert.deepEqual(message, expectedMessage);
-			}
-		},
-		'cmdX' : {
-			topic : function() {
-			    sendData(CMD_X, 0, sliceLength, this.callback);
-			},
-            'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+                    assert.deepEqual(message, expectedMessage);
+                }
             },
-			'should be a heartBeat' : function(err, message, returnedData) {
+            'cmdX': {
+                topic: function () {
+                    sendData(CMD_X, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a heartBeat': function (err, message, returnedData) {
 
-				var expectedMessage = {
-					trackerId : '861785001515349',
-					type : 'heartBeat'
-				};
+                    var expectedMessage = {
+                        trackerId: '861785001515349',
+                        type: 'heartBeat'
+                    };
 
-				assert.deepEqual(message, expectedMessage);
-			}
-		},
-		'alarmA' : {
-			topic : function() {
-			    sendData(ALM_A, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+                    assert.deepEqual(message, expectedMessage);
+                }
             },
-			'should be an sosAlarm' : function(err, message, returnedData) {
-				assert.equal(message.type, 'sosAlarm');
-			}
-		},
-		'cmdTGps101' : {
-			topic : function() {
-			    sendData(CMD_T_GPS101, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'alarmA': {
+                topic: function () {
+                    sendData(ALM_A, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be an sosAlarm': function (err, message, returnedData) {
+                    assert.equal(message.type, 'sosAlarm');
+                }
             },
-			'should be a setContinuousTrackingResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setContinuousTrackingResponse');
-			}
-		},
-		'testError' : {
-			topic : function() {
-			    sendData(ERROR, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'cmdTGps101': {
+                topic: function () {
+                    sendData(CMD_T_GPS101, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setContinuousTrackingResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setContinuousTrackingResponse');
+                }
             },
-			'should be an error' : function(err, message, returnedData) {
-				assert.equal(message.type, 'error');
-			}
-		},
-		'testError2' : {
-			topic : function() {
-			    sendData(ERROR2, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testError': {
+                topic: function () {
+                    sendData(ERROR, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be an error': function (err, message, returnedData) {
+                    assert.equal(message.type, 'error');
+                }
             },
-			'should be an error' : function(err, message, returnedData) {
-				assert.equal(message.type, 'error');
-			}
-		},
-		'testCmdA1' : {
-			topic : function() {
-			    sendData(CMD_A1, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testError2': {
+                topic: function () {
+                    sendData(ERROR2, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be an error': function (err, message, returnedData) {
+                    assert.equal(message.type, 'error');
+                }
             },
-			'should be a setAuthorizedNumberResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setAuthorizedNumberResponse');
-			}
-		},
-		'testCmdF' : {
-			topic : function() {
-			    sendData(CMD_F, 0, sliceLength, this.callback);
-    		},
-    		'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdA1': {
+                topic: function () {
+                    sendData(CMD_A1, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setAuthorizedNumberResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setAuthorizedNumberResponse');
+                }
             },
-			'shoud be a oneTimeLocate' : function(err, message, returnedData) {
-				assert.equal(message.type, 'oneTimeLocate');
-			}
-		},
-		'testCmdC' : {
-			topic : function() {
-			    sendData(CMD_C, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdF': {
+                topic: function () {
+                    sendData(CMD_F, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'shoud be a oneTimeLocate': function (err, message, returnedData) {
+                    assert.equal(message.type, 'oneTimeLocate');
+                }
             },
-			'should be setApnAndServerResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setApnAndServerResponse');
-			}
-		},
-		'testCmdU' : {
-			topic : function() {
-			    sendData(CMD_U1, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdC': {
+                topic: function () {
+                    sendData(CMD_C, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be setApnAndServerResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setApnAndServerResponse');
+                }
             },
-			'should be a setListenModeResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setListenModeResponse');	
-			}
-		},
-		'testCmdN' : {
-			topic : function() {
-			    sendData(CMD_N, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdU': {
+                topic: function () {
+                    sendData(CMD_U1, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setListenModeResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setListenModeResponse');
+                }
             },
-			'should be a setLowBatteryAlarmResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setLowBatteryAlarmResponse');				
-			}
-		},
-		'testCmdH' : {
-			topic : function() {
-			    sendData(CMD_H, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdN': {
+                topic: function () {
+                    sendData(CMD_N, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setLowBatteryAlarmResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setLowBatteryAlarmResponse');
+                }
             },
-			'should be a setModifyPasswordResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setModifyPasswordResponse');	
-			}
-		},
-		'testCmdJ' : {
-			topic : function() {
-			    sendData(CMD_J, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdH': {
+                topic: function () {
+                    sendData(CMD_H, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setModifyPasswordResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setModifyPasswordResponse');
+                }
             },
-			'should be a setSpeedingAlarmResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setSpeedingAlarmResponse');		
-			}
-		},
-		'testCmdL' : {
-			topic : function() {
-			    sendData(CMD_L, 0, sliceLength, this.callback);
-			},
-			'should not reutrn err':  function(err, message, returnedData) {
-                 assert.isNull(err);
+            'testCmdJ': {
+                topic: function () {
+                    sendData(CMD_J, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setSpeedingAlarmResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setSpeedingAlarmResponse');
+                }
             },
-			'should be a setTimeZoneResponse' : function(err, message, returnedData) {
-				assert.equal(message.type, 'setTimeZoneResponse');			
-			}
-		}
-	}
-}
+            'testCmdL': {
+                topic: function () {
+                    sendData(CMD_L, 0, sliceLength, this.callback);
+                },
+                'should not reutrn err': function (err, message, returnedData) {
+                    assert.isNull(err);
+                },
+                'should be a setTimeZoneResponse': function (err, message, returnedData) {
+                    assert.equal(message.type, 'setTimeZoneResponse');
+                }
+            }
+        }
+    };
 };
 
 
@@ -235,6 +235,6 @@ for (var i = 1; i < 150; i++) {
     batch['test with slice length ' + i] = createTests(i);
 }
 suite.addBatch(batch);
-  
+
 suite.export(module); // Export the Suite
 
