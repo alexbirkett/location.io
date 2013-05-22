@@ -42,7 +42,7 @@ LocationIo.prototype.createServer = function(port, callback) {
         self.sockets[socketKey] = socket;
         
         socket.on('close', function() {
-            self.sockets[socketKey] = undefined;
+            delete self.sockets[socketKey];
         });
     });
 
@@ -78,18 +78,18 @@ LocationIo.prototype.sendMessage = function(trackerId, messageName, commandParam
     }
 };
 
-LocationIo.prototype.findConnectionById = function(id) {
+LocationIo.prototype.findConnectionById = function (id) {
     console.log('finding tracker id ' + id);
 
     for (var socketName in this.sockets) {
 
         var socket = this.sockets[socketName];
-        console.log('testing connection ' + socket.id);
+            console.log('testing connection ' + socket.id);
 
-        if (socket.id == id) {
-            return socket;
+            if (socket.id == id) {
+                return socket;
+            }
         }
-    }
 };
 
 LocationIo.prototype.getApi = function(protocolName) {
