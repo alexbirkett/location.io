@@ -1,4 +1,3 @@
-
 // Commands, message acks start with A, Messages command acks with B
 
 
@@ -45,110 +44,110 @@
 // 
 
 var trackerIdParameter = {
-	pattern: ""
+    pattern: ""
 };
 
 var alarmTypeParameter = {
-	pattern: "vehiclePowerOff|accident|sos|vehicleAlarm|underSpeed|geoFence|overSpeed|movement"
+    pattern: "vehiclePowerOff|accident|sos|vehicleAlarm|underSpeed|geoFence|overSpeed|movement"
 };
 
 var timePeriodParameter = {
-	type: "text",
-	pattern: "^[0-9]{1,3}[s|S|m|M|h|H]$"
+    type: "text",
+    pattern: "^[0-9]{1,3}[s|S|m|M|h|H]$"
 };
 
 var speedParameter = {
-}
+};
 
 var capabilities = {
-	message : {},
-	commands : {
-		// AR00 (BS08)
-		configureUpdateInterval : {
-			parameters : {
-				trackerId : trackerIdParameter,
-				enabled : {
-					type : 'boolean'
-				},
-				interval : timePeriodParameter,
-				duration : timePeriodParameter
-			}
-		},
-		// AP00 (BP04)
-		requestLocation: {
-			parameters : {
-				trackerId : trackerIdParameter
-			}
-		},
-		// AP12 (BP12)
-		configureSpeedAlert: {
-			parameters : {
-				trackerId : trackerIdParameter,
-				minSpeed: speedParameter,
-				maxSpeed: speedParameter
-			}
-		},
-		// AV00 (BV00)
-		configureSwitch0: {
-			parameters : {
-				trackerId : trackerIdParameter,
-				enabled: {
-					type: "boolean"
-				}
-			}
-		},
-		// AV01 (BV01)
-		configureSwitch1: {
-			parameters : {
-				trackerId : trackerIdParameter,
-				enabled: {
-					type: "boolean"
-				}
-			}
-		},
-		// AT00 (BT00)
-		restartDevice: {
-			parameters : {
-				trackerId : trackerIdParameter
-			}
-		},
-		// AR05 (BR05)
-		configureUpdateIntervalWhenAccOpen: { 
-			parameters : { 
-				trackerId : trackerIdParameter,
-				interval: timePeriodParameter
-			}
-		},
-		// AR06 (BR06)
-		configureUpdateIntervalWhenAccClosed: { 
-			parameters : { 
-				trackerId : trackerIdParameter,
-				interval: timePeriodParameter
-			}
-		},
-		// AX05 (BU00) configure geofence (Setting Geo-fence Message)
-		configureGeofence: { 
-			parameters : { 
-					trackerId : trackerIdParameter,
-					enabled : { 
-						type :"boolean"
-					}, 
-					maxLatitude : { 
-						type :"text"
-					}, 
-					minLongitude: {
-						type :"text"
-					}, 
-					minLatitude: { 
-						type :"text"
-					}, 
-					maxLongitude : {
-						type :"text"
-					}
-				}
-			}
-		}
-}; 
+    message: {},
+    commands: {
+        // AR00 (BS08)
+        configureUpdateInterval: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                enabled: {
+                    type: 'boolean'
+                },
+                interval: timePeriodParameter,
+                duration: timePeriodParameter
+            }
+        },
+        // AP00 (BP04)
+        requestLocation: {
+            parameters: {
+                trackerId: trackerIdParameter
+            }
+        },
+        // AP12 (BP12)
+        configureSpeedAlert: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                minSpeed: speedParameter,
+                maxSpeed: speedParameter
+            }
+        },
+        // AV00 (BV00)
+        configureSwitch0: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                enabled: {
+                    type: "boolean"
+                }
+            }
+        },
+        // AV01 (BV01)
+        configureSwitch1: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                enabled: {
+                    type: "boolean"
+                }
+            }
+        },
+        // AT00 (BT00)
+        restartDevice: {
+            parameters: {
+                trackerId: trackerIdParameter
+            }
+        },
+        // AR05 (BR05)
+        configureUpdateIntervalWhenAccOpen: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                interval: timePeriodParameter
+            }
+        },
+        // AR06 (BR06)
+        configureUpdateIntervalWhenAccClosed: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                interval: timePeriodParameter
+            }
+        },
+        // AX05 (BU00) configure geofence (Setting Geo-fence Message)
+        configureGeofence: {
+            parameters: {
+                trackerId: trackerIdParameter,
+                enabled: {
+                    type: "boolean"
+                },
+                maxLatitude: {
+                    type: "text"
+                },
+                minLongitude: {
+                    type: "text"
+                },
+                minLatitude: {
+                    type: "text"
+                },
+                maxLongitude: {
+                    type: "text"
+                }
+            }
+        }
+    }
+};
 
 
 module.exports = capabilities;
