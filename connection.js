@@ -198,7 +198,7 @@ module.exports.sendMessage = function (self, socket, messageName, commandParamet
     console.log(commandParameters);
     var module = self.protocolModules[0];
     try {
-        util.assertValidCommand(messageName, commandParameters, module.api);
+        util.assertValidMessage(messageName, commandParameters, module.api);
         var message = module.buildMessage(messageName, commandParameters);
         console.log('sending to tracker: ' + message);
         socket.write(message, function (err) {

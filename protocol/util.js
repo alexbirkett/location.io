@@ -116,24 +116,24 @@ exports.executeParseFunctionAndCatchException = function (parseFunction, args) {
     }
 };
 
-exports.assertValidCommand = function (commandName, commandParameters, capabilities) {
-    var command = capabilities.commands[commandName];
+exports.assertValidMessage = function (messageName, messageParameters, api) {
+    var message = api[messageName];
 
-    if (command === undefined) {
-        throw new Error('command ' + commandName + ' is not defined in capabilities file');
+    if (message === undefined) {
+        throw new Error('message ' + messageName + ' is not defined in the API for this tracker');
     }
 
-    if (command.parameters === undefined) {
-        throw new Error('command ' + commandName + ' has no parameters defined in capabilities file');
+    if (message.parameters === undefined) {
+        throw new Error('message ' + messageName + ' has no parameters defined in the API for this tracker');
     }
 
-    for (var parameter in command.parameters) {
-        var regexp = new RegExp(command.parameters[parameter].pattern);
-        var parameterValue = commandParameters[parameter];
+    for (var parameter in message.parameters) {
+        var regexp = new RegExp(message.parameters[parameter].pattern);
+        var parameterValue = messageParameters[parameter];
         var match = regexp.test(parameterValue);
         if (!match) {
-            var message = "parameterValue " + parameterValue + " does not match expression " + command.parameters[parameter].pattern;
-            throw new Error(message);
+            var errorMessage = "parameterValue " + parameterValue + " does not match expression " + message.parameters[parameter].pattern;
+            throw new Error(errorMessage);
         }
     }
 };
