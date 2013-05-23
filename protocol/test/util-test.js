@@ -95,6 +95,32 @@ vows.describe('utils').addBatch({
                 assert.equal(index, -1);
             }
         }
+    },
+    'calculateNemaChecksum' : {
+        'calculates know checksum' : {
+            topic : function() {
+                return util.calculateNemaChecksum(new Buffer('GSC,011412000010789,M4(R0=420,R1=40,R2=44)'));
+            },
+            'should be 71': function(checksum) {
+                assert.equal(checksum, '71');
+            }
+        },
+        'test with checksum less than 0x10' : {
+            topic : function() {
+                return util.calculateNemaChecksum(new Buffer([0x1]));
+            },
+            'should be 71': function(checksum) {
+                assert.equal(checksum, '01');
+            }
+        },
+        'test with checksum between than 0x10 and 0x20' : {
+            topic : function() {
+                return util.calculateNemaChecksum(new Buffer([0x15]));
+            },
+            'should be 71': function(checksum) {
+                assert.equal(checksum, '15');
+            }
+        }
     }
 }).export(module);
 // Export the Suite

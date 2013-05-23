@@ -1,5 +1,8 @@
-var prependZeros = function (number, desiredStringLength) {
-    var numberAsString = number + "";
+var prependZeros = function (number, desiredStringLength, base) {
+    if (base === undefined) {
+        base = 10;
+    }
+    var numberAsString = number.toString(base);
     var numberOfZerosToPrepend = desiredStringLength - numberAsString.length;
     if (numberOfZerosToPrepend < 0) {
         throw new Error("number too big");
@@ -179,4 +182,18 @@ exports.bufferIndexOf = function (buffer, searchOctet, fromIndex, skipHits) {
     }
     return bufferIndex;
 };
+
+exports.calculateNemaChecksum = function(buffer) {
+    var checksum = 0;
+    for (var i = 0; i < buffer.length; i++) {
+        checksum = checksum ^ buffer[i];
+    }
+
+    var checksumAsHexString = prependZeros(checksum, 2, 16);
+
+    console.log('checksum is of ' +  buffer + ' is ' + checksumAsHexString);
+
+    return checksumAsHexString;
+};
+
 
