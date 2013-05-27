@@ -191,9 +191,76 @@ exports.calculateNemaChecksum = function(buffer) {
 
     var checksumAsHexString = prependZeros(checksum, 2, 16);
 
-    console.log('checksum is of ' +  buffer + ' is ' + checksumAsHexString);
-
     return checksumAsHexString;
 };
 
+var isNumerical = function(character) {
+     return character >= '0' && character <= '9';
+};
+
+var readNumbers = function(string) {
+    var index = 0;
+    var readNextNumber = function () {
+        var numericalCharacterCount = 0;
+
+        for (; index < string.length; index++) {
+            var character = string[index];
+            if (isNumerical(character)) {
+                numericalCharacterCount++;
+            } else {
+                if (numericalCharacterCount > 0) {
+                    break;
+                }
+            }
+        }
+        return string.substring(index, index - numericalCharacterCount);
+    };
+
+    var number;
+    var i = 0;
+    var numberArray = [];
+    while (index < string.length) {
+        numberArray[i++] = readNextNumber();
+    }
+    return numberArray;
+};
+
+var isLatLngNegative = function(string) {
+    for (var i = 0; i < string.length; i++) {
+        var character = string[i];
+        if (character === 'S' || character === 'W' || character === '-') {
+            return true;
+        }
+    }
+    return false;
+};
+
+exports.parseLatLng = function (string) {
+    // E13413.0810
+    // E01044.1742
+    var latlng = 0;
+
+    var numberArray = readNumbers(string);
+    var degressMinutuesString = numberArray[0];
+
+    if (degressMinutuesString.length > 3) {
+        // assume DDDMM or DDMM
+        var degrees = parseInt(degressMinutuesString.substring(0, degressMinutuesString.length - 2), 10);
+        var minutes = parseInt(degressMinutuesString.substring(degressMinutuesString.length - 2, degressMinutuesString.length), 10);
+        var minuteFraction = parseInt(numberArray[1], 10);
+
+        var minutesDecimal = minutes + convertIntegerPartToFractionalPart(minuteFraction);
+
+        latlng = degrees + (minutesDecimal / 60);
+    }
+
+    if (isLatLngNegative(string)) {
+        latlng = latlng / -1;
+    }
+    return latlng;
+};
+
+var convertIntegerPartToFractionalPart = function (n) {
+    return n / Math.pow(10, ("" + n).length);
+};
 

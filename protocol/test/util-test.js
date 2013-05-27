@@ -121,6 +121,46 @@ vows.describe('utils').addBatch({
                 assert.equal(checksum, '15');
             }
         }
+    },
+    'parseLatLng' : {
+        'tr203stye': {
+           'longitudes' : {
+                'in norway' : {
+                    topic : function() {
+                        return util.parseLatLng('E01044.1742');
+                    },
+                    'should be 10.736236666666667': function(degrees) {
+                        assert.equal(degrees, 10.736236666666667);
+                    }
+                },
+                'in western hemisphere' : {
+                    topic : function() {
+                        return util.parseLatLng('W01044.1742');
+                    },
+                    'should be -10.736236666666667': function(degrees) {
+                        assert.equal(degrees, -10.736236666666667);
+                    }
+                }
+            },
+            'latitudes' : {
+                'in norway' : {
+                    topic : function() {
+                        return util.parseLatLng('N5954.7801');
+                    },
+                    'should be 59.913001666666666': function(degrees) {
+                       assert.equal(degrees, 59.913001666666666);
+                    }
+                },
+                'in western hemisphere' : {
+                    topic : function() {
+                        return util.parseLatLng('S5954.7801');
+                    },
+                    'should be -59.913001666666666': function(degrees) {
+                       assert.equal(degrees, -59.913001666666666);
+                    }
+                }
+            }
+        }
     }
 }).export(module);
 // Export the Suite
