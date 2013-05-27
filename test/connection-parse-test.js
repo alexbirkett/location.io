@@ -119,7 +119,7 @@ vows.describe('connection.parse').addBatch({
 			assert.equal(protocolModules.length, 1); // only the module that returned the message should callback
 		}
 	},
-	'parse when first module thows an exception a message' : {
+	'parse when first module throws an exception a message' : {
 		topic : function() {
 			var protocolModules = [{
 				parseMessage : function(buffer, callback) {
