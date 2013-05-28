@@ -2,11 +2,15 @@ var vows = require('vows'), assert = require('assert');
 
 var connection = require('../connection');
 
+process.on('uncaughtException', function (err) {
+    console.log('Caught exception: ' + err.stack);
+});
+
 var getSimpleParser = function (meta, synchronous) {
 
     meta.parseCallCount = 0;
 
-    var parse = function (data, protocolModules, callback) {
+    var parse = function (data, callback) {
         var doParse = function () {
             meta.parseCallCount++;
 
@@ -27,7 +31,7 @@ var getSimpleParser = function (meta, synchronous) {
                 dataToPassBack = data.slice(dataLength + 1);
             }
 
-            callback(null, message, dataToPassBack, protocolModules);
+            callback(null, message, dataToPassBack);
 
         };
         if (synchronous) {
@@ -46,7 +50,7 @@ var getTestSimpleParserContext = function (sync) {
             var meta = {};
             var parse = getSimpleParser(meta, sync);
             var buffer = new Buffer("hello ");
-            parse(buffer, null, this.callback);
+            parse(buffer, this.callback);
 
         },
         'should not return error': function (err, message, dataToPassBack, protocolModules) {
@@ -57,9 +61,6 @@ var getTestSimpleParserContext = function (sync) {
         },
         'should not pass back any data': function (err, message, dataToPassBack, protocolModules) {
             assert.equal(dataToPassBack.length, 0);
-        },
-        'should not pass back protocolModules': function (err, message, dataToPassBack, protocolModules) {
-            assert.isNull(protocolModules);
         }
     };
 };

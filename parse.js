@@ -39,7 +39,8 @@ var parseWrapper = function (parsefunction, data, callback) {
 module.exports._parse = function (data, callback) {
     var message = null;
 
-    var protocolModulesCopy = this.protocolModules.slice();
+    var protocolModules = this.protocolModules;
+    var protocolModulesCopy = protocolModules.slice();
 
     var error = true;
 

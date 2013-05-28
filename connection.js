@@ -18,8 +18,10 @@ module.exports.attachSocket = function (self, socket, protocolModules, callback)
         }
     };
 
+    var boundParseFunction = parse.bind(self);
+
     socket.on('data', function (data) {
-        bufferAndHandleData(self, data, handleData, parse, function (message) {
+        bufferAndHandleData(self, data, handleData, boundParseFunction, function (message) {
             setAndEmittIdIfrequired(message);
             callback('message', self.id, message);
 
@@ -91,7 +93,7 @@ var handleData = function (self, parseFunction, handleMessageFunction, callback)
         self.handlingData = true;
         var dataToParse = self.dataBuffer;
         self.dataBuffer = undefined;
-        parseFunction(dataToParse, self.protocolModules, handleParseComplete);
+        parseFunction(dataToParse, handleParseComplete);
     };
 
 

@@ -2,10 +2,15 @@ var vows = require('vows'), assert = require('assert');
 
 var parse = require('../parse');
 
+process.on('uncaughtException', function (err) {
+    console.log('Caught exception: ' + err.stack);
+});
+
 vows.describe('parse.parse').addBatch({
 	'parse with three modules, the last one of which returns a message' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
@@ -25,8 +30,10 @@ vows.describe('parse.parse').addBatch({
 				},
 				desiredModule : true
 			}];
-			
-			parse._parse(new Buffer(0) ,protocolModules, this.callback);
+
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(0), this.callback);
 		},
 		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -37,7 +44,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse with two modules, the last one of which returns a message' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
@@ -52,8 +60,10 @@ vows.describe('parse.parse').addBatch({
 				},
 				desiredModuleA : true
 			}];
-			
-			parse._parse(new Buffer(0) ,protocolModules, this.callback);
+
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(0), this.callback);
 		},
 		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -64,7 +74,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse with one module that returns a error and none that return a message' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+			connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback("error", null, buffer);
@@ -85,7 +96,9 @@ vows.describe('parse.parse').addBatch({
 				desiredModule : true
 			}];
 
-			parse._parse(new Buffer(7),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(7), this.callback);
 		},
 		'should remove module that returns an error' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -96,7 +109,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when first module returns a message' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
 						callback(null, 'message', buffer);
@@ -110,7 +124,10 @@ vows.describe('parse.parse').addBatch({
 				}
 			}];
 
-			parse._parse(new Buffer(12),protocolModules, this.callback);
+
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(12), this.callback);
 		},
 		'should not call parse on second module in list' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -121,7 +138,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when first module throws an exception a message' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					throw "error";
 				}
@@ -133,7 +151,9 @@ vows.describe('parse.parse').addBatch({
 				}
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should ignore broken module' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -144,7 +164,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when first module callsback syncrhonously' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					callback(null, null, buffer);
 				}
@@ -156,7 +177,9 @@ vows.describe('parse.parse').addBatch({
 				}
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should call back' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -167,13 +190,16 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when parse function does not callback' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					// do nothing
 				}
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should time out' : function(err, message, data, protocolModules) {
 			assert.equal(err, "timeout");
@@ -181,7 +207,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when parse function calls back after timeout' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					setTimeout(function() {
 						callback(null);
@@ -189,7 +216,9 @@ vows.describe('parse.parse').addBatch({
 				}
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should time out' : function(err, message, data, protocolModules) {
 			assert.equal(err, "timeout");
@@ -197,7 +226,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when one module does not return a message and another times out' : {
 		topic : function() {
-			var protocolModules = [{
+            var connection = {};
+            connection.protocolModules = [{
 				parseMessage : function(buffer, callback) {
 					
 				}
@@ -210,7 +240,8 @@ vows.describe('parse.parse').addBatch({
 				remaining: true
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should return null message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -221,7 +252,8 @@ vows.describe('parse.parse').addBatch({
 	},
 	'parse when one module times out and another does not return a message' : {
 		topic : function() {
-			var protocolModules = [
+            var connection = {};
+            connection.protocolModules = [
 			{
 				parseMessage : function(buffer, callback) {
 					process.nextTick(function() {
@@ -236,7 +268,9 @@ vows.describe('parse.parse').addBatch({
 				}
 			}];
 
-			parse._parse(new Buffer(2),protocolModules, this.callback);
+            var parseFunction = parse._parse.bind(connection);
+
+            parseFunction(new Buffer(2), this.callback);
 		},
 		'should return null message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
