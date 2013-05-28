@@ -177,7 +177,7 @@ var getHandlesIncompleteMessageContext = function (sync) {
     };
 };
 
-vows.describe('connection.handleData').addBatch({
+vows.describe('parse.handleData').addBatch({
     //'test simple parser sync': getTestSimpleParserContext(true),
     'test simple parser async': getTestSimpleParserContext(false),
     'handleData passes back unconsumed data sync': getPassedBackUnconsumedDataContext(false),

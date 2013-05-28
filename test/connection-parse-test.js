@@ -1,8 +1,8 @@
 var vows = require('vows'), assert = require('assert');
 
-var connection = require('../connection');
+var parse = require('../parse');
 
-vows.describe('connection.parse').addBatch({
+vows.describe('parse.parse').addBatch({
 	'parse with three modules, the last one of which returns a message' : {
 		topic : function() {
 			var protocolModules = [{
@@ -26,7 +26,7 @@ vows.describe('connection.parse').addBatch({
 				desiredModule : true
 			}];
 			
-			connection._parse(new Buffer(0) ,protocolModules, this.callback);
+			parse._parse(new Buffer(0) ,protocolModules, this.callback);
 		},
 		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -53,7 +53,7 @@ vows.describe('connection.parse').addBatch({
 				desiredModuleA : true
 			}];
 			
-			connection._parse(new Buffer(0) ,protocolModules, this.callback);
+			parse._parse(new Buffer(0) ,protocolModules, this.callback);
 		},
 		'should removesModules all other modules if a module successfully parses message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -85,7 +85,7 @@ vows.describe('connection.parse').addBatch({
 				desiredModule : true
 			}];
 
-			connection._parse(new Buffer(7),protocolModules, this.callback);
+			parse._parse(new Buffer(7),protocolModules, this.callback);
 		},
 		'should remove module that returns an error' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -110,7 +110,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(12),protocolModules, this.callback);
+			parse._parse(new Buffer(12),protocolModules, this.callback);
 		},
 		'should not call parse on second module in list' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -133,7 +133,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should ignore broken module' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -156,7 +156,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should call back' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -173,7 +173,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should time out' : function(err, message, data, protocolModules) {
 			assert.equal(err, "timeout");
@@ -189,7 +189,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should time out' : function(err, message, data, protocolModules) {
 			assert.equal(err, "timeout");
@@ -210,7 +210,7 @@ vows.describe('connection.parse').addBatch({
 				remaining: true
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should return null message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
@@ -236,7 +236,7 @@ vows.describe('connection.parse').addBatch({
 				}
 			}];
 
-			connection._parse(new Buffer(2),protocolModules, this.callback);
+			parse._parse(new Buffer(2),protocolModules, this.callback);
 		},
 		'should return null message' : function(err, message, data, protocolModules) {
 			assert.isNull(err);
