@@ -24,20 +24,9 @@ LocationIo.prototype.createServer = function(port, callback) {
 
     this.sockets = {};
 
-    var createProtocolModuleArray = function() {
-
-        var moduleArray = [];
-        for (var moduleName in this.protocolModules) {
-            var module = this.protocolModules[moduleName];
-            module.name = moduleName;
-            moduleArray.push(module);
-        }
-
-        return moduleArray;
-    };
 
     server.on('connection', function(socket) {
-        connection.attachSocket(socket, socket, createProtocolModuleArray(), emitFunction);
+        connection.attachSocket(socket, socket, self.protocolModules, emitFunction);
         var socketKey = socket.remoteAddress + ":" + socket.remotePort;
         self.sockets[socketKey] = socket;
         

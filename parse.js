@@ -38,13 +38,62 @@ var parseWrapper = function (parsefunction, data, callback) {
 
 module.exports._parse = function (data, callback) {
     var message = null;
-
+    var unconsumedData = data;
+    var messageToReturn;
     var protocolModules = this.protocolModules;
-    var protocolModulesCopy = protocolModules.slice();
+    var self = this;
 
-    var error = true;
+    if (self.candidateModules === undefined) {
+        self.candidateModules = [];
+        for (var moduleName in self.protocolModules) {
+            self.candidateModules.push(moduleName);
+        }
+    }
 
-    forEach(protocolModulesCopy, function (module, index, arr) {
+    var parseFunctionArray = [];
+    for (var i = 0; i < self.candidateModules.length; i++) {
+        var candidateModuleName = self.candidateModules[i];
+        parseFunctionArray.push(this.protocolModules[candidateModuleName].parseMessage);
+    }
+
+    var currentParseFunctionIndex = parseFunctionArray.length;
+
+    var handleParseComplete = function (err, message, buffer) {
+        var doCallback = false;
+
+        if (err) {
+            // remove module that returned an error
+            self.candidateModules.splice(currentParseFunctionIndex, 1);
+        } else if (message) {
+            // remove all other modules if current module returns a me
+            var protocolModuleName = self.candidateModules[currentParseFunctionIndex];
+            self.protocolModule = protocolModules[protocolModuleName];
+            self.protocolModuleName = protocolModuleName;
+            self.candidateModules = undefined;
+            doCallback = true;
+            unconsumedData = buffer;
+            messageToReturn = message;
+        }
+
+        if (currentParseFunctionIndex === 0) {
+            doCallback = true;
+        }
+
+        if (doCallback) {
+            callback(null, messageToReturn, unconsumedData, self);
+        } else {
+
+            callNextParser();
+        }
+    };
+
+    var callNextParser = function() {
+       parseWrapper(parseFunctionArray[--currentParseFunctionIndex], data, handleParseComplete);
+    };
+
+    callNextParser();
+
+ /*   forEach(protocolModulesCopy, function (module, index, arr) {
         var done = this.async();
 
         parseWrapper(module.parseMessage, data, function (errorFromParser, messageFromParser, buffer) {
@@ -72,7 +121,7 @@ module.exports._parse = function (data, callback) {
 
 
     }, function () {
-        callback(error, message, data, protocolModules);
-    });
+
+    }); */
 
 };

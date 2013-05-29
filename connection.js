@@ -13,8 +13,8 @@ module.exports.attachSocket = function (self, socket, protocolModules, callback)
 
         if (!self.id) {
             self.rawId = message.trackerId;
-            self.id = self.protocolModules[0].name + message.trackerId;
-            callback('tracker-connected', self.id, self.protocolModules[0].name);
+            self.id = self.protocolModuleName + message.trackerId;
+            callback('tracker-connected', self.id, self.protocolModuleName);
         }
     };
 
@@ -25,7 +25,7 @@ module.exports.attachSocket = function (self, socket, protocolModules, callback)
             setAndEmittIdIfrequired(message);
             callback('message', self.id, message);
 
-            sendAck(self.protocolModules[0], socket, message, function (err) {
+            sendAck(self.protocolModule, socket, message, function (err) {
 
             });
 
@@ -68,13 +68,12 @@ var handleData = function (self, parseFunction, handleMessageFunction, callback)
         }
     };
 
-    var handleParseComplete = function (err, message, data, protocolModules) {
+    var handleParseComplete = function (err, message, data) {
 
         // more data was added while we were parsing or unconsumed data has been passed back
         var moreParsingRequired = self.dataBuffer || (message && data.length > 0);
 
         self.dataBuffer = Buffer.smarterConcat([data, self.dataBuffer]);
-        self.protocolModules = protocolModules;
 
         if (message) {
             handleMessageFunction(message);
@@ -125,7 +124,7 @@ module.exports.sendMessage = function (self, socket, messageName, commandParamet
     console.log('sending message ' + messageName);
     commandParameters.trackerId = self.rawId;
     console.log(commandParameters);
-    var module = self.protocolModules[0];
+    var module = self.protocolModule;
     try {
         util.assertValidMessage(messageName, commandParameters, module.api);
         var message = module.buildMessage(messageName, commandParameters);
