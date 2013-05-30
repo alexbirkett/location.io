@@ -105,6 +105,14 @@ vows.describe('utils').addBatch({
                 assert.equal(checksum, '71');
             }
         },
+        'calculates know checksum (as string)' : {
+            topic : function() {
+                return util.calculateNemaChecksum('GSC,011412000010789,M3(Q0=300,Q2=02)');
+            },
+            'should be 71': function(checksum) {
+                assert.equal(checksum, '07');
+            }
+        },
         'test with checksum less than 0x10' : {
             topic : function() {
                 return util.calculateNemaChecksum(new Buffer([0x1]));

@@ -185,8 +185,21 @@ exports.bufferIndexOf = function (buffer, searchOctet, fromIndex, skipHits) {
 
 exports.calculateNemaChecksum = function(buffer) {
     var checksum = 0;
+
+    var getCharCode;
+
+    if (buffer instanceof Buffer) {
+        getCharCode = function(position) {
+            return buffer[position];
+        }
+    }  else {
+        // assume String object or literal
+        getCharCode = function(position) {
+            return buffer.charCodeAt(position);
+        }
+    }
     for (var i = 0; i < buffer.length; i++) {
-        checksum = checksum ^ buffer[i];
+        checksum = checksum ^ getCharCode(i);
     }
 
     var checksumAsHexString = prependZeros(checksum, 2, 16);
