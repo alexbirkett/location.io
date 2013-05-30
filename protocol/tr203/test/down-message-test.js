@@ -8,7 +8,7 @@ process.on('uncaughtException', function (err) {
     console.log('Caught exception: ' + err.stack);
 });
 
-var AUT_MESSAGE = "GSr,011412000840185,3,3,01,,1,020404,114953,E13413.0810,N53652.4793,0,0.00,0,21,0.0,37*57!";
+var AUT_MESSAGE = "GSr,011412000010789,3,3,01,,1,020404,114953,E13413.0810,N53652.4793,0,0.00,0,21,0.0,37*50!";
 
 var getNextPort = function () {
     return nextPort++;
@@ -33,7 +33,7 @@ vows.describe('tr203 down-message-tests').addBatch({
                 assert.isNull(err);
             },
             'message should be received by tracker': function (err, downMessageReceivedByTracker) {
-                assert.equal(downMessageReceivedByTracker, 'GSC,011412000840185,M3(Q0=300,Q2=02)*07!');
+                assert.equal(downMessageReceivedByTracker, 'GSC,011412000010789,M3(Q0=300,Q2=02)*07!');
             }
         }
     }
