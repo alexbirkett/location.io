@@ -191,12 +191,12 @@ exports.calculateNemaChecksum = function(buffer) {
     if (buffer instanceof Buffer) {
         getCharCode = function(position) {
             return buffer[position];
-        }
+        };
     }  else {
         // assume String object or literal
         getCharCode = function(position) {
             return buffer.charCodeAt(position);
-        }
+        };
     }
     for (var i = 0; i < buffer.length; i++) {
         checksum = checksum ^ getCharCode(i);
