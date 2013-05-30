@@ -17,7 +17,7 @@ module.exports.buildMessage = function (messageName, parameters) {
     if (builder === undefined) {
         throw "no command builder defined for message " + messageName;
     }
-    var message = builder(parameters) + '*';
-    var messageWithChecksum = message + util.calculateNemaChecksum(message) + '!';
+    var message = builder(parameters);
+    var messageWithChecksum = message + '*' + util.calculateNemaChecksum(message) + '!';
     return messageWithChecksum;
 };
