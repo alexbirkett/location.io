@@ -1,3 +1,7 @@
+var messageBuilder = require('./message-builder');
+
 module.exports = {
-    parseMessage: require('./parser')
+    api: require('./api'),
+    parseMessage: require('./parser'),
+    buildMessage: messageBuilder.buildMessage
 };
