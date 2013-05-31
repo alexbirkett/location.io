@@ -1,6 +1,6 @@
 
 protocolModules = {};
-var protocols = ['tr203','watch', 'gotop','tk103'];
+var protocols = ['tr203','gps108watch', 'gotop','tk103'];
 
 
 protocols.forEach(function(moduleName) {
