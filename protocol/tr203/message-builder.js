@@ -1,8 +1,9 @@
 var util = require('../util');
+var constants = require('./constants');
 
 var messages = {
     setOnLineMode: function (messageValue) {
-        return 'GSC,' + messageValue.trackerId + ',M3(Q0=' + util.parseTimeInterval(messageValue.interval) + ',Q2=02)';
+        return constants.COMMAND_HEADERS.ACTION_COMMAND + ',' + messageValue.trackerId + ',M3(Q0=' + util.parseTimeInterval(messageValue.interval) + ',Q2=02)';
     }
 };
 
@@ -10,6 +11,7 @@ var messages = {
 report by UDP
 GSC,011412000010789,M3(Q0=60,Q2=04)*34!
 GSC,011412000010789,M3(Q0=300,Q2=02)*07!*/
+
 
 module.exports.buildMessage = function (messageName, parameters) {
     var builder = messages[messageName];
