@@ -23,7 +23,7 @@ Demo Application
 
 Basic Example
 ==========
-Logs messages sent from tracker to console:
+Listens on port 1337 for incoming connections from trackers and logs messages from trackers to console:
 
 ```js
 
