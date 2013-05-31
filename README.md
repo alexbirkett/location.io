@@ -16,6 +16,9 @@ Currently supported protocols
 * [GPS108 watch protocol] (http://location.io/index.php/2013/05/30/gps-108-watch-tracker-protocol/)
 * [Globalsat TR-203 protocol - partial support] (http://location.io/index.php/2013/05/30/globalsat-tr-203-protocol/)
 
+Demo Application
+===========
+[Demo appliation using SocketStream, angular.js and Google Maps](https://github.com/alexbirkett/demo.location.io)
 
 # Protocol Implementation #
 
