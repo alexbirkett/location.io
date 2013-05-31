@@ -3,10 +3,10 @@
 </p>
 
 [![build status](https://secure.travis-ci.org/alexbirkett/location.io.png)](http://travis-ci.org/alexbirkett/location.io)
-location.io
+Location.IO
 ===========
 
-Universal GPS tracker interface for Node.js
+Location.IO is a modular server designed to provide a common interface to GPS tracking devices using a single TCP/IP port for all protocols.
 
 
 
