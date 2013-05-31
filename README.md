@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="http://location.io/wp-content/themes/responsive-location/images/logo.jpg" alt="Location.IO Logo"/>
+</p>
+
 [![build status](https://secure.travis-ci.org/alexbirkett/location.io.png)](http://travis-ci.org/alexbirkett/location.io)
 location.io
 ===========
