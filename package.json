@@ -1,7 +1,7 @@
 {
     "name": "location.io",
     "version": "0.0.1",
-    "description": "Location.IO facilitates the creation of GPS tracking solutions by providing a common interface to tracking hardware",
+    "description": "Location.IO facilitates the creation of tracking solutions by providing a common interface to GPS tracking hardware",
     "engine": "node >= 0.10.5",
     "dependencies": {
         "hashmap": "0.9.x",
