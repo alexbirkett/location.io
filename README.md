@@ -54,8 +54,6 @@ locationIo.createServer(1337);
 ```
 
 
-# Protocol Implementation #
-
 ## Terminology ##
 ### Up messages ###
 Up messages are sent from the tracking device to the server.
