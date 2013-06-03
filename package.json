@@ -19,5 +19,9 @@
     "scripts": {
         "test": "vows test/*test.js protocol/test/*test.js protocol/tk103/test/*test.js protocol/gotop/test/*test.js protocol/gps108watch/test/*test.js protocol/tr203/test/*test.js",
         "pretest": "node_modules/.bin/jshint index.js connection.js modules.js protocol/ test/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alexbirkett/location.io.git"
     }
 }
