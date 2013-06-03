@@ -52,6 +52,9 @@ locationIo.on('message', function(trackerId, message) {
 
 locationIo.createServer(1337);
 ```
+More info
+=====
+More info about supported trackers and protocols can be found on the [Location.IO webstie](http://location.io)
 
 
 ## Terminology ##
