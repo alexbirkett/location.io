@@ -3,6 +3,10 @@
     "version": "0.0.1",
     "description": "Location.IO facilitates the creation of tracking solutions by providing a common interface to GPS tracking hardware",
     "engine": "node >= 0.10.5",
+    "keywords": ["gps", "tracker", "location.io",
+                 "GOTOP", "Toppeak", "Xexun", "GlobalSat",
+                 "Tk103", "Tl201", "TL206", "tr203", "GPS808", "GPS518"
+                ],
     "dependencies": {
         "hashmap": "0.9.x",
         "enum": "0.2.x",
