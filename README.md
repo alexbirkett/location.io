@@ -5,8 +5,13 @@
 [![build status](https://secure.travis-ci.org/alexbirkett/location.io.png)](http://travis-ci.org/alexbirkett/location.io)
 Location.IO
 ===========
+Location.IO facilitates the creation of tracking solutions by providing a common interface to GPS tracking hardware.
 
-Location.IO is a modular server designed to provide a common interface to GPS tracking devices using a single TCP/IP port for all protocols.
+Location.IO supports multiple GPS tracker protocols on a single TCP/IP port relieving users of the need to know which protocol their tracking device uses.
+
+Location.IO is written in JavaScript for Node.js. Node.js was chosen because its non-blocking, event-driven IO model is well suited to a server that will have a large number of symultaneous connections, each sending a small amout of data.
+ 
+
 
 Currently supported protocols
 ===========
