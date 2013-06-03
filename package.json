@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "Location.IO facilitates the creation of tracking solutions by providing a common interface to GPS tracking hardware",
     "engine": "node >= 0.10.5",
-    "keywords": ["gps", "tracker", "location.io",
+    "keywords": ["gps", "tracker", "location.io", "location.io", "location", "io", "location-io",
                  "GOTOP", "Toppeak", "Xexun", "GlobalSat",
                  "Tk103", "Tl201", "TL206", "tr203", "GPS808", "GPS518"
                 ],
@@ -27,5 +27,7 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/alexbirkett/location.io.git"
-    }
+    },
+    "homepage": "http://location.io",
+    "license" : "MIT"
 }
