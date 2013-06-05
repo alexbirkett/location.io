@@ -43,14 +43,14 @@ var parseMessage = function(buffer) {
 
     message.trackerId =  message.imei;
 
-    var date = new Date();
+    var date = new Date(0);
     var day = utcDate.slice(0, 2);
     var month = utcDate.slice(2, 4);
     var year =  utcDate.slice(4, 6);
 
     date.setUTCDate(day);
-    date.setUTCMonth(month);
-    date.setUTCFullYear("20" + year);
+    date.setUTCMonth(parseInt(month, 10) - 1);
+    date.setUTCFullYear('20' + year);
 
     var hours = utcTime.slice(0, 2);
     var minutes = utcTime.slice(2, 4);
