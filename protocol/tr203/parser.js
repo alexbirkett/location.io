@@ -31,8 +31,8 @@ var parseMessage = function(buffer) {
 
     message.location = {};
     message.location.gpsFix = readNextValue();
-    message.location.utcDate = readNextValue();
-    message.location.utcTime = readNextValue();
+    var utcDate = readNextValue();
+    var utcTime = readNextValue();
     message.location.longitude = util.parseLatLng(readNextValue());
     message.location.latitude = util.parseLatLng(readNextValue());
     message.location.altitude = readNextValue();
@@ -42,6 +42,25 @@ var parseMessage = function(buffer) {
     message.location.HDOP = readNextValue();
 
     message.trackerId =  message.imei;
+
+    var date = new Date();
+    var day = utcDate.slice(0, 2);
+    var month = utcDate.slice(2, 4);
+    var year =  utcDate.slice(4, 6);
+
+    date.setUTCDate(day);
+    date.setUTCMonth(month);
+    date.setUTCFullYear("20" + year);
+
+    var hours = utcTime.slice(0, 2);
+    var minutes = utcTime.slice(2, 4);
+    var seconds =  utcTime.slice(4, 6);
+
+    date.setUTCHours(hours);
+    date.setUTCMinutes(minutes);
+    date.setUTCSeconds(seconds);
+
+    message.timestamp = date;
 
     return message;
 };
