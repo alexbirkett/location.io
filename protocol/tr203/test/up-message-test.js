@@ -55,7 +55,7 @@ var createTests = function (sliceLength) {
                 assert.ifError(err);
             },
             'timestamp is 1370436098372': function (err, message, returnedData) {
-                assert.equal(message.timestamp.getTime(), 1370436098000);
+                assert.equal(message.location.timestamp.getTime(), 1370436098000);
             }
         }
     };

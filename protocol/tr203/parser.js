@@ -60,7 +60,7 @@ var parseMessage = function(buffer) {
     date.setUTCMinutes(minutes);
     date.setUTCSeconds(seconds);
 
-    message.timestamp = date;
+    message.location.timestamp = date;
 
     return message;
 };
