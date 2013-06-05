@@ -22,7 +22,7 @@ var parseMessage = function(buffer) {
     atus,GPS_Fix,UTC_Date,UTC_Time,Longitude,Latitude,Altitude
         ,Speed,Heading,Number_of_Satellites,HDOP,Battery_capacity  */
 
-    message.commandHead = readNextValue();
+    message.type = readNextValue();
     message.imei = readNextValue();
     message.deviceMode = readNextValue();
     message.reportType = readNextValue();
