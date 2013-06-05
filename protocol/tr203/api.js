@@ -1,7 +1,3 @@
-var trackerIdParameter = {
-    pattern: ''
-};
-
 var timePeriodParameter = {
     type: "text",
     pattern: "^[0-9]{1,3}[s|S|m|M|h|H]$"
@@ -10,7 +6,6 @@ var timePeriodParameter = {
 module.exports =  {
     setOnLineMode : {
         parameters: {
-            trackerId: trackerIdParameter,
             interval: timePeriodParameter
         }
     }
