@@ -12,8 +12,7 @@ module.exports.attachSocket = function (self, socket, protocolModules, callback)
     var setAndEmittIdIfrequired = function (message) {
 
         if (!self.id) {
-            self.rawId = message.trackerId;
-            self.id = self.protocolModuleName + message.trackerId;
+            self.id = message.trackerId;
             callback('tracker-connected', self.id, self.protocolModuleName);
         }
     };
@@ -122,7 +121,7 @@ var sendAck = function (module, socket, message, callback) {
 
 module.exports.sendMessage = function (self, socket, messageName, commandParameters, callback) {
     console.log('sending message ' + messageName);
-    commandParameters.trackerId = self.rawId;
+    commandParameters.trackerId = self.id;
     console.log(commandParameters);
     var module = self.protocolModule;
     try {
