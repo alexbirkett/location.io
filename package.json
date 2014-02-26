@@ -1,6 +1,6 @@
 {
   "name": "location.io",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Location.IO provides a common interface to GPS tracking hardware",
   "engine": "node >= 0.10.5",
   "keywords": [
