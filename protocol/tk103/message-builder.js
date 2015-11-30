@@ -15,11 +15,11 @@ var alarmTypes = {
     'vehiclePowerOff': '0',
     'accident': '1',
     'sos': '2',
-    'vehicleAlarm': '3',
-    'underSpeed': '4',
-    'overSpeed': '5',
+    'vehicleAntiTheftAndAlarming': '3',
+    'lowSpeedAlert': '4',
+    'overSpeedAlert': '5',
     'geoFence': '6',
-    'movement': '7'
+    'movementAlert': '7'
 };
 
 var messages = {
